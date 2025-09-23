@@ -23,6 +23,11 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: "The Pitch Deck - Case Competition Platform",
   description: "The All-in-One Platform for Case Competitors",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
