@@ -1,14 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Trophy, Users, Award, ChevronDown } from "lucide-react";
+import { ArrowRight, Trophy, Users, Award } from "lucide-react";
 import Link from "next/link";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import {
   AnimatedElement,
   AnimatedText,
@@ -80,48 +75,33 @@ export function HeroSection() {
                   </Button>
                 </motion.div>
               </Link>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full sm:w-auto"
-              >
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="py-3 bg-transparent border-[#19613F] text-[#19613F] hover:bg-[#19613F] hover:text-white w-full sm:w-auto text-wrap px-2 sm:px-6"
+              <Link href="/business-opportunities">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full sm:w-auto"
+                >
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="py-3 bg-transparent border-[#19613F] text-[#19613F] hover:bg-[#19613F] hover:text-white w-full sm:w-auto text-wrap px-2 sm:px-6"
+                  >
+                    <span className="text-center text-base sm:text-lg">
+                      Explore Business Opportunities
+                    </span>
+                    <motion.div
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 1.5,
+                        ease: "easeInOut",
+                      }}
                     >
-                      <span className="text-center text-base sm:text-lg">
-                        National Executive Recruitment
-                      </span>
-                      <ChevronDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem>
-                      <a
-                        href="https://forms.gle/EpMfZ9W7YWezhoL56"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full"
-                      >
-                        Apply Now
-                      </a>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <a
-                        href="https://docs.google.com/document/d/17UVO4x1qkW-bstwDQ_oEX6tDxiYXryjoCwtVffZXmmE/edit?usp=sharing"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full"
-                      >
-                        Info Document
-                      </a>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </motion.div>
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </motion.div>
+                  </Button>
+                </motion.div>
+              </Link>
             </div>
           </AnimatedElement>
 
