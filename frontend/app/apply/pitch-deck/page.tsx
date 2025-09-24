@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { PitchDeckApplicationForm } from "@/components/applications/pitch-deck-application-form";
-import { Navigation } from "@/components/navigation";
-import { Footer } from "@/components/footer";
+import { Navigation } from "@/components/layout/navigation";
+import { Footer } from "@/components/layout/footer";
 
 export default function PitchDeckApplicationPage() {
   useEffect(() => {

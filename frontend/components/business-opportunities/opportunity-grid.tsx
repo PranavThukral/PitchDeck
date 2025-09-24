@@ -42,7 +42,7 @@ export function OpportunityGrid({ filters }: OpportunityGridProps) {
     const loadOpportunities = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/data/business-opportunities.json");
+        const response = await fetch("/api/business-opportunities");
         if (!response.ok) {
           throw new Error("Failed to load opportunities");
         }

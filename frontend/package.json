@@ -29,6 +29,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "framer-motion": "^12.23.12",
+    "googleapis": "^160.0.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.525.0",

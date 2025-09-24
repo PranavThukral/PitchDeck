@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { OpportunityFilters } from "@/components/business-opportunities/opportunity-filters";
-import { Navigation } from "@/components/navigation";
-import { Footer } from "@/components/footer";
+import { Navigation } from "@/components/layout/navigation";
+import { Footer } from "@/components/layout/footer";
 import { OpportunityGrid } from "@/components/business-opportunities/opportunity-grid";
 
 export default function BusinessOpportunitiesPage() {

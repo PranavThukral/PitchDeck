@@ -8,6 +8,62 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org",
+      },
+      {
+        protocol: "https",
+        hostname: "static1.squarespace.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.logo.wine",
+      },
+      {
+        protocol: "https",
+        hostname: "register.deca.ca",
+      },
+      {
+        protocol: "https",
+        hostname: "images.squarespace-cdn.com",
+      },
+      {
+        protocol: "https",
+        hostname: "blueoceancompetition.org",
+      },
+      {
+        protocol: "https",
+        hostname: "diamondchallenge.org",
+      },
+      {
+        protocol: "https",
+        hostname: "www.rotman.utoronto.ca",
+      },
+      {
+        protocol: "https",
+        hostname: "execed.schulich.yorku.ca",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn-ch-prod-bqhwa0ewbpg6eyc2.z01.azurefd.net",
+      },
+      {
+        protocol: "https",
+        hostname: "encrypted-tbn0.gstatic.com",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.freebiesupply.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.google.com",
+      },
+    ],
+  },
 
   async redirects() {
     return [

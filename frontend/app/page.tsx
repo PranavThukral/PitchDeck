@@ -1,10 +1,10 @@
-import { HeroSection } from "@/components/hero-section";
-import { FeaturesSection } from "@/components/features-section";
-import { PastWinnersSection } from "@/components/past-winners-section";
-import { NewsletterSection } from "@/components/newsletter-section";
-import { Navigation } from "@/components/navigation";
-import { Footer } from "@/components/footer";
-import { CursorProvider } from "@/components/cursor-provider";
+import { HeroSection } from "@/components/sections/hero-section";
+import { FeaturesSection } from "@/components/sections/features-section";
+import { PastWinnersSection } from "@/components/sections/past-winners-section";
+import { NewsletterSection } from "@/components/sections/newsletter-section";
+import { Navigation } from "@/components/layout/navigation";
+import { Footer } from "@/components/layout/footer";
+import { CursorProvider } from "@/components/providers/cursor-provider";
 
 export default function HomePage() {
   // Check if site is under construction
