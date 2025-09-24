@@ -62,7 +62,75 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "www.google.com",
       },
+      {
+        protocol: "https",
+        hostname: "yellcanada.org",
+      },
+      {
+        protocol: "https",
+        hostname: "www.facebook.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.northumberland.ca",
+      },
+      {
+        protocol: "https",
+        hostname: "ires.ubc.ca",
+      },
+      {
+        protocol: "https",
+        hostname: "www.katika.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.drjobpro.com",
+      },
+      {
+        protocol: "https",
+        hostname: "docs.google.com",
+      },
+      {
+        protocol: "https",
+        hostname: "targetalpha.ca",
+      },
+      {
+        protocol: "https",
+        hostname: "www.theminaproject.ca",
+      },
+      {
+        protocol: "https",
+        hostname: "icontalent.org",
+      },
+      {
+        protocol: "https",
+        hostname: "jacanada.org",
+      },
+      {
+        protocol: "https",
+        hostname: "www.thecareeraccelerators.ca",
+      },
+      {
+        protocol: "https",
+        hostname: "schulich.yorku.ca",
+      },
+      {
+        protocol: "https",
+        hostname: "www.ivey.uwo.ca",
+      },
+      {
+        protocol: "https",
+        hostname: "extendedlearning.ubc.ca",
+      },
+      {
+        protocol: "https",
+        hostname: "www.brampton.ca",
+      },
     ],
+    unoptimized: false,
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   async redirects() {

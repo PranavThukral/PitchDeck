@@ -118,6 +118,37 @@ function generateId(title: string): string {
 }
 
 /**
+ * Clean up logo URLs to handle Google redirects and invalid URLs
+ */
+function cleanupLogoUrl(url: string): string {
+  if (!url || url.trim() === "") {
+    return "/logos/placeholder.svg";
+  }
+
+  // Handle Google redirect URLs - extract the actual URL
+  if (url.includes("google.com/url?")) {
+    try {
+      const urlObj = new URL(url);
+      const actualUrl = urlObj.searchParams.get("url");
+      if (actualUrl) {
+        return decodeURIComponent(actualUrl);
+      }
+    } catch {
+      // If parsing fails, fall back to placeholder
+      return "/logos/placeholder.svg";
+    }
+  }
+
+  // Check if it's a valid URL
+  try {
+    new URL(url);
+    return url;
+  } catch {
+    return "/logos/placeholder.svg";
+  }
+}
+
+/**
  * Convert sheet row to Competition object
  */
 function mapRowToCompetition(row: SheetRow): Competition {
@@ -128,7 +159,7 @@ function mapRowToCompetition(row: SheetRow): Competition {
   const deadline = row["Deadline"] || "";
   const cost = row["Cost"] || "";
   const location = row["Virtual/In-Person"] || "";
-  const logo = row["Logo Link"] || "/logos/placeholder.svg";
+  const logo = cleanupLogoUrl(row["Logo Link"] || "");
 
   // Determine status based on deadline and registration info
   let status = "open";
@@ -195,8 +226,9 @@ function mapRowToBusinessOpportunity(row: SheetRow): BusinessOpportunity {
   const deadline = row["Deadline"] || "";
   const cost = row["Cost"] || "";
   const format = row["Virtual/In-Person"] || "";
-  const logo =
-    row["Logo Image "] || row["Logo Link"] || "/logos/placeholder.svg";
+  const logo = cleanupLogoUrl(
+    row["Logo Image "] || row["Logo Image"] || row["Logo Link"] || "",
+  );
 
   // Determine status
   let status = "open";
