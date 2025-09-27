@@ -45,12 +45,12 @@ export function HeroSection() {
           </AnimatedElement>
           <AnimatedElement animation="fadeIn" delay={1.8}>
             <p className="text-xl text-black mb-8 max-w-3xl mx-auto dark:text-gray-300">
-              Discover, apply to, and host business case competitions. Connect
-              with top high school talent and compete for amazing prizes.
+              Discover Canada's best high school business oppurtunities. 
+              Build your skills, resume, and gain incredible exposure, all in one place. 
             </p>
           </AnimatedElement>
 
-          <AnimatedElement animation="slideUp" delay={2.2}>
+             <AnimatedElement animation="slideUp" delay={2.2}>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
               <Link href="/competitions">
                 <motion.div
@@ -59,9 +59,14 @@ export function HeroSection() {
                 >
                   <Button
                     size="lg"
-                    className="text-lg px-8 py-3 bg-[#19613F] hover:bg-[#2CA15F] dark:shadow-[0_0_15px_rgba(44,161,95,0.4)] w-full sm:w-auto"
+                    className="h-auto text-lg px-8 py-4 bg-[#19613F] hover:bg-[#2CA15F] dark:shadow-[0_0_15px_rgba(44,161,95,0.4)] w-full sm:w-auto"
                   >
-                    Explore Cases
+                    <div className="text-center">
+                      <p className="text-xl font-bold">Explore Cases</p>
+                      <p className="text-xs font-normal mt-1 text-white/80">
+                        National Case Competitions, Exams, and Contests
+                      </p>
+                    </div>
                     <motion.div
                       animate={{ x: [0, 5, 0] }}
                       transition={{
@@ -70,7 +75,7 @@ export function HeroSection() {
                         ease: "easeInOut",
                       }}
                     >
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      <ArrowRight className="ml-4 h-5 w-5" />
                     </motion.div>
                   </Button>
                 </motion.div>
@@ -84,11 +89,16 @@ export function HeroSection() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="py-3 bg-transparent border-[#19613F] text-[#19613F] hover:bg-[#19613F] hover:text-white w-full sm:w-auto text-wrap px-2 sm:px-6"
+                    className="h-auto group py-4 bg-transparent border-[#19613F] text-[#19613F] hover:bg-[#19613F] hover:text-white w-full sm:w-auto text-wrap px-8"
                   >
-                    <span className="text-center text-base sm:text-lg">
-                      Explore Business Opportunities
-                    </span>
+                    <div className="text-center">
+                      <p className="text-xl font-bold">
+                        Explore Business Opportunities
+                      </p>
+                      <p className="text-xs font-normal mt-1 text-[#19613F]/80 group-hover:text-white/80">
+                        Internships, Scholarships, and Job Shadowing
+                      </p>
+                    </div>
                     <motion.div
                       animate={{ x: [0, 5, 0] }}
                       transition={{
