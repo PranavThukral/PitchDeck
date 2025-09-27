@@ -62,7 +62,7 @@ export function HeroSection() {
                     className="h-auto text-lg px-8 py-4 bg-[#19613F] hover:bg-[#2CA15F] dark:shadow-[0_0_15px_rgba(44,161,95,0.4)] w-full sm:w-auto"
                   >
                     <div className="text-center">
-                      <p className="text-xl font-bold">Explore Cases</p>
+                      <p className="text-xl font-bold">Explore Business Competitions</p>
                       <p className="text-xs font-normal mt-1 text-white/80">
                         National Case Competitions, Exams, and Contests
                       </p>
