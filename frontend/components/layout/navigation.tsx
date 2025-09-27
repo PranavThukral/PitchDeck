@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Construction } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
@@ -68,10 +68,6 @@ export function Navigation() {
     </Button>
   );
 
-  // Check if site is under construction
-  const isUnderConstruction =
-    process.env.NEXT_PUBLIC_UNDER_CONSTRUCTION === "true";
-
   return (
     <nav className="fixed top-0 w-full bg-[#D9D9D9]/90 backdrop-blur-md z-50 border-b border-[#19613F]/20 dark:bg-gray-900/80 dark:border-[#2CA15F]/30 dark:text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -113,19 +109,8 @@ export function Navigation() {
               >
                 Business Opportunities
               </Link>
-              <Link
-                href="/about"
-                className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
-              >
-                About
-              </Link>
-              <Link
-                href="/winners"
-                className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
-              >
-                Winners
-              </Link>
-              {isLoggedIn && user ? (
+
+              {isLoggedIn && user && (
                 <div className="flex items-center space-x-2">
                   <Link
                     href={
@@ -163,30 +148,6 @@ export function Navigation() {
                     Log out
                   </Button>
                 </div>
-              ) : (
-                <>
-                  {!isUnderConstruction ? (
-                    <>
-                      <Link
-                        href="/auth/login"
-                        className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
-                      >
-                        Log In
-                      </Link>
-                      <Link
-                        href="/auth/signup"
-                        className="text-[#19613F] px-3 py-2 rounded-md text-sm font-medium transition-colors border border-[#19613F] hover:bg-[#19613F] hover:text-white dark:text-white dark:border-white"
-                      >
-                        Sign Up
-                      </Link>
-                    </>
-                  ) : (
-                    <div className="flex items-center text-[#19613F]">
-                      <Construction className="h-4 w-4 mr-1" />
-                      <span className="text-sm font-medium">Coming Soon</span>
-                    </div>
-                  )}
-                </>
               )}
             </div>
           </div>
@@ -229,22 +190,11 @@ export function Navigation() {
             >
               Business Opportunities
             </Link>
-            <Link
-              href="/about"
-              className="text-black hover:text-[#2CA15F] block px-3 py-2 rounded-md text-base font-medium dark:text-white"
-            >
-              About
-            </Link>
-            <Link
-              href="/winners"
-              className="text-black hover:text-[#2CA15F] block px-3 py-2 rounded-md text-base font-medium dark:text-white"
-            >
-              Winners
-            </Link>
+
             <div className="pt-4 pb-3 border-t border-gray-200">
               <div className="flex items-center px-3 space-x-3 border-t border-[#19613F]/20">
                 <ThemeToggle />
-                {isLoggedIn && user ? (
+                {isLoggedIn && user && (
                   <div className="flex items-center space-x-2">
                     <Link
                       href={
@@ -282,31 +232,6 @@ export function Navigation() {
                       Log out
                     </Button>
                   </div>
-                ) : (
-                  <>
-                    {!isUnderConstruction ? (
-                      <>
-                        <Link href="/auth/login">
-                          <Button
-                            variant="ghost"
-                            className="w-full text-[#19613F] hover:text-[#2CA15F]"
-                          >
-                            Login
-                          </Button>
-                        </Link>
-                        <Link href="/auth/signup">
-                          <Button className="w-full bg-[#19613F] hover:bg-[#2CA15F]">
-                            Sign Up
-                          </Button>
-                        </Link>
-                      </>
-                    ) : (
-                      <div className="flex items-center text-[#19613F] px-3 py-2">
-                        <Construction className="h-4 w-4 mr-2" />
-                        <span className="text-sm font-medium">Coming Soon</span>
-                      </div>
-                    )}
-                  </>
                 )}
               </div>
             </div>
