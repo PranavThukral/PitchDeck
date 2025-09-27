@@ -23,8 +23,8 @@ const LogoParticle = ({ logo, initialX, duration, delay }) => {
     <motion.div
       className="absolute"
       style={{ left: `${initialX}%` }}
-      initial={{ top: "-20%" }} // Start above the screen
-      animate={{ top: "120%" }} // End below the screen
+      initial={{ top: "-20%" }}
+      animate={{ top: "120%" }}
       transition={{
         ease: "linear",
         repeat: Infinity,
@@ -32,7 +32,6 @@ const LogoParticle = ({ logo, initialX, duration, delay }) => {
         delay,
       }}
     >
-      {/* THE FIX FOR JARRING SIZES: A standardized container */}
       <div className="w-32 h-20 flex items-center justify-center p-2">
         <Image
           src={logo.src}
@@ -40,7 +39,7 @@ const LogoParticle = ({ logo, initialX, duration, delay }) => {
           width={120}
           height={80}
           className="max-w-full max-h-full w-auto h-auto object-contain"
-          style={{ opacity: 0.25 }} // Slightly less faint to be visible
+          style={{ opacity: 0.35 }}
         />
       </div>
     </motion.div>
@@ -48,32 +47,51 @@ const LogoParticle = ({ logo, initialX, duration, delay }) => {
 };
 
 export function LogoWaterfall() {
-  // We use useMemo to generate the random particles only once, preventing flickering
   const particles = useMemo(() => {
+    // Proximity threshold (as a percentage of screen width). 
+    // Two of the same logo cannot be within this distance of each other.
+    const HORIZONTAL_PROXIMITY_THRESHOLD = 15; // 15%
+    const numParticles = 30;
     const particleList = [];
-    // Increase the number of particles for a denser, more dynamic feel
-    const numParticles = 30; 
 
     for (let i = 0; i < numParticles; i++) {
-      particleList.push({
-        logo: logos[i % logos.length], // Cycle through the logos
-        // Random horizontal start position
-        initialX: Math.random() * 95, 
-        // THE FIX FOR SPEED: Duration is now randomized between 8 and 15 seconds
-        duration: Math.random() * 7 + 8,
-        // Random delay to stagger the start times, creating the waterfall effect
-        delay: Math.random() * 15,
-      });
+      let newParticle;
+      let hasConflict;
+      let attempts = 0;
+      const MAX_RETRIES = 20; // Safety break to prevent infinite loops
+
+      do {
+        hasConflict = false;
+        // 1. Generate a candidate particle with truly random properties
+        newParticle = {
+          logo: logos[Math.floor(Math.random() * logos.length)],
+          initialX: Math.random() * 95,
+          duration: Math.random() * 7 + 8,
+          delay: Math.random() * 15,
+        };
+
+        // 2. Check for proximity conflicts with all previously placed particles
+        for (const existingParticle of particleList) {
+          if (
+            existingParticle.logo.src === newParticle.logo.src &&
+            Math.abs(existingParticle.initialX - newParticle.initialX) < HORIZONTAL_PROXIMITY_THRESHOLD
+          ) {
+            hasConflict = true; // Found a conflict!
+            break; // No need to check further, we must retry
+          }
+        }
+        attempts++;
+      } while (hasConflict && attempts < MAX_RETRIES);
+
+      // 3. Add the validated particle to our list
+      particleList.push(newParticle);
     }
     return particleList;
   }, []);
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-      {/* The mask is still useful to fade logos in and out at the edges */}
       <div className="absolute inset-0 z-10 [mask-image:linear-gradient(to_bottom,transparent,white_5%,white_95%,transparent)]" />
-      
-      {/* THE FIX FOR THE GRID: We now render individual, randomized particles */}
       <div className="relative w-full h-full">
         {particles.map((particle, index) => (
           <LogoParticle key={index} {...particle} />
