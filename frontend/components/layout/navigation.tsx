@@ -98,16 +98,16 @@ export function Navigation() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               <Link
-                href="/competitions"
-                className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
-              >
-                Competitions
-              </Link>
-              <Link
                 href="/business-opportunities"
                 className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
               >
                 Business Opportunities
+              </Link>
+              <Link
+                href="/competitions"
+                className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
+              >
+                Competitions
               </Link>
 
               {isLoggedIn && user && (
@@ -179,16 +179,16 @@ export function Navigation() {
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-[#D9D9D9] border-b border-[#19613F]/20 dark:bg-gray-900">
             <Link
-              href="/competitions"
-              className="text-black hover:text-[#2CA15F] block px-3 py-2 rounded-md text-base font-medium dark:text-white"
-            >
-              Competitions
-            </Link>
-            <Link
               href="/business-opportunities"
               className="text-black hover:text-[#2CA15F] block px-3 py-2 rounded-md text-base font-medium dark:text-white"
             >
               Business Opportunities
+            </Link>
+            <Link
+              href="/competitions"
+              className="text-black hover:text-[#2CA15F] block px-3 py-2 rounded-md text-base font-medium dark:text-white"
+            >
+              Competitions
             </Link>
 
             <div className="pt-4 pb-3 border-t border-gray-200">
