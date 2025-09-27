@@ -29,14 +29,14 @@ export function HeroSection() {
           <AnimatedElement animation="slideUp" delay={0.2}>
             <div className="text-4xl sm:text-6xl font-bold font-serif text-black mb-6 dark:text-card-foreground">
               <AnimatedText
-                text="The All-in-One Platform"
+                text="The Ultimate Platform for"
                 animation="letterByLetter"
-                className="gradient-text inline-block"
                 staggerChildren={0.02}
               />
               <br />
               <AnimatedText
-                text="for Case Competitions"
+                text="High School Business Oppurtunities"
+                className="gradient-text inline-block"
                 animation="wordByWord"
                 staggerChildren={0.1}
                 delay={1.2}
