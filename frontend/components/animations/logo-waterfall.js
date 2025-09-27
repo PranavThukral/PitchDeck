@@ -13,7 +13,7 @@ const logos = [
   { src: "/images/uoft-logo.jpg", alt: "University of Toronto" },
   { src: "/images/ivey-logo.png", alt: "Ivey Business School" },
   { src: "/images/schulich-logo.png", alt: "Schulich School of Business" },
-  { src: "/images/sun-life-financial-logo.png.png", alt: "Sun Life" },
+  { src: "/images/sun-life-financial-logo.png", alt: "Sun Life" },
   { src: "/images/rotman-logo.png", alt: "Rotman Commerce" },
   { src: "/images/mina-project-logo.png", alt: "The MINA Project" },
 ];
