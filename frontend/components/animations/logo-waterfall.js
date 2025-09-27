@@ -18,13 +18,27 @@ const logos = [
   { src: "/images/mina-project-logo.png", alt: "The MINA Project" },
 ];
 
+// Helper function to create a shuffled copy of the logos array
+const shuffleArray = (array) => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+};
+
 const LogoColumn = ({ logos, duration }) => {
-  // We render the logos twice in a row for a seamless, infinite loop effect
+  // We still duplicate the logos to create the seamless loop
   const duplicatedLogos = [...logos, ...logos];
+
   return (
     <motion.div
       className="flex flex-col gap-16"
-      animate={{ y: ["0%", "-100%"] }} // This animates the column upwards
+      // *** THE FIX FOR THE CHOPPY JUMP ***
+      // We now animate to -50% instead of -100%. This moves the column
+      // up by exactly the height of ONE set of logos, creating a perfect loop.
+      animate={{ y: ["0%", "-50%"] }}
       transition={{ ease: "linear", duration, repeat: Infinity }}
     >
       {duplicatedLogos.map((logo, index) => (
@@ -32,10 +46,10 @@ const LogoColumn = ({ logos, duration }) => {
           key={index}
           src={logo.src}
           alt={logo.alt}
-          width={120} // Adjusted for better visibility
+          width={120}
           height={56}
-          className="h-14 w-auto object-contain"
-          style={{ opacity: 0.3 }} // This makes the logos faint
+          className="h-14 w-auto object-contain flex-shrink-0" // Added flex-shrink-0
+          style={{ opacity: 0.3 }}
         />
       ))}
     </motion.div>
@@ -43,22 +57,29 @@ const LogoColumn = ({ logos, duration }) => {
 };
 
 export function LogoWaterfall() {
+  // *** THE FIX FOR THE EMPTY GAPS ***
+  // We create 5 full, but differently shuffled, arrays of logos.
+  // Now every column is guaranteed to be completely full at all times.
+  const col1 = shuffleArray(logos);
+  const col2 = shuffleArray(logos);
+  const col3 = shuffleArray(logos);
+  const col4 = shuffleArray(logos);
+  const col5 = shuffleArray(logos);
+
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-      {/* This mask fades the logos at the very top and bottom of the screen */}
       <div className="absolute inset-0 z-10 [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_90%,transparent)]" />
       
-      {/* We create several columns, each with a different set of logos and animation speed */}
-      <div className="relative flex h-full justify-around gap-16 -translate-y-1/4">
-        <LogoColumn logos={logos.slice(0, 4)} duration={25} />
-        <LogoColumn logos={logos.slice(4, 8)} duration={35} />
-        <LogoColumn logos={logos.slice(8, 11).concat(logos.slice(0,1))} duration={30} />
-        {/* The columns below are for wider screens */}
+      {/* Each column now receives a full set of logos */}
+      <div className="relative flex h-full justify-around gap-16">
+        <LogoColumn logos={col1} duration={25} />
+        <LogoColumn logos={col2} duration={35} />
+        <LogoColumn logos={col3} duration={30} />
         <div className="hidden md:flex">
-          <LogoColumn logos={logos.slice(2, 6)} duration={22} />
+          <LogoColumn logos={col4} duration={22} />
         </div>
         <div className="hidden lg:flex">
-          <LogoColumn logos={logos.slice(7, 11)} duration={32} />
+          <LogoColumn logos={col5} duration={32} />
         </div>
       </div>
     </div>
