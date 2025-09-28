@@ -11,7 +11,7 @@ import {
   ParallaxElement,
 } from "@/components/animations";
 import { motion } from "framer-motion";
-import { LogoWaterfall } from "@/components/animations/logo-waterfall"; // Corrected import path
+import { LogoWaterfall } from "@/components/animations/logo-waterfall";
 
 export function HeroSection() {
   // Check if site is under construction
@@ -19,20 +19,21 @@ export function HeroSection() {
     process.env.NEXT_PUBLIC_UNDER_CONSTRUCTION === "true";
 
   return (
-    <section className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#D9D9D9] via-white to-[#D9D9D9] dark:from-[#0c1a2e] dark:via-[#102338] dark:to-[#152a45] dark:text-white relative overflow-hidden">
+    // CHANGE 1: Increased top padding to push the content down
+    <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#D9D9D9] via-white to-[#D9D9D9] dark:from-[#0c1a2e] dark:via-[#102338] dark:to-[#152a45] dark:text-white relative overflow-hidden">
       
-      <LogoWaterfall /> {/* Logo waterfall is placed here, in the background */}
+      <LogoWaterfall />
 
       <FloatingElements count={12} />
       <ParallaxElement speed={0.2} className="absolute inset-0">
         <div className="absolute inset-0 opacity-10 bg-[url('/images/hero-pattern.jpg')] bg-cover bg-center mix-blend-overlay"></div>
       </ParallaxElement>
-
-      {/* This container ensures all text and buttons appear ON TOP of the waterfall */}
+      
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center animate-fade-in">
           <AnimatedElement animation="slideUp" delay={0.2}>
-            <div className="text-4xl sm:text-6xl font-bold font-serif text-black mb-6 dark:text-card-foreground leading-snug">
+            {/* CHANGE 2: Tighter line-height to reduce the gap between heading lines */}
+            <div className="text-4xl sm:text-6xl font-bold font-serif text-black mb-6 dark:text-card-foreground leading-tight">
               <AnimatedText
                 text="The Ultimate Platform for"
                 animation="letterByLetter"
@@ -40,7 +41,7 @@ export function HeroSection() {
               />
               <br />
               <AnimatedText
-                text="High School Business Opportunities" // Spelling corrected
+                text="High School Business Opportunities"
                 className="gradient-text inline-block"
                 animation="wordByWord"
                 staggerChildren={0.1}
@@ -50,7 +51,7 @@ export function HeroSection() {
           </AnimatedElement>
           <AnimatedElement animation="fadeIn" delay={1.8}>
             <p className="text-xl text-black mb-8 max-w-3xl mx-auto dark:text-gray-300">
-              Discover Canada's best high school business opportunities. {/* Spelling corrected */}
+              Discover Canada's best high school business opportunities.
               Build your skills, resume, and gain incredible exposure, all in one place. 
             </p>
           </AnimatedElement>
@@ -67,7 +68,7 @@ export function HeroSection() {
                     className="h-auto text-lg px-8 py-4 bg-[#19613F] hover:bg-[#2CA15F] dark:shadow-[0_0_15px_rgba(44,161,95,0.4)] w-full sm:w-auto"
                   >
                     <div className="text-center">
-                      <p className="text-xl font-bold">Explore Cases</p> {/* Text corrected for consistency */}
+                      <p className="text-xl font-bold">Explore Cases</p>
                       <p className="text-xs font-normal mt-1 text-white/80">
                         National Case Competitions, Exams, and Contests
                       </p>
@@ -112,7 +113,7 @@ export function HeroSection() {
                         ease: "easeInOut",
                       }}
                     >
-                      <ArrowRight className="ml-4 h-5 w-5" /> {/* Spacing corrected */}
+                      <ArrowRight className="ml-4 h-5 w-5" />
                     </motion.div>
                   </Button>
                 </motion.div>
@@ -120,10 +121,9 @@ export function HeroSection() {
             </div>
           </AnimatedElement>
 
-          {/* Stats Section - Only shown when not in construction mode */}
+          {/* Stats Section remains unchanged */}
           {!isUnderConstruction && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              {/* The rest of the stats section remains unchanged */}
               <AnimatedElement animation="zoom" delay={2.6} duration={0.5}>
                 <motion.div
                   className="text-center p-5 bg-white/50 dark:bg-[#1a3047]/70 rounded-lg shadow-sm backdrop-blur-sm dark:border dark:border-[#2CA15F]/20"
