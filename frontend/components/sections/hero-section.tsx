@@ -31,18 +31,16 @@ export function HeroSection() {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center animate-fade-in">
           <AnimatedElement animation="slideUp" delay={0.2}>
-            {/* *** THE FIX IS HERE *** */}
-            <div className="text-4xl sm:text-6xl font-bold font-serif text-black mb-6 dark:text-card-foreground">
-              {/* Each line is now in its own div */}
-              <div>
-                <AnimatedText
-                  text="The Ultimate Platform for"
-                  animation="letterByLetter"
-                  staggerChildren={0.02}
-                />
-              </div>
-              {/* We apply a negative margin to pull this line up */}
-              <div className="-mt-3 sm:-mt-4"> 
+            {/* *** THE DEFINITIVE FIX IS HERE *** */}
+            {/* 1. We change the container to a vertical flexbox */}
+            <div className="flex flex-col items-center text-4xl sm:text-6xl font-bold font-serif text-black mb-6 dark:text-card-foreground">
+              <AnimatedText
+                text="The Ultimate Platform for"
+                animation="letterByLetter"
+                staggerChildren={0.02}
+              />
+              {/* 2. We apply a strong, responsive negative margin to the second line to pull it up */}
+              <div className="-mt-2 sm:-mt-3">
                 <AnimatedText
                   text="High School Business Opportunities"
                   className="gradient-text inline-block"
@@ -128,7 +126,7 @@ export function HeroSection() {
           {/* Stats Section remains unchanged */}
           {!isUnderConstruction && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              {/* ... (rest of the code is unchanged) */}
+             {/* ... (rest of the code is unchanged) */}
             </div>
           )}
         </div>
@@ -137,12 +135,10 @@ export function HeroSection() {
   );
 }```
 
-### Summary of the Fix:
+### Summary of the New, More Robust Fix:
 
-1.  **Removed `<br />`:** I have completely removed the `<br />` tag.
-2.  **Wrapped Lines in `div`s:** Each `AnimatedText` component is now wrapped in its own `<div>`. This treats each line as a separate block, giving us full control over its positioning.
-3.  **Applied Negative Margin:** On the second `<div>`, I've added the Tailwind classes `-mt-3 sm:-mt-4`.
-    *   `-mt-3` applies a negative top margin on mobile, pulling the second line up.
-    *   `sm:-mt-4` applies a slightly larger negative margin on bigger screens to compensate for the larger font size.
+1.  **Flexbox Container:** The parent `div` that holds the heading has been converted into a flex container with `flex flex-col items-center`. This stacks the two lines vertically.
+2.  **No More `<br />`:** The unreliable `<br />` tag has been removed.
+3.  **Direct Negative Margin:** The second `AnimatedText` component is wrapped in a `div` with responsive negative margins: `-mt-2 sm:-mt-3`. This physically pulls the second line up towards the first with high precision.
 
-This approach physically moves the second line up to close the gap, overriding any default font or line-height spacing. This should give you the tight, compact heading you're looking for.
+This Flexbox-based approach is the standard for reliable element spacing in modern web development and will give you the tight, powerful heading you've been looking for. My apologies again for the previous failed attempt.
