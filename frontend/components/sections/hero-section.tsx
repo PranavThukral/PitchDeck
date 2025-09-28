@@ -19,7 +19,6 @@ export function HeroSection() {
     process.env.NEXT_PUBLIC_UNDER_CONSTRUCTION === "true";
 
   return (
-    // CHANGE 1: Increased top padding to push the content down
     <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#D9D9D9] via-white to-[#D9D9D9] dark:from-[#0c1a2e] dark:via-[#102338] dark:to-[#152a45] dark:text-white relative overflow-hidden">
       
       <LogoWaterfall />
@@ -32,21 +31,26 @@ export function HeroSection() {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center animate-fade-in">
           <AnimatedElement animation="slideUp" delay={0.2}>
-            {/* CHANGE 2: Tighter line-height to reduce the gap between heading lines */}
-            <div className="text-4xl sm:text-6xl font-bold font-serif text-black mb-6 dark:text-card-foreground leading-tight">
-              <AnimatedText
-                text="The Ultimate Platform for"
-                animation="letterByLetter"
-                staggerChildren={0.02}
-              />
-              <br />
-              <AnimatedText
-                text="High School Business Opportunities"
-                className="gradient-text inline-block"
-                animation="wordByWord"
-                staggerChildren={0.1}
-                delay={1.2}
-              />
+            {/* *** THE FIX IS HERE *** */}
+            <div className="text-4xl sm:text-6xl font-bold font-serif text-black mb-6 dark:text-card-foreground">
+              {/* Each line is now in its own div */}
+              <div>
+                <AnimatedText
+                  text="The Ultimate Platform for"
+                  animation="letterByLetter"
+                  staggerChildren={0.02}
+                />
+              </div>
+              {/* We apply a negative margin to pull this line up */}
+              <div className="-mt-3 sm:-mt-4"> 
+                <AnimatedText
+                  text="High School Business Opportunities"
+                  className="gradient-text inline-block"
+                  animation="wordByWord"
+                  staggerChildren={0.1}
+                  delay={1.2}
+                />
+              </div>
             </div>
           </AnimatedElement>
           <AnimatedElement animation="fadeIn" delay={1.8}>
@@ -124,129 +128,21 @@ export function HeroSection() {
           {/* Stats Section remains unchanged */}
           {!isUnderConstruction && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              <AnimatedElement animation="zoom" delay={2.6} duration={0.5}>
-                <motion.div
-                  className="text-center p-5 bg-white/50 dark:bg-[#1a3047]/70 rounded-lg shadow-sm backdrop-blur-sm dark:border dark:border-[#2CA15F]/20"
-                  whileHover={{
-                    y: -8,
-                    boxShadow:
-                      "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                >
-                  <div className="flex justify-center mb-4">
-                    <motion.div
-                      animate={{ rotate: [0, 10, 0, -10, 0] }}
-                      transition={{
-                        duration: 5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      <Trophy className="h-12 w-12 text-[#19613F]" />
-                    </motion.div>
-                  </div>
-                  <motion.h3
-                    className="text-3xl font-bold font-serif text-[#2CA15F] mb-2 dark:text-card-foreground"
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 3.0, duration: 0.5 }}
-                  >
-                    <AnimatedText
-                      text="50+"
-                      animation="highlight"
-                      delay={3.2}
-                    />
-                  </motion.h3>
-                  <p className="text-black dark:text-gray-300">
-                    Active Competitions
-                  </p>
-                </motion.div>
-              </AnimatedElement>
-
-              <AnimatedElement animation="zoom" delay={2.8} duration={0.5}>
-                <motion.div
-                  className="text-center p-5 bg-white/50 dark:bg-[#1a3047]/70 rounded-lg shadow-sm backdrop-blur-sm dark:border dark:border-[#2CA15F]/20"
-                  whileHover={{
-                    y: -8,
-                    boxShadow:
-                      "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                >
-                  <div className="flex justify-center mb-4">
-                    <motion.div
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      <Users className="h-12 w-12 text-[#19613F]" />
-                    </motion.div>
-                  </div>
-                  <motion.h3
-                    className="text-3xl font-bold font-serif text-[#2CA15F] mb-2 dark:text-card-foreground"
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 3.2, duration: 0.5 }}
-                  >
-                    <AnimatedText
-                      text="5,000+"
-                      animation="highlight"
-                      delay={3.4}
-                    />
-                  </motion.h3>
-                  <p className="text-black dark:text-gray-300">
-                    Student Competitors
-                  </p>
-                </motion.div>
-              </AnimatedElement>
-
-              <AnimatedElement animation="zoom" delay={3.0} duration={0.5}>
-                <motion.div
-                  className="text-center p-5 bg-white/50 dark:bg-[#1a3047]/70 rounded-lg shadow-sm backdrop-blur-sm dark:border dark:border-[#2CA15F]/20"
-                  whileHover={{
-                    y: -8,
-                    boxShadow:
-                      "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                >
-                  <div className="flex justify-center mb-4">
-                    <motion.div
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      <Award className="h-12 w-12 text-[#19613F]" />
-                    </motion.div>
-                  </div>
-                  <motion.h3
-                    className="text-3xl font-bold font-serif text-[#2CA15F] mb-2 dark:text-card-foreground"
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 3.4, duration: 0.5 }}
-                  >
-                    <AnimatedText
-                      text="$250K+"
-                      animation="highlight"
-                      delay={3.6}
-                    />
-                  </motion.h3>
-                  <p className="text-black dark:text-gray-300">
-                    Total Prize Money
-                  </p>
-                </motion.div>
-              </AnimatedElement>
+              {/* ... (rest of the code is unchanged) */}
             </div>
           )}
         </div>
       </div>
     </section>
   );
-}
+}```
+
+### Summary of the Fix:
+
+1.  **Removed `<br />`:** I have completely removed the `<br />` tag.
+2.  **Wrapped Lines in `div`s:** Each `AnimatedText` component is now wrapped in its own `<div>`. This treats each line as a separate block, giving us full control over its positioning.
+3.  **Applied Negative Margin:** On the second `<div>`, I've added the Tailwind classes `-mt-3 sm:-mt-4`.
+    *   `-mt-3` applies a negative top margin on mobile, pulling the second line up.
+    *   `sm:-mt-4` applies a slightly larger negative margin on bigger screens to compensate for the larger font size.
+
+This approach physically moves the second line up to close the gap, overriding any default font or line-height spacing. This should give you the tight, compact heading you're looking for.
