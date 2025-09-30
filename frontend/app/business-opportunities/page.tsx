@@ -6,31 +6,6 @@ import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
 import { OpportunityGrid } from "@/components/business-opportunities/opportunity-grid";
 import { BreadcrumbStructuredData } from "@/components/seo/structured-data";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title:
-    "Business Opportunities - Internships, Programs & More | The Pitch Deck",
-  description:
-    "Discover summer programs, internships, fellowships, and entrepreneurial opportunities. Accelerate your career with curated business opportunities.",
-  keywords:
-    "business internships, summer programs, entrepreneurship fellowships, business opportunities, startup internships, consulting internships, MBA programs, business development programs",
-  openGraph: {
-    title:
-      "Business Opportunities - Internships, Programs & More | The Pitch Deck",
-    description:
-      "Discover summer programs, internships, fellowships, and entrepreneurial opportunities. Accelerate your career with curated business opportunities.",
-    type: "website",
-    url: "/business-opportunities",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title:
-      "Business Opportunities - Internships, Programs & More | The Pitch Deck",
-    description:
-      "Discover summer programs, internships, fellowships, and entrepreneurial opportunities. Accelerate your career with curated business opportunities.",
-  },
-};
 
 export default function BusinessOpportunitiesPage() {
   const [filters, setFilters] = useState({

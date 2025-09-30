@@ -54,9 +54,9 @@ export function HeroSection() {
           </AnimatedElement>
           <AnimatedElement animation="fadeIn" delay={1.8}>
             <p className="text-xl text-black mb-8 max-w-3xl mx-auto dark:text-gray-300">
-              Discover Canada's best high school business opportunities. Build
-              your skills, resume, and gain incredible exposure, all in one
-              place.
+              Discover Canada&apos;s best high school business opportunities.
+              Build your skills, resume, and gain incredible exposure, all in
+              one place.
             </p>
           </AnimatedElement>
 
