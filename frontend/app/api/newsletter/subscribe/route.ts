@@ -34,10 +34,7 @@ export async function POST(request: NextRequest) {
 
     // Validate email
     if (!email) {
-      return NextResponse.json(
-        { error: "Email is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
     // Validate email format
@@ -45,7 +42,7 @@ export async function POST(request: NextRequest) {
     if (!emailRegex.test(email)) {
       return NextResponse.json(
         { error: "Invalid email format" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -55,7 +52,7 @@ export async function POST(request: NextRequest) {
       console.error("MailerLite API key not found");
       return NextResponse.json(
         { error: "Newsletter service not configured" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -72,21 +69,21 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    // Get client IP for tracking (optional)
-    const clientIP = request.headers.get("x-forwarded-for") ||
-                     request.headers.get("x-real-ip") ||
-                     "unknown";
+    // Client IP tracking could be added here if needed for analytics
 
     // Make request to MailerLite API
-    const response = await fetch("https://connect.mailerlite.com/api/subscribers", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-        "Accept": "application/json",
+    const response = await fetch(
+      "https://connect.mailerlite.com/api/subscribers",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+          Accept: "application/json",
+        },
+        body: JSON.stringify(subscriberData),
       },
-      body: JSON.stringify(subscriberData),
-    });
+    );
 
     const responseData = await response.json();
 
@@ -97,9 +94,10 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: response.status === 201
-          ? "Successfully subscribed to newsletter!"
-          : "Subscription updated successfully!",
+        message:
+          response.status === 201
+            ? "Successfully subscribed to newsletter!"
+            : "Subscription updated successfully!",
         subscriber: {
           email: subscriber.data.email,
           status: subscriber.data.status,
@@ -115,16 +113,19 @@ export async function POST(request: NextRequest) {
         const errors = responseData.errors;
         const emailErrors = errors?.email;
 
-        if (emailErrors && emailErrors.includes("The email must be a valid email address.")) {
+        if (
+          emailErrors &&
+          emailErrors.includes("The email must be a valid email address.")
+        ) {
           return NextResponse.json(
             { error: "Please enter a valid email address" },
-            { status: 400 }
+            { status: 400 },
           );
         }
 
         return NextResponse.json(
           { error: "Invalid subscription data provided" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -132,13 +133,13 @@ export async function POST(request: NextRequest) {
         console.error("MailerLite API authentication failed");
         return NextResponse.json(
           { error: "Newsletter service authentication failed" },
-          { status: 500 }
+          { status: 500 },
         );
       }
 
       return NextResponse.json(
         { error: "Failed to subscribe to newsletter" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (error) {
@@ -148,13 +149,13 @@ export async function POST(request: NextRequest) {
     if (error instanceof SyntaxError) {
       return NextResponse.json(
         { error: "Invalid request data" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

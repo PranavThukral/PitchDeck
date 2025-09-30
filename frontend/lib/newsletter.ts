@@ -37,7 +37,7 @@ export function validateEmail(email: string): boolean {
 export async function subscribeToNewsletter(
   email: string,
   name?: string,
-  options: SubscriptionOptions = {}
+  options: SubscriptionOptions = {},
 ): Promise<NewsletterSubscriptionResponse> {
   const { validateEmail: shouldValidate = true } = options;
 
@@ -95,7 +95,12 @@ export async function subscribeToNewsletter(
 /**
  * Newsletter subscription status types
  */
-export type SubscriptionStatus = "active" | "unsubscribed" | "unconfirmed" | "bounced" | "junk";
+export type SubscriptionStatus =
+  | "active"
+  | "unsubscribed"
+  | "unconfirmed"
+  | "bounced"
+  | "junk";
 
 /**
  * Common newsletter groups/categories
@@ -107,7 +112,8 @@ export const NewsletterGroups = {
   WEEKLY_DIGEST: "weekly-digest",
 } as const;
 
-export type NewsletterGroup = typeof NewsletterGroups[keyof typeof NewsletterGroups];
+export type NewsletterGroup =
+  (typeof NewsletterGroups)[keyof typeof NewsletterGroups];
 
 /**
  * Error types that can occur during subscription
@@ -121,7 +127,8 @@ export const NewsletterErrors = {
   ALREADY_SUBSCRIBED: "already_subscribed",
 } as const;
 
-export type NewsletterError = typeof NewsletterErrors[keyof typeof NewsletterErrors];
+export type NewsletterError =
+  (typeof NewsletterErrors)[keyof typeof NewsletterErrors];
 
 /**
  * Maps error types to user-friendly messages
@@ -181,15 +188,39 @@ export function sanitizeInput(input: string): string {
  * Checks if the newsletter feature is enabled
  */
 export function isNewsletterEnabled(): boolean {
-  return typeof window !== "undefined" &&
-         process.env.NODE_ENV === "production" ||
-         Boolean(process.env.NEXT_PUBLIC_NEWSLETTER_ENABLED);
+  return (
+    (typeof window !== "undefined" && process.env.NODE_ENV === "production") ||
+    Boolean(process.env.NEXT_PUBLIC_NEWSLETTER_ENABLED)
+  );
+}
+
+/**
+ * Google Analytics gtag function interface
+ */
+interface GtagFunction {
+  (
+    command: "event",
+    eventName: string,
+    parameters?: Record<string, unknown>,
+  ): void;
+}
+
+/**
+ * Window interface with optional gtag function
+ */
+declare global {
+  interface Window {
+    gtag?: GtagFunction;
+  }
 }
 
 /**
  * Analytics helper for tracking newsletter subscriptions
  */
-export function trackNewsletterSubscription(email: string, success: boolean): void {
+export function trackNewsletterSubscription(
+  email: string,
+  success: boolean,
+): void {
   if (typeof window !== "undefined" && window.gtag) {
     window.gtag("event", "newsletter_subscription", {
       event_category: "engagement",

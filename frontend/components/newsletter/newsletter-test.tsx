@@ -21,13 +21,24 @@ export function NewsletterTest() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [lastResponse, setLastResponse] = useState<any>(null);
-  const [testResults, setTestResults] = useState<Array<{
-    email: string;
+  const [lastResponse, setLastResponse] = useState<{
     success: boolean;
     message: string;
-    timestamp: string;
-  }>>([]);
+    subscriber?: {
+      email: string;
+      status: string;
+      name?: string;
+    };
+    error?: string;
+  } | null>(null);
+  const [testResults, setTestResults] = useState<
+    Array<{
+      email: string;
+      success: boolean;
+      message: string;
+      timestamp: string;
+    }>
+  >([]);
 
   const handleTest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +62,7 @@ export function NewsletterTest() {
         timestamp: new Date().toLocaleString(),
       };
 
-      setTestResults(prev => [testResult, ...prev.slice(0, 9)]); // Keep last 10 results
+      setTestResults((prev) => [testResult, ...prev.slice(0, 9)]); // Keep last 10 results
 
       if (response.success) {
         toast.success("Test Successful!", {
@@ -80,9 +91,13 @@ export function NewsletterTest() {
 
     // Trigger test after a short delay to allow state to update
     setTimeout(() => {
-      const form = document.querySelector('#newsletter-test-form') as HTMLFormElement;
+      const form = document.querySelector(
+        "#newsletter-test-form",
+      ) as HTMLFormElement;
       if (form) {
-        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        form.dispatchEvent(
+          new Event("submit", { cancelable: true, bubbles: true }),
+        );
       }
     }, 100);
   };
@@ -98,14 +113,22 @@ export function NewsletterTest() {
             Newsletter Integration Test
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Test the MailerLite newsletter subscription functionality. Make sure MAILERLITE_API_KEY is set in your environment.
+            Test the MailerLite newsletter subscription functionality. Make sure
+            MAILERLITE_API_KEY is set in your environment.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form id="newsletter-test-form" onSubmit={handleTest} className="space-y-4">
+          <form
+            id="newsletter-test-form"
+            onSubmit={handleTest}
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="test-email" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="test-email"
+                  className="block text-sm font-medium mb-2"
+                >
                   Email Address *
                 </label>
                 <div className="relative">
@@ -121,12 +144,17 @@ export function NewsletterTest() {
                   />
                 </div>
                 {email && !isValidEmail && (
-                  <p className="text-sm text-red-500 mt-1">Please enter a valid email address</p>
+                  <p className="text-sm text-red-500 mt-1">
+                    Please enter a valid email address
+                  </p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="test-name" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="test-name"
+                  className="block text-sm font-medium mb-2"
+                >
                   Name (Optional)
                 </label>
                 <div className="relative">
@@ -206,7 +234,9 @@ export function NewsletterTest() {
           <CardContent>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Badge variant={lastResponse.success ? "default" : "destructive"}>
+                <Badge
+                  variant={lastResponse.success ? "default" : "destructive"}
+                >
                   {lastResponse.success ? "Success" : "Failed"}
                 </Badge>
                 <span className="text-sm text-muted-foreground">
@@ -216,10 +246,16 @@ export function NewsletterTest() {
               <p className="text-sm">{lastResponse.message}</p>
               {lastResponse.subscriber && (
                 <div className="mt-2 p-2 bg-muted rounded text-sm">
-                  <p><strong>Email:</strong> {lastResponse.subscriber.email}</p>
-                  <p><strong>Status:</strong> {lastResponse.subscriber.status}</p>
+                  <p>
+                    <strong>Email:</strong> {lastResponse.subscriber.email}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> {lastResponse.subscriber.status}
+                  </p>
                   {lastResponse.subscriber.name && (
-                    <p><strong>Name:</strong> {lastResponse.subscriber.name}</p>
+                    <p>
+                      <strong>Name:</strong> {lastResponse.subscriber.name}
+                    </p>
                   )}
                 </div>
               )}
@@ -258,7 +294,11 @@ export function NewsletterTest() {
                   </div>
                   <div className="text-right">
                     <p className="text-muted-foreground">{result.timestamp}</p>
-                    <p className={result.success ? "text-green-600" : "text-red-600"}>
+                    <p
+                      className={
+                        result.success ? "text-green-600" : "text-red-600"
+                      }
+                    >
                       {result.message}
                     </p>
                   </div>
@@ -267,7 +307,8 @@ export function NewsletterTest() {
             </div>
             {testResults.length === 10 && (
               <p className="text-xs text-muted-foreground mt-2">
-                Showing last 10 results. Older results are automatically removed.
+                Showing last 10 results. Older results are automatically
+                removed.
               </p>
             )}
           </CardContent>
@@ -286,12 +327,15 @@ export function NewsletterTest() {
             </div>
             <div className="flex justify-between">
               <span>API Endpoint:</span>
-              <code className="text-xs bg-muted px-1 rounded">/api/newsletter/subscribe</code>
+              <code className="text-xs bg-muted px-1 rounded">
+                /api/newsletter/subscribe
+              </code>
             </div>
             <div className="text-xs text-muted-foreground mt-4">
               <p>
-                <strong>Note:</strong> This test component should only be used in development.
-                Make sure your MAILERLITE_API_KEY environment variable is properly configured.
+                <strong>Note:</strong> This test component should only be used
+                in development. Make sure your MAILERLITE_API_KEY environment
+                variable is properly configured.
               </p>
             </div>
           </div>
