@@ -5,6 +5,32 @@ import { OpportunityFilters } from "@/components/business-opportunities/opportun
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
 import { OpportunityGrid } from "@/components/business-opportunities/opportunity-grid";
+import { BreadcrumbStructuredData } from "@/components/seo/structured-data";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title:
+    "Business Opportunities - Internships, Programs & More | The Pitch Deck",
+  description:
+    "Discover summer programs, internships, fellowships, and entrepreneurial opportunities. Accelerate your career with curated business opportunities.",
+  keywords:
+    "business internships, summer programs, entrepreneurship fellowships, business opportunities, startup internships, consulting internships, MBA programs, business development programs",
+  openGraph: {
+    title:
+      "Business Opportunities - Internships, Programs & More | The Pitch Deck",
+    description:
+      "Discover summer programs, internships, fellowships, and entrepreneurial opportunities. Accelerate your career with curated business opportunities.",
+    type: "website",
+    url: "/business-opportunities",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title:
+      "Business Opportunities - Internships, Programs & More | The Pitch Deck",
+    description:
+      "Discover summer programs, internships, fellowships, and entrepreneurial opportunities. Accelerate your career with curated business opportunities.",
+  },
+};
 
 export default function BusinessOpportunitiesPage() {
   const [filters, setFilters] = useState({
@@ -15,8 +41,14 @@ export default function BusinessOpportunitiesPage() {
     statusFilter: "",
   });
 
+  const breadcrumbItems = [
+    { name: "Home", url: "/" },
+    { name: "Business Opportunities", url: "/business-opportunities" },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col">
+      <BreadcrumbStructuredData items={breadcrumbItems} />
       <Navigation />
       <div className="flex-1 pt-20 pb-16 px-4 sm:px-6 lg:px-8 w-full bg-[#D9D9D9] dark:bg-gradient-to-br dark:from-[#102338] dark:via-[#152a45] dark:to-[#193252]">
         <div className="w-full mx-auto">

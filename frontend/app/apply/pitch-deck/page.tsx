@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { PitchDeckApplicationForm } from "@/components/applications/pitch-deck-application-form";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
+import { BreadcrumbStructuredData } from "@/components/seo/structured-data";
 
 export default function PitchDeckApplicationPage() {
   useEffect(() => {
@@ -13,10 +14,17 @@ export default function PitchDeckApplicationPage() {
     }
   }, []);
 
+  const breadcrumbItems = [
+    { name: "Home", url: "/" },
+    { name: "Apply", url: "/apply" },
+    { name: "Pitch Deck Championship", url: "/apply/pitch-deck" },
+  ];
+
   // If under construction, show minimal content until redirect happens
   if (process.env.NEXT_PUBLIC_UNDER_CONSTRUCTION === "true") {
     return (
       <div className="min-h-screen">
+        <BreadcrumbStructuredData items={breadcrumbItems} />
         <Navigation />
         <div className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
@@ -37,6 +45,7 @@ export default function PitchDeckApplicationPage() {
   // Normal display if not under construction
   return (
     <div className="min-h-screen">
+      <BreadcrumbStructuredData items={breadcrumbItems} />
       <Navigation />
       <div className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">

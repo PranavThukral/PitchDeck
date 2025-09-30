@@ -1,0 +1,74 @@
+{
+  "name": "The Pitch Deck - Case Competition Platform",
+  "short_name": "The Pitch Deck",
+  "description": "The All-in-One Platform for Case Competitors",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#19613F",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["education", "business", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Competitions",
+      "short_name": "Competitions",
+      "description": "Find and apply to case competitions",
+      "url": "/competitions",
+      "icons": [
+        {
+          "src": "/favicon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Business Opportunities",
+      "short_name": "Opportunities",
+      "description": "Explore internships and programs",
+      "url": "/business-opportunities",
+      "icons": [
+        {
+          "src": "/favicon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Apply Now",
+      "short_name": "Apply",
+      "description": "Submit your application",
+      "url": "/apply",
+      "icons": [
+        {
+          "src": "/favicon.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "The Pitch Deck Platform"
+    }
+  ]
+}

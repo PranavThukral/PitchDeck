@@ -1,9 +1,37 @@
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
+import { BreadcrumbStructuredData } from "@/components/seo/structured-data";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Service | The Pitch Deck",
+  description:
+    "Read our terms of service and user agreement for The Pitch Deck case competition platform.",
+  keywords: "terms of service, user agreement, terms and conditions",
+  openGraph: {
+    title: "Terms of Service | The Pitch Deck",
+    description:
+      "Read our terms of service and user agreement for The Pitch Deck case competition platform.",
+    type: "website",
+    url: "/terms",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Terms of Service | The Pitch Deck",
+    description:
+      "Read our terms of service and user agreement for The Pitch Deck case competition platform.",
+  },
+};
 
 export default function TermsPage() {
+  const breadcrumbItems = [
+    { name: "Home", url: "/" },
+    { name: "Terms of Service", url: "/terms" },
+  ];
+
   return (
     <div className="min-h-screen">
+      <BreadcrumbStructuredData items={breadcrumbItems} />
       <Navigation />
 
       <div className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">

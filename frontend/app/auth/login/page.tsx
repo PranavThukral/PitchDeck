@@ -8,6 +8,28 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { Trophy } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Login - Access Your Dashboard | The Pitch Deck",
+  description:
+    "Sign in to your account to manage your competition applications, track opportunities, and connect with the case competition community.",
+  keywords: "login, sign in, account access, dashboard",
+  robots: "noindex, nofollow",
+  openGraph: {
+    title: "Login - Access Your Dashboard | The Pitch Deck",
+    description:
+      "Sign in to your account to manage your competition applications, track opportunities, and connect with the case competition community.",
+    type: "website",
+    url: "/auth/login",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Login - Access Your Dashboard | The Pitch Deck",
+    description:
+      "Sign in to your account to manage your competition applications, track opportunities, and connect with the case competition community.",
+  },
+};
 
 export default function LoginPage() {
   return (

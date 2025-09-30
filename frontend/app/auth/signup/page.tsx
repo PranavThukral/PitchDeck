@@ -8,6 +8,27 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { Trophy } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Sign Up - Join The Pitch Deck Community",
+  description:
+    "Create your account to access exclusive case competitions, business opportunities, and connect with fellow entrepreneurs and competitors.",
+  keywords: "sign up, create account, join community, register",
+  openGraph: {
+    title: "Sign Up - Join The Pitch Deck Community",
+    description:
+      "Create your account to access exclusive case competitions, business opportunities, and connect with fellow entrepreneurs and competitors.",
+    type: "website",
+    url: "/auth/signup",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sign Up - Join The Pitch Deck Community",
+    description:
+      "Create your account to access exclusive case competitions, business opportunities, and connect with fellow entrepreneurs and competitors.",
+  },
+};
 
 export default function SignupPage() {
   return (

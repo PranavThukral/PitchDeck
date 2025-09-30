@@ -1,9 +1,37 @@
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
+import { BreadcrumbStructuredData } from "@/components/seo/structured-data";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy | The Pitch Deck",
+  description:
+    "Learn how we protect your privacy and handle your personal information on The Pitch Deck platform.",
+  keywords: "privacy policy, data protection, privacy",
+  openGraph: {
+    title: "Privacy Policy | The Pitch Deck",
+    description:
+      "Learn how we protect your privacy and handle your personal information on The Pitch Deck platform.",
+    type: "website",
+    url: "/privacy",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Privacy Policy | The Pitch Deck",
+    description:
+      "Learn how we protect your privacy and handle your personal information on The Pitch Deck platform.",
+  },
+};
 
 export default function PrivacyPage() {
+  const breadcrumbItems = [
+    { name: "Home", url: "/" },
+    { name: "Privacy Policy", url: "/privacy" },
+  ];
+
   return (
     <div className="min-h-screen">
+      <BreadcrumbStructuredData items={breadcrumbItems} />
       <Navigation />
 
       <div className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">

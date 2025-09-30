@@ -5,6 +5,7 @@ import { NewsletterSection } from "@/components/sections/newsletter-section";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
 import { CursorProvider } from "@/components/providers/cursor-provider";
+import { WebSiteStructuredData } from "@/components/seo/structured-data";
 
 export default function HomePage() {
   // Check if site is under construction
@@ -14,6 +15,7 @@ export default function HomePage() {
   return (
     <CursorProvider>
       <div className="min-h-screen">
+        <WebSiteStructuredData />
         <Navigation />
         <HeroSection />
         {/* Only render Features (About Us) section when not in construction mode */}
