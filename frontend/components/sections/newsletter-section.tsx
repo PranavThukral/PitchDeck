@@ -24,17 +24,34 @@ export function NewsletterSection() {
     e.preventDefault();
     setIsLoading(true);
 
-    // TODO: Implement newsletter signup API
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Successfully subscribed!", {
-        description:
-          "You'll receive updates about new competitions and opportunities.",
+      const response = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+        }),
       });
-      setEmail("");
-    } catch {
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(data.message, {
+          description:
+            "You'll receive updates about new competitions and opportunities.",
+        });
+        setEmail("");
+      } else {
+        toast.error(data.error || "Subscription failed", {
+          description: "Please check your email and try again.",
+        });
+      }
+    } catch (error) {
+      console.error("Newsletter subscription error:", error);
       toast.error("Subscription failed", {
-        description: "Please try again later.",
+        description: "Please check your internet connection and try again.",
       });
     } finally {
       setIsLoading(false);
@@ -48,7 +65,7 @@ export function NewsletterSection() {
       <ParallaxElement speed={0.4} className="absolute inset-0">
         <div className="absolute inset-0 opacity-10 bg-[url('/images/newsletter-bg.jpg')] bg-cover bg-center mix-blend-overlay"></div>
       </ParallaxElement>
-      
+
       {/* Background animated shapes are unchanged */}
       <motion.div
         className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[#2CA15F]/20 blur-3xl -translate-y-1/2 translate-x-1/3"
@@ -84,7 +101,9 @@ export function NewsletterSection() {
         <AnimatedElement animation="fadeIn" delay={0.6}>
           <p className="text-xl text-white/90 mb-10 max-w-3xl mx-auto leading-relaxed">
             {/* Subheading text changed */}
-            Get notified about Canada's best high school opportunities, exclusive professional opportunities, and gain a network of ambitious peers.
+            Get notified about Canada's best high school opportunities,
+            exclusive professional opportunities, and gain a network of
+            ambitious peers.
           </p>
         </AnimatedElement>
 
@@ -104,7 +123,10 @@ export function NewsletterSection() {
                 required
                 className="flex-1 bg-white/90 border-0 focus:border-0 focus-visible:ring-2 focus-visible:ring-[#2CA15F] focus-visible:ring-offset-1 dark:bg-[#1a3047]/90 dark:text-white rounded-lg h-12"
               />
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <Button
                   type="submit"
                   disabled={isLoading}
@@ -124,10 +146,14 @@ export function NewsletterSection() {
                 </Button>
               </motion.div>
             </form>
-            
+
             {/* Right side: Discord button */}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-              <Link href="https://discord.gg/fXpU4Xbyy5" passHref legacyBehavior>
+              <Link
+                href="https://discord.gg/fXpU4Xbyy5"
+                passHref
+                legacyBehavior
+              >
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
@@ -140,7 +166,7 @@ export function NewsletterSection() {
             </motion.div>
           </div>
         </AnimatedElement>
-        
+
         {/* Privacy notice has been removed */}
       </AnimatedElement>
     </section>
