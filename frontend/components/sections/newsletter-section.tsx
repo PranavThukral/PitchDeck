@@ -21,9 +21,24 @@ export function NewsletterSection() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("=== FORM SUBMIT HANDLER CALLED ===");
+    console.log("Event type:", e.type);
+    console.log("Target:", e.target);
+    console.log("Current target:", e.currentTarget);
+
     e.preventDefault();
+    console.log("preventDefault() called");
     console.log("Newsletter form submitted with email:", email);
+    console.log("Current isLoading state:", isLoading);
+
+    if (!email || !email.trim()) {
+      console.log("Email is empty, stopping submission");
+      toast.error("Please enter an email address");
+      return;
+    }
+
     setIsLoading(true);
+    console.log("Set isLoading to true");
 
     try {
       console.log("Making API request to /api/newsletter/subscribe");
@@ -37,18 +52,21 @@ export function NewsletterSection() {
         }),
       });
 
-      console.log("API response status:", response.status);
+      console.log("API response received - status:", response.status);
 
       const data = await response.json();
       console.log("API response data:", data);
 
       if (response.ok && data.success) {
+        console.log("Success! Showing success toast");
         toast.success(data.message, {
           description:
             "You'll receive updates about new competitions and opportunities.",
         });
         setEmail("");
+        console.log("Email cleared");
       } else {
+        console.log("API returned error:", data.error);
         toast.error(data.error || "Subscription failed", {
           description: "Please check your email and try again.",
         });
@@ -60,6 +78,7 @@ export function NewsletterSection() {
         description: "Please check your internet connection and try again.",
       });
     } finally {
+      console.log("Setting isLoading to false");
       setIsLoading(false);
     }
   };
@@ -113,65 +132,44 @@ export function NewsletterSection() {
           </p>
         </AnimatedElement>
 
-        <AnimatedElement animation="zoom" delay={0.8}>
-          {/* Form and button container updated */}
-          <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto bg-white/10 p-5 rounded-xl backdrop-blur-sm border border-white/20 shadow-xl relative z-10">
-            {/* Left side: Email form */}
-            <form
-              onSubmit={handleSubmit}
-              className="flex flex-1 items-center gap-2"
-            >
+        {/* Simplified form structure for debugging */}
+        <div className="max-w-2xl mx-auto bg-white/10 p-5 rounded-xl backdrop-blur-sm border border-white/20 shadow-xl relative z-10">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex gap-2">
               <Input
                 type="email"
                 placeholder="Enter your email address"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  console.log("Email input changed:", e.target.value);
+                  setEmail(e.target.value);
+                }}
                 required
                 className="flex-1 bg-white/90 border-0 focus:border-0 focus-visible:ring-2 focus-visible:ring-[#2CA15F] focus-visible:ring-offset-1 dark:bg-[#1a3047]/90 dark:text-white rounded-lg h-12"
               />
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="bg-[#2CA15F] text-white hover:bg-[#19613F] shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg font-medium h-12 px-6 dark:shadow-[0_0_15px_rgba(44,161,95,0.4)]"
               >
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  variant="secondary"
-                  className="bg-[#2CA15F] text-white hover:bg-[#19613F] shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg font-medium h-12 px-6 dark:shadow-[0_0_15px_rgba(44,161,95,0.4)]"
-                >
-                  {isLoading ? (
-                    <motion.span
-                      animate={{ opacity: [0.5, 1, 0.5] }}
-                      transition={{ duration: 1, repeat: Infinity }}
-                    >
-                      Subscribing...
-                    </motion.span>
-                  ) : (
-                    "Subscribe"
-                  )}
-                </Button>
-              </motion.div>
-            </form>
+                {isLoading ? "Subscribing..." : "Subscribe"}
+              </Button>
+            </div>
+          </form>
 
-            {/* Right side: Discord button */}
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-              <Link
-                href="https://discord.gg/fXpU4Xbyy5"
-                passHref
-                legacyBehavior
-              >
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center h-12 px-6 bg-white/90 text-[#19613F] hover:bg-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg font-medium w-full sm:w-auto"
-                >
-                  <Users className="h-5 w-5 mr-2" />
-                  Join our Discord
-                </a>
-              </Link>
-            </motion.div>
+          {/* Discord button below form */}
+          <div className="mt-4 flex justify-center">
+            <Link
+              href="https://discord.gg/fXpU4Xbyy5"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center h-12 px-6 bg-white/90 text-[#19613F] hover:bg-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg font-medium"
+            >
+              <Users className="h-5 w-5 mr-2" />
+              Join our Discord
+            </Link>
           </div>
-        </AnimatedElement>
+        </div>
 
         {/* Privacy notice has been removed */}
       </AnimatedElement>
