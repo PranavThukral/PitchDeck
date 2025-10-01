@@ -1,7 +1,7 @@
 import { HeroSection } from "@/components/sections/hero-section";
 import { FeaturesSection } from "@/components/sections/features-section";
 import { PastWinnersSection } from "@/components/sections/past-winners-section";
-import { NewsletterSection } from "@/components/sections/newsletter-section";
+import { NewsletterSectionSimple } from "@/components/sections/newsletter-section-simple";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
 import { CursorProvider } from "@/components/providers/cursor-provider";
@@ -22,7 +22,7 @@ export default function HomePage() {
         {!isUnderConstruction && <FeaturesSection />}
         {/* Only render Past Winners (Champions) section when not in construction mode */}
         {!isUnderConstruction && <PastWinnersSection />}
-        <NewsletterSection />
+        <NewsletterSectionSimple />
         <Footer />
       </div>
     </CursorProvider>
