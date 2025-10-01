@@ -22,9 +22,11 @@ export function NewsletterSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Newsletter form submitted with email:", email);
     setIsLoading(true);
 
     try {
+      console.log("Making API request to /api/newsletter/subscribe");
       const response = await fetch("/api/newsletter/subscribe", {
         method: "POST",
         headers: {
@@ -35,7 +37,10 @@ export function NewsletterSection() {
         }),
       });
 
+      console.log("API response status:", response.status);
+
       const data = await response.json();
+      console.log("API response data:", data);
 
       if (response.ok && data.success) {
         toast.success(data.message, {
@@ -50,6 +55,7 @@ export function NewsletterSection() {
       }
     } catch (error) {
       console.error("Newsletter subscription error:", error);
+      console.error("Error details:", error);
       toast.error("Subscription failed", {
         description: "Please check your internet connection and try again.",
       });
