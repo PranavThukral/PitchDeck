@@ -28,10 +28,8 @@ interface MailerLiteResponse {
 }
 
 export async function POST(request: NextRequest) {
-  console.log("Newsletter API endpoint called");
   try {
     const body: SubscribeRequestBody = await request.json();
-    console.log("Request body:", body);
     const { email, name } = body;
 
     // Validate email
@@ -50,7 +48,6 @@ export async function POST(request: NextRequest) {
 
     // Check for MailerLite API key
     const apiKey = process.env.MAILERLITE_API_KEY;
-    console.log("API key exists:", !!apiKey);
     if (!apiKey) {
       console.error("MailerLite API key not found");
       return NextResponse.json(
@@ -74,7 +71,6 @@ export async function POST(request: NextRequest) {
 
     // Client IP tracking could be added here if needed for analytics
 
-    console.log("Sending data to MailerLite:", subscriberData);
     // Make request to MailerLite API
     const response = await fetch(
       "https://connect.mailerlite.com/api/subscribers",
@@ -89,9 +85,7 @@ export async function POST(request: NextRequest) {
       },
     );
 
-    console.log("MailerLite response status:", response.status);
     const responseData = await response.json();
-    console.log("MailerLite response data:", responseData);
 
     // Handle MailerLite response
     if (response.ok) {
@@ -150,7 +144,6 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error("Newsletter subscription error:", error);
-    console.error("Full error details:", JSON.stringify(error, null, 2));
 
     // Handle network or parsing errors
     if (error instanceof SyntaxError) {
