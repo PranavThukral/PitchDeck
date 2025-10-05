@@ -2,12 +2,22 @@ import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
 import { BreadcrumbStructuredData } from "@/components/seo/structured-data";
 import { Metadata } from "next";
+import {
+  CheckSquare,
+  UserCircle,
+  ShieldOff,
+  Copyright,
+  AlertTriangle,
+  XCircle,
+  Scale,
+  MessageSquare,
+} from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Terms of Service | The Pitch Deck",
   description:
-    "Read our terms of service and user agreement for The Pitch Deck case competition platform.",
-  keywords: "terms of service, user agreement, terms and conditions",
+    "Read our terms of service and user agreement for The Pitch Deck, a Canadian case competition platform.",
+  keywords: "terms of service, user agreement, terms and conditions, canada",
   openGraph: {
     title: "Terms of Service | The Pitch Deck",
     description:
@@ -23,6 +33,29 @@ export const metadata: Metadata = {
   },
 };
 
+// A reusable component for each styled section of the policy
+const PolicySection = ({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon: React.ElementType;
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <div className="bg-white dark:bg-gray-800/50 p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
+    <div className="flex items-center mb-4">
+      <Icon className="h-8 w-8 text-[#19613F] mr-4 flex-shrink-0" />
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+        {title}
+      </h2>
+    </div>
+    <div className="prose prose-lg max-w-none dark:prose-invert text-gray-600 dark:text-gray-300">
+      {children}
+    </div>
+  </div>
+);
+
 export default function TermsPage() {
   const breadcrumbItems = [
     { name: "Home", url: "/" },
@@ -30,149 +63,63 @@ export default function TermsPage() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <BreadcrumbStructuredData items={breadcrumbItems} />
       <Navigation />
 
-      <div className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">
+      <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="text-center mb-16">
+            <h1 className="text-5xl font-bold font-serif text-gray-900 dark:text-white mb-4">
               Terms of Service
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300">
-              Last updated: January 1, 2024
+              Last Updated: October 5, 2025
             </p>
           </div>
 
-          <div className="prose prose-lg max-w-none dark:prose-invert">
-            <h2>1. Acceptance of Terms</h2>
-            <p>
-              By accessing and using The Pitch Deck platform
-              (&quot;Service&quot;), you accept and agree to be bound by the
-              terms and provision of this agreement. If you do not agree to
-              abide by the above, please do not use this service.
-            </p>
-
-            <h2>2. Description of Service</h2>
-            <p>
-              The Pitch Deck is a platform that connects high school students
-              with business case competitions. We provide tools for discovering
-              competitions, submitting applications, and hosting events. The
-              service is provided &quot;as is&quot; and we reserve the right to
-              modify or discontinue the service at any time.
-            </p>
-
-            <h2>3. User Accounts</h2>
-            <p>
-              To access certain features of the Service, you must create an
-              account. You are responsible for:
-            </p>
-            <ul>
-              <li>
-                Maintaining the confidentiality of your account credentials
-              </li>
-              <li>All activities that occur under your account</li>
-              <li>Providing accurate and complete information</li>
-              <li>Updating your information to keep it current</li>
-            </ul>
-
-            <h2>4. User Conduct</h2>
-            <p>You agree not to use the Service to:</p>
-            <ul>
-              <li>Violate any applicable laws or regulations</li>
-              <li>Infringe on the rights of others</li>
-              <li>Submit false or misleading information</li>
-              <li>Engage in any form of harassment or discrimination</li>
-              <li>Attempt to gain unauthorized access to the platform</li>
-              <li>Interfere with the proper functioning of the Service</li>
-            </ul>
-
-            <h2>5. Competition Rules</h2>
-            <p>When participating in competitions through our platform:</p>
-            <ul>
-              <li>You must be a current high school student (grades 9-12)</li>
-              <li>All work submitted must be original and your own</li>
-              <li>
-                You must comply with specific competition rules and deadlines
-              </li>
-              <li>
-                Prize distribution is subject to verification of eligibility
-              </li>
-              <li>
-                We reserve the right to disqualify participants for rule
-                violations
-              </li>
-            </ul>
-
-            <h2>6. Intellectual Property</h2>
-            <p>
-              The Service and its original content, features, and functionality
-              are owned by The Pitch Deck and are protected by international
-              copyright, trademark, patent, trade secret, and other intellectual
-              property laws.
-            </p>
-            <p>
-              By submitting content to competitions, you grant us a
-              non-exclusive license to use, display, and distribute your
-              submissions for promotional and educational purposes.
-            </p>
-
-            <h2>7. Privacy</h2>
-            <p>
-              Your privacy is important to us. Please review our Privacy Policy,
-              which also governs your use of the Service, to understand our
-              practices.
-            </p>
-
-            <h2>8. Disclaimers</h2>
-            <p>
-              The information on this platform is provided on an &quot;as
-              is&quot; basis. We disclaim all warranties, express or implied,
-              including but not limited to warranties of merchantability,
-              fitness for a particular purpose, and non-infringement.
-            </p>
-
-            <h2>9. Limitation of Liability</h2>
-            <p>
-              In no event shall The Pitch Deck be liable for any indirect,
-              incidental, special, consequential, or punitive damages, including
-              without limitation, loss of profits, data, use, goodwill, or other
-              intangible losses.
-            </p>
-
-            <h2>10. Termination</h2>
-            <p>
-              We may terminate or suspend your account and bar access to the
-              Service immediately, without prior notice or liability, under our
-              sole discretion, for any reason whatsoever, including without
-              limitation if you breach the Terms.
-            </p>
-
-            <h2>11. Changes to Terms</h2>
-            <p>
-              We reserve the right to modify or replace these Terms at any time.
-              If a revision is material, we will provide at least 30 days notice
-              prior to any new terms taking effect.
-            </p>
-
-            <h2>12. Contact Information</h2>
-            <p>
-              If you have any questions about these Terms of Service, please
-              contact us at:
-            </p>
-            <ul>
-              <li>Email: legal@thepitchdeck.com</li>
-              <li>Address: 123 Business Ave, Suite 100, New York, NY 10001</li>
-            </ul>
-
-            <h2>13. Governing Law</h2>
-            <p>
-              These Terms shall be interpreted and governed by the laws of the
-              State of New York, without regard to its conflict of law
-              provisions.
+          {/* --- New Summary Section --- */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-8 rounded-2xl mb-16">
+            <h2 className="text-2xl font-bold text-center text-blue-900 dark:text-blue-100 mb-4">The Short Version</h2>
+            <p className="text-center text-lg text-blue-800 dark:text-blue-200">
+              Welcome to The Pitch Deck! By using our platform, you agree to these rules. In short: be respectful, submit your own original work, and keep your account secure. We provide this platform to connect you with amazing opportunities, and these terms help ensure a fair and safe environment for everyone.
             </p>
           </div>
+          
+          <PolicySection icon={CheckSquare} title="1. Acceptance of Terms">
+            <p>By creating an account or using our website (“Service”), you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree with these terms, you may not use the Service. These terms form a legally binding agreement between you and The Pitch Deck.</p>
+          </PolicySection>
+          
+          <PolicySection icon={UserCircle} title="2. User Accounts">
+            <p>You must provide accurate and complete information when creating your account. You are solely responsible for all activity that occurs under your account and for keeping your password confidential. You must be a high school student (or equivalent) to create a student account.</p>
+          </PolicySection>
+
+          <PolicySection icon={ShieldOff} title="3. User Conduct and Responsibilities">
+            <p>You agree to use our Service responsibly. You will not submit plagiarized work, harass other users, share false information, or attempt to disrupt or gain unauthorized access to our platform. We reserve the right to disqualify participants or terminate accounts that violate these rules.</p>
+          </PolicySection>
+
+          <PolicySection icon={Copyright} title="4. Intellectual Property">
+            <p>You retain ownership of the original work and content you submit to competitions. However, by submitting content, you grant The Pitch Deck and the respective competition organizers a non-exclusive, worldwide, royalty-free license to use, display, and distribute your submission for promotional, educational, and operational purposes related to the competition and our platform.</p>
+          </PolicySection>
+
+          <PolicySection icon={AlertTriangle} title="5. Disclaimers and Limitation of Liability">
+            <p>The Service is provided "as is," without any warranties. We do our best to ensure the platform is reliable, but we are not responsible for any losses or damages that may result from your use of the site or participation in competitions hosted by third-party organizers.</p>
+          </PolicySection>
+
+          <PolicySection icon={XCircle} title="6. Termination">
+            <p>We may terminate or suspend your account at our sole discretion, without prior notice, for conduct that we believe violates these Terms of Service or is harmful to other users, us, or third parties, or for any other reason.</p>
+          </PolicySection>
+
+          <PolicySection icon={Scale} title="7. Governing Law">
+            <p>These Terms shall be governed by and construed in accordance with the laws of the Province of Ontario and the federal laws of Canada applicable therein, without regard to its conflict of law provisions.</p>
+          </PolicySection>
+
+          <PolicySection icon={MessageSquare} title="8. Contact Us">
+            <p>If you have any questions about these Terms of Service, please contact us at our official email address:</p>
+             <ul>
+                <li><strong>Primary Contact:</strong> <a href="mailto:info@thepitchdeck.ca" className="text-[#19613F] hover:underline dark:text-[#3dd67f]">info@thepitchdeck.ca</a></li>
+            </ul>
+          </PolicySection>
         </div>
       </div>
 

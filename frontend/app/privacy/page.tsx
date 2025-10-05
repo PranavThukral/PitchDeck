@@ -2,12 +2,24 @@ import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
 import { BreadcrumbStructuredData } from "@/components/seo/structured-data";
 import { Metadata } from "next";
+import {
+  ShieldCheck,
+  User,
+  Share2,
+  Database,
+  Lock,
+  MessageSquare,
+  ClipboardList,
+  Globe,
+  Users,
+  FileText,
+} from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | The Pitch Deck",
   description:
-    "Learn how we protect your privacy and handle your personal information on The Pitch Deck platform.",
-  keywords: "privacy policy, data protection, privacy",
+    "Learn how we protect your privacy and handle your personal information on The Pitch Deck platform, in accordance with Canadian privacy laws.",
+  keywords: "privacy policy, data protection, PIPEDA, Canada privacy",
   openGraph: {
     title: "Privacy Policy | The Pitch Deck",
     description:
@@ -23,6 +35,29 @@ export const metadata: Metadata = {
   },
 };
 
+// A reusable component for each styled section of the policy
+const PolicySection = ({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon: React.ElementType;
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <div className="bg-white dark:bg-gray-800/50 p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
+    <div className="flex items-center mb-4">
+      <Icon className="h-8 w-8 text-[#19613F] mr-4" />
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+        {title}
+      </h2>
+    </div>
+    <div className="prose prose-lg max-w-none dark:prose-invert text-gray-600 dark:text-gray-300">
+      {children}
+    </div>
+  </div>
+);
+
 export default function PrivacyPage() {
   const breadcrumbItems = [
     { name: "Home", url: "/" },
@@ -30,179 +65,64 @@ export default function PrivacyPage() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <BreadcrumbStructuredData items={breadcrumbItems} />
       <Navigation />
 
-      <div className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">
+      <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="text-center mb-16">
+            <h1 className="text-5xl font-bold font-serif text-gray-900 dark:text-white mb-4">
               Privacy Policy
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300">
-              Last updated: January 1, 2024
+              Last Updated: October 5, 2025
+            </p>
+          </div>
+          
+          {/* --- New Summary Section --- */}
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-8 rounded-2xl mb-16">
+            <h2 className="text-2xl font-bold text-center text-green-900 dark:text-green-100 mb-4">Our Privacy Promise</h2>
+            <p className="text-center text-lg text-green-800 dark:text-green-200">
+              Your privacy is fundamental to how we operate. We only collect the information we need to run our competitions and connect you with opportunities. We are a Canadian platform and handle your data in accordance with Canadian privacy laws (PIPEDA). We will never sell your data. That's our promise.
             </p>
           </div>
 
-          <div className="prose prose-lg max-w-none dark:prose-invert">
-            <h2>1. Information We Collect</h2>
+          {/* --- Restructured Policy Sections --- */}
+          <PolicySection icon={User} title="1. Information We Collect">
+            <p>To provide our services, we collect information you give us directly, such as your name, email, and school when you create an account or apply to a competition. We also automatically collect technical data like your IP address and browser type to help our site run smoothly.</p>
+          </PolicySection>
 
-            <h3>Personal Information</h3>
-            <p>
-              We collect information you provide directly to us, such as when
-              you:
-            </p>
+          <PolicySection icon={ClipboardList} title="2. How We Use Your Information">
+            <p>We use your information to operate The Pitch Deck. This includes processing your applications, communicating with you, sending our newsletter if you opt-in, and improving the platform. We do not use your information for any other purpose without your explicit consent.</p>
+          </PolicySection>
+          
+          <PolicySection icon={Share2} title="3. How We Share Your Information">
+            <p>When you apply to a competition, we share the necessary application details with the verified competition organizers. We may also use third-party services for tasks like website hosting and email delivery. We will never sell your personal information to third parties.</p>
+          </PolicySection>
+          
+          <PolicySection icon={Lock} title="4. Data Security & Retention">
+            <p>We use appropriate security measures to protect your data from unauthorized access. We retain your information only for as long as needed to provide our services or as required by law. While no system is 100% secure, we are committed to protecting your information.</p>
+          </PolicySection>
+          
+          <PolicySection icon={ShieldCheck} title="5. Your Rights Under Canadian Law (PIPEDA)">
+            <p>As a Canadian platform, we adhere to the Personal Information Protection and Electronic Documents Act (PIPEDA). You have the right to access the personal information we hold about you and to request corrections. You can also withdraw consent for the use of your information at any time, subject to legal or contractual restrictions.</p>
+          </PolicySection>
+
+          <PolicySection icon={Users} title="6. Children's Privacy">
+             <p>Our service is intended for high school students, who may be considered minors. We require users to be at least 13 years of age. By using our platform, you confirm that you have the necessary consent from a parent or guardian if you are under the age of majority in your province or territory.</p>
+          </PolicySection>
+          
+          <PolicySection icon={Globe} title="7. Third-Party Websites">
+             <p>Our site may link to external websites, such as those of competition organizers. We are not responsible for their privacy practices and encourage you to read their policies.</p>
+          </PolicySection>
+
+          <PolicySection icon={MessageSquare} title="8. Contact Us">
+            <p>If you have any questions about this policy or want to exercise your privacy rights, please contact us. We do not have a physical address for correspondence.</p>
             <ul>
-              <li>Create an account</li>
-              <li>Apply to competitions</li>
-              <li>Contact us for support</li>
-              <li>Subscribe to our newsletter</li>
+                <li><strong>Primary Contact:</strong> <a href="mailto:info@thepitchdeck.ca" className="text-[#19613F] hover:underline dark:text-[#3dd67f]">info@thepitchdeck.ca</a></li>
             </ul>
-            <p>
-              This may include your name, email address, school information,
-              grade level, and other details necessary for competition
-              participation.
-            </p>
-
-            <h3>Usage Information</h3>
-            <p>
-              We automatically collect certain information about your use of our
-              Service, including:
-            </p>
-            <ul>
-              <li>Log data (IP address, browser type, pages visited)</li>
-              <li>Device information</li>
-              <li>Usage patterns and preferences</li>
-              <li>Cookies and similar tracking technologies</li>
-            </ul>
-
-            <h2>2. How We Use Your Information</h2>
-            <p>We use the information we collect to:</p>
-            <ul>
-              <li>Provide, maintain, and improve our Service</li>
-              <li>Process competition applications and manage events</li>
-              <li>Communicate with you about competitions and updates</li>
-              <li>
-                Send newsletters and promotional materials (with your consent)
-              </li>
-              <li>Analyze usage patterns to improve user experience</li>
-              <li>Comply with legal obligations</li>
-              <li>Protect against fraud and abuse</li>
-            </ul>
-
-            <h2>3. Information Sharing</h2>
-            <p>We may share your information in the following circumstances:</p>
-
-            <h3>With Competition Organizers</h3>
-            <p>
-              When you apply to competitions, we share necessary information
-              with organizers to process your application and facilitate
-              participation.
-            </p>
-
-            <h3>With Service Providers</h3>
-            <p>
-              We work with third-party service providers who help us operate our
-              platform, such as hosting services, email providers, and analytics
-              tools.
-            </p>
-
-            <h3>For Legal Reasons</h3>
-            <p>
-              We may disclose information if required by law or to protect our
-              rights and safety.
-            </p>
-
-            <h3>With Your Consent</h3>
-            <p>
-              We may share information for other purposes with your explicit
-              consent.
-            </p>
-
-            <h2>4. Data Security</h2>
-            <p>
-              We implement appropriate technical and organizational measures to
-              protect your personal information against unauthorized access,
-              alteration, disclosure, or destruction. However, no method of
-              transmission over the internet is 100% secure.
-            </p>
-
-            <h2>5. Data Retention</h2>
-            <p>
-              We retain your personal information for as long as necessary to
-              provide our services and fulfill the purposes outlined in this
-              policy. We may retain certain information for longer periods as
-              required by law or for legitimate business purposes.
-            </p>
-
-            <h2>6. Your Rights and Choices</h2>
-            <p>You have the right to:</p>
-            <ul>
-              <li>Access and update your personal information</li>
-              <li>Delete your account and associated data</li>
-              <li>Opt out of marketing communications</li>
-              <li>Request a copy of your data</li>
-              <li>Object to certain processing activities</li>
-            </ul>
-
-            <h2>7. Cookies and Tracking</h2>
-            <p>
-              We use cookies and similar technologies to enhance your
-              experience, analyze usage, and provide personalized content. You
-              can control cookie settings through your browser preferences.
-            </p>
-
-            <h2>8. Third-Party Links</h2>
-            <p>
-              Our Service may contain links to third-party websites. We are not
-              responsible for the privacy practices of these external sites and
-              encourage you to review their privacy policies.
-            </p>
-
-            <h2>9. Children&apos;s Privacy</h2>
-            <p>
-              Our Service is designed for high school students (ages 13-18). We
-              comply with applicable laws regarding the collection of
-              information from minors. If you are under 18, please ensure you
-              have parental consent before using our Service.
-            </p>
-
-            <h2>10. International Users</h2>
-            <p>
-              If you are accessing our Service from outside the United States,
-              please be aware that your information may be transferred to,
-              stored, and processed in the United States where our servers are
-              located.
-            </p>
-
-            <h2>11. Changes to This Policy</h2>
-            <p>
-              We may update this Privacy Policy from time to time. We will
-              notify you of any material changes by posting the new policy on
-              this page and updating the &quot;Last updated&quot; date.
-            </p>
-
-            <h2>12. Contact Us</h2>
-            <p>
-              If you have any questions about this Privacy Policy or our data
-              practices, please contact us at:
-            </p>
-            <ul>
-              <li>Email: privacy@thepitchdeck.com</li>
-              <li>Address: 123 Business Ave, Suite 100, New York, NY 10001</li>
-              <li>Phone: (555) 123-4567</li>
-            </ul>
-
-            <h2>13. California Privacy Rights</h2>
-            <p>
-              If you are a California resident, you have additional rights under
-              the California Consumer Privacy Act (CCPA), including the right to
-              know what personal information we collect, the right to delete
-              personal information, and the right to opt-out of the sale of
-              personal information.
-            </p>
-          </div>
+          </PolicySection>
         </div>
       </div>
 
