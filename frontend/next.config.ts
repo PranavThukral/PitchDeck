@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
+      // This is the correct fix: a wildcard to allow all subdomains of wixstatic.com
+      {
+        protocol: "https",
+        hostname: "**.wixstatic.com",
+      },
+      // The rest of your list
       {
         protocol: "https",
         hostname: "upload.wikimedia.org",
@@ -127,7 +133,7 @@ const nextConfig: NextConfig = {
         hostname: "www.brampton.ca",
       },
     ],
-    unoptimized: false,
+    // I have removed the 'unoptimized: true' line that was causing the error
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",

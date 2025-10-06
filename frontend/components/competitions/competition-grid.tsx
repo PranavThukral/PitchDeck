@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { CompetitionCard } from "./competition-card";
 
+// 1. UPDATED INTERFACE to use gradeTags and match the new data structure
 interface Competition {
   id: string;
   title: string;
   organizer: string;
   logo: string;
-  gradeEligibility: string;
+  gradeTags: string[];
   deadline: string;
   prize: string;
   status: string;
@@ -28,6 +29,16 @@ interface CompetitionGridProps {
   };
 }
 
+// Helper object to map the filter dropdown values to the actual sheet tags
+const gradeFilterMap: { [key: string]: string[] } = {
+  all: [], // "all" is a special case for showing everything
+  "Pre-Secondary": ["pre-secondary"], // Make sure you have a 'pre-secondary' tag in your sheet for these
+  "9-10": ["grade 9", "grade 10"],
+  "11-12": ["grade 11", "grade 12"],
+  "9-12": ["grade 9", "grade 10", "grade 11", "grade 12"],
+  "Post-Secondary": ["university", "college"],
+};
+
 export function CompetitionGrid({ filters }: CompetitionGridProps) {
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,33 +48,49 @@ export function CompetitionGrid({ filters }: CompetitionGridProps) {
     setLoading(true);
     setError(null);
     fetch("/api/competitions")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return res.json();
+      })
       .then((data) => {
         setCompetitions(data);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Fetch error:", err);
         setError("Failed to load competitions.");
         setLoading(false);
       });
   }, []);
 
   const filteredCompetitions = competitions.filter((competition) => {
+    // Search filter logic (unchanged)
     const matchesSearch =
-      competition.title
-        .toLowerCase()
-        .includes(filters.searchTerm.toLowerCase()) ||
-      competition.organizer
-        .toLowerCase()
-        .includes(filters.searchTerm.toLowerCase());
+      competition.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+      competition.organizer.toLowerCase().includes(filters.searchTerm.toLowerCase());
 
-    const matchesGrade =
-      !filters.gradeFilter ||
-      filters.gradeFilter === "all" ||
-      competition.gradeEligibility
-        .toLowerCase()
-        .includes(filters.gradeFilter.toLowerCase());
+    // 2. IMPLEMENTED the correct and functional grade filtering logic
+    const matchesGrade = (() => {
+      // If no filter is selected or 'all' is chosen, it's always a match
+      if (!filters.gradeFilter || filters.gradeFilter === "all") {
+        return true;
+      }
+      // Get the required tags for the current filter (e.g., ['grade 9', 'grade 10'])
+      const requiredTags = gradeFilterMap[filters.gradeFilter];
+      if (!requiredTags) {
+        return true; // Failsafe for an unknown/unexpected filter value
+      }
+      // Ensure the competition object actually has the gradeTags array
+      if (!competition.gradeTags || competition.gradeTags.length === 0) {
+        return false; // Or `true` if you want to show items with no grade tags
+      }
+      // The core logic: checks if there's any overlap between the filter's tags and the competition's tags.
+      return competition.gradeTags.some(tag => requiredTags.includes(tag));
+    })();
 
+    // Status filter logic (unchanged)
     const matchesStatus =
       !filters.statusFilter ||
       filters.statusFilter === "all" ||
