@@ -29,11 +29,16 @@ export function Footer({ className = "" }: FooterProps) {
               The all-in-one platform to discover, apply to, and host business
               case competitions.
             </p>
-            <div className="flex space-x-4">
-              <div className="flex items-center space-x-2 text-[#D9D9D9] dark:text-gray-300">
+            {/* --- EMAIL SECTION UPDATED --- */}
+            <div className="text-[#D9D9D9] dark:text-gray-300">
+              <p className="mb-1">For any questions or inquiries, please contact us:</p>
+              <a
+                href="mailto:info@thepitchdeck.ca"
+                className="flex items-center space-x-2 hover:text-[#2CA15F] dark:hover:text-[#3dd67f] transition-colors"
+              >
                 <Mail className="h-4 w-4" />
                 <span>info@thepitchdeck.ca</span>
-              </div>
+              </a>
             </div>
           </div>
 
@@ -49,28 +54,13 @@ export function Footer({ className = "" }: FooterProps) {
                   Competitions
                 </Link>
               </li>
+              {/* --- LINK ADDED HERE --- */}
               <li>
                 <Link
-                  href="/about"
+                  href="/business-opportunities"
                   className="text-[#D9D9D9] hover:text-[#2CA15F] dark:text-gray-200 dark:hover:text-[#3dd67f] transition-colors"
                 >
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/winners"
-                  className="text-[#D9D9D9] hover:text-[#2CA15F] dark:text-gray-200 dark:hover:text-[#3dd67f] transition-colors"
-                >
-                  Past Winners
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-[#D9D9D9] hover:text-[#2CA15F] dark:text-gray-200 dark:hover:text-[#3dd67f] transition-colors"
-                >
-                  Contact
+                  Business Opportunities
                 </Link>
               </li>
             </ul>
@@ -86,22 +76,6 @@ export function Footer({ className = "" }: FooterProps) {
                   className="text-[#D9D9D9] hover:text-[#2CA15F] dark:text-gray-200 dark:hover:text-[#3dd67f] transition-colors"
                 >
                   Sign Up
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/resources"
-                  className="text-[#D9D9D9] hover:text-[#2CA15F] dark:text-gray-200 dark:hover:text-[#3dd67f] transition-colors"
-                >
-                  Resources
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/help"
-                  className="text-[#D9D9D9] hover:text-[#2CA15F] dark:text-gray-200 dark:hover:text-[#3dd67f] transition-colors"
-                >
-                  Help Center
                 </Link>
               </li>
               <li>
