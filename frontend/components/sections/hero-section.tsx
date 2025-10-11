@@ -1,5 +1,7 @@
 "use client";
 
+//checking
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Trophy, Users, Award } from "lucide-react";
 import Link from "next/link";
