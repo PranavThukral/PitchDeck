@@ -1,4 +1,4 @@
-// [CORRECTED AND COMPLETE GOOGLE SHEETS UTILITY FILE]
+// [FINAL, CONFIRMED, AND CORRECTED GOOGLE SHEETS UTILITY FILE]
 
 interface SheetRow {
   [key: string]: string;
@@ -107,6 +107,10 @@ function generateId(title: string): string {
 
 function cleanupLogoUrl(url: string): string {
   if (!url || url.trim() === "") return "/logos/placeholder.svg";
+  const imageExtensions = /\.(jpeg|jpg|gif|png|svg|webp)$/i;
+  if (!imageExtensions.test(url.split('?')[0])) {
+    return "/logos/placeholder.svg";
+  }
   if (url.includes("google.com/url?")) {
     try {
       const urlObj = new URL(url);
@@ -118,22 +122,43 @@ function cleanupLogoUrl(url: string): string {
   catch { return "/logos/placeholder.svg"; }
 }
 
+function determineStatus(deadline: string, registrationOpens?: string): string {
+  const lowerDeadline = (deadline || "").toLowerCase();
+  if (lowerDeadline.includes("passed") || lowerDeadline.includes("closed")) {
+    return "closed";
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const startDate = new Date(registrationOpens || "");
+  const endDate = new Date(deadline);
+
+  if (!isNaN(startDate.getTime()) && startDate > today) {
+    return "upcoming";
+  }
+
+  if (!isNaN(endDate.getTime()) && endDate < today) {
+    return "closed";
+  }
+
+  if (!isNaN(endDate.getTime())) {
+    const twoWeeksFromNow = new Date();
+    twoWeeksFromNow.setDate(today.getDate() + 14);
+    if (endDate <= twoWeeksFromNow) {
+      return "closing-soon";
+    }
+  }
+  
+  return "open";
+}
+
 function mapRowToCompetition(row: SheetRow): Competition {
   const title = row["Name"] || "";
   const deadline = row["Deadline"] || "";
+  const registrationOpens = row["When Registration Opens,"] || "";
   const description = row["Description"] || `${title} - A business competition for high school students.`;
-
-  let status = "open";
-  if (deadline.toLowerCase().includes("passed") || deadline.toLowerCase().includes("closed")) status = "closed";
-  else if (deadline.toLowerCase().includes("soon") || deadline.toLowerCase().includes("this month")) status = "closing-soon";
-
-  let formattedDeadline = deadline;
-  try {
-    if (deadline && deadline !== "Not explicitly stated" && !deadline.includes("TBD")) {
-      const parsed = new Date(deadline);
-      if (!isNaN(parsed.getTime())) formattedDeadline = parsed.toISOString();
-    }
-  } catch {}
+  const status = determineStatus(deadline, registrationOpens);
 
   return {
     id: generateId(title),
@@ -141,17 +166,17 @@ function mapRowToCompetition(row: SheetRow): Competition {
     organizer: title.split(" ")[0] || "Unknown",
     logo: cleanupLogoUrl(row["Logo Link"] || ""),
     gradeTags: parseGradeTags(row["Grade Tag"] || "[]"),
-    deadline: formattedDeadline || deadline || "TBD",
+    deadline: deadline, // Using the original string directly
     prize: "TBD",
     status,
     description,
     applicationType: "external",
     applyUrl: row["Link to Application"] || "",
     frequency: "Annual",
-    dates: [new Date().toISOString().split("T")[0], formattedDeadline || deadline || new Date().toISOString().split("T")[0]],
+    dates: [registrationOpens || "TBD", deadline || "TBD"],
     location: row["Virtual/In-Person"] || "",
     cost: row["Cost"] || "",
-    registrationOpens: row["When Registration Opens,"] || "",
+    registrationOpens,
   };
 }
 
@@ -161,9 +186,7 @@ function mapRowToBusinessOpportunity(row: SheetRow): BusinessOpportunity {
   const deadline = row["Deadline"] || "";
   const description = row["Description"] || `${title} - A business opportunity for high school students.`;
 
-  let status = "open";
-  if (deadline.toLowerCase().includes("passed") || deadline.toLowerCase().includes("closed")) status = "closed";
-  else if (registrationOpens.toLowerCase().includes("none") || registrationOpens.toLowerCase().includes("tbd")) status = "upcoming";
+  const status = determineStatus(deadline, registrationOpens);
 
   let category = "Program";
   if (title.toLowerCase().includes("internship")) category = "Internship";
@@ -224,15 +247,21 @@ export async function fetchBusinessOpportunitiesFromSheets(): Promise<BusinessOp
 
 export async function getCompetitionsSortedByDeadline(): Promise<Competition[]> {
   const competitions = await fetchCompetitionsFromSheets();
-  return competitions.sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+  return competitions.sort((a, b) => {
+    const dateA = new Date(a.deadline);
+    const dateB = new Date(b.deadline);
+    if (isNaN(dateA.getTime())) return 1;
+    if (isNaN(dateB.getTime())) return -1;
+    return dateA.getTime() - dateB.getTime();
+  });
 }
 
 export async function getBusinessOpportunitiesSorted(): Promise<BusinessOpportunity[]> {
   const opportunities = await fetchBusinessOpportunitiesFromSheets();
   return opportunities.sort((a, b) => {
-    const statusOrder = { open: 1, upcoming: 2, closed: 3 };
-    const statusA = statusOrder[a.status as keyof typeof statusOrder] || 4;
-    const statusB = statusOrder[b.status as keyof typeof statusOrder] || 4;
+    const statusOrder = { open: 1, "closing-soon": 2, upcoming: 3, closed: 4 };
+    const statusA = statusOrder[a.status as keyof typeof statusOrder] || 5;
+    const statusB = statusOrder[b.status as keyof typeof statusOrder] || 5;
     if (statusA !== statusB) return statusA - statusB;
     return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
   });
