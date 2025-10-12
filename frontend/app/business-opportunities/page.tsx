@@ -26,6 +26,14 @@ const emptyFilters: OpportunityFilterState = {
 };
 
 export default function BusinessOpportunitiesPage() {
+  return (
+    <Suspense fallback={null}>
+      <BusinessOpportunitiesContent />
+    </Suspense>
+  );
+}
+
+function BusinessOpportunitiesContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -116,11 +124,9 @@ export default function BusinessOpportunitiesPage() {
             transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
             className="space-y-8"
           >
-            <Suspense fallback={null}>
-              <FiltersShell>
-                <OpportunityFilters filters={filters} onFiltersChange={handleFiltersChange} />
-              </FiltersShell>
-            </Suspense>
+            <FiltersShell>
+              <OpportunityFilters filters={filters} onFiltersChange={handleFiltersChange} />
+            </FiltersShell>
             <OpportunityGrid filters={filters} />
           </motion.section>
         </div>
