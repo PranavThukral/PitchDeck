@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { CompetitionCard } from "./competition-card";
+import { Loader2, AlertCircle } from "lucide-react";
 
 // 1. UPDATED INTERFACE to use gradeTags and match the new data structure
 interface Competition {
@@ -101,42 +102,56 @@ export function CompetitionGrid({ filters }: CompetitionGridProps) {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-gray-500 w-full h-[70vh] flex items-center justify-center">
-        Loading competitions...
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <Loader2 className="h-8 w-8 animate-spin text-indigo-500 dark:text-indigo-300" />
+        <span className="mt-3 text-sm text-gray-600 dark:text-gray-300">Loading competitions...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-12 text-red-500 w-full h-[70vh] flex items-center justify-center">
-        {error}
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <AlertCircle className="mb-3 h-12 w-12 text-red-500" />
+        <p className="text-lg font-semibold text-gray-800 dark:text-white">Error Loading Competitions</p>
+        <p className="mt-2 max-w-md text-sm text-gray-600 dark:text-gray-300">{error}</p>
       </div>
     );
   }
 
   if (filteredCompetitions.length === 0) {
     return (
-      <div className="text-center py-12 w-full h-[70vh] flex flex-col items-center justify-center">
-        <p className="text-gray-500 text-lg">
-          No competitions found matching your criteria.
-        </p>
-        <p className="text-gray-400 text-sm mt-2">
-          Try adjusting your filters to see more results.
+      <div className="flex flex-col items-center justify-center rounded-3xl border border-indigo-200/60 bg-white/80 py-16 text-center shadow-inner backdrop-blur dark:border-indigo-500/40 dark:bg-[#11263b]/70">
+        <AlertCircle className="mb-4 h-12 w-12 text-indigo-500 dark:text-indigo-300" />
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">No competitions found</h3>
+        <p className="mt-2 max-w-md text-sm text-gray-600 dark:text-gray-300">
+          Try adjusting your filters to see more results or widen your search criteria.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 w-full max-w-screen-2xl mx-auto px-2 sm:px-0 mt-0">
-      {filteredCompetitions.map((competition) => (
-        <CompetitionCard
-          key={competition.id}
-          competition={competition}
-          // No favourites in public view
-        />
-      ))}
+    <div className="space-y-8">
+      <div className="flex flex-col gap-3 rounded-2xl border border-indigo-200/60 bg-white/85 p-4 shadow-sm backdrop-blur dark:border-indigo-500/40 dark:bg-[#11263b]/70 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Showing{" "}
+          <span className="text-indigo-600 font-semibold dark:text-indigo-300">{filteredCompetitions.length}</span>{" "}
+          competitions
+        </p>
+        <span className="text-xs font-medium uppercase tracking-wider text-indigo-600 dark:text-indigo-300">
+          Keep an eye on deadlines—many events fill up fast
+        </span>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 sm:gap-6 lg:gap-8">
+        {filteredCompetitions.map((competition) => (
+          <CompetitionCard
+            key={competition.id}
+            competition={competition}
+            // No favourites in public view
+          />
+        ))}
+      </div>
     </div>
   );
 }

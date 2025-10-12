@@ -5,6 +5,18 @@
 import { useState, useEffect, useMemo } from "react";
 import { OpportunityCard } from "./opportunity-card";
 import { Loader2, AlertCircle } from "lucide-react";
+import { OpportunityFilterState } from "./opportunity-filters";
+import {
+  deriveOpportunityType,
+  OpportunityType,
+} from "@/lib/constants/opportunity-types";
+
+const opportunityTypeOrder: OpportunityType[] = [
+  "Entrepreneurship",
+  "Internship",
+  "Mentorship",
+  "Learning",
+];
 
 // 1. UPDATED INTERFACE to use gradeTags
 interface BusinessOpportunity {
@@ -22,16 +34,12 @@ interface BusinessOpportunity {
   applicationType: string;
   applyUrl: string;
   category: string;
+  opportunityType?: string[];
+  derivedType?: OpportunityType;
 }
 
 interface OpportunityGridProps {
-  filters: {
-    searchTerm: string;
-    categoryFilter: string;
-    formatFilter: string;
-    costFilter: string;
-    statusFilter: string;
-  };
+  filters: OpportunityFilterState;
 }
 
 export function OpportunityGrid({ filters }: OpportunityGridProps) {
@@ -78,6 +86,18 @@ export function OpportunityGrid({ filters }: OpportunityGridProps) {
     setFavourites(newFavourites);
   };
 
+  const enrichedOpportunities = useMemo(() => {
+    return opportunities.map((opportunity) => ({
+      ...opportunity,
+      derivedType: deriveOpportunityType({
+        opportunityType: opportunity.opportunityType,
+        category: opportunity.category,
+        title: opportunity.title,
+        description: opportunity.description,
+      }),
+    }));
+  }, [opportunities]);
+
   const handleFavourite = (opportunityId: string) => {
     const newFavourites = new Set(favourites);
     if (newFavourites.has(opportunityId)) {
@@ -89,7 +109,7 @@ export function OpportunityGrid({ filters }: OpportunityGridProps) {
   };
 
   const filteredOpportunities = useMemo(() => {
-    return opportunities.filter((opportunity) => {
+    return enrichedOpportunities.filter((opportunity) => {
       if (filters.searchTerm) {
         const searchLower = filters.searchTerm.toLowerCase();
         const matchesSearch =
@@ -100,8 +120,10 @@ export function OpportunityGrid({ filters }: OpportunityGridProps) {
         if (!matchesSearch) return false;
       }
 
-      if (filters.categoryFilter && opportunity.category !== filters.categoryFilter) {
-        return false;
+      if (filters.categoryFilter) {
+        if (opportunity.derivedType !== filters.categoryFilter) {
+          return false;
+        }
       }
 
       if (filters.formatFilter) {
@@ -133,15 +155,19 @@ export function OpportunityGrid({ filters }: OpportunityGridProps) {
 
       return true;
     });
-  }, [opportunities, filters]);
+  }, [enrichedOpportunities, filters]);
 
   const sortedOpportunities = useMemo(() => {
     return [...filteredOpportunities].sort((a, b) => {
-      // Updated status order for better user experience
+      const typeIndexA = opportunityTypeOrder.indexOf(a.derivedType ?? "Learning");
+      const typeIndexB = opportunityTypeOrder.indexOf(b.derivedType ?? "Learning");
+      if (typeIndexA !== typeIndexB) return typeIndexA - typeIndexB;
+
       const statusOrder = { "closing-soon": 1, open: 2, upcoming: 3, closed: 4 };
-      const aOrder = statusOrder[a.status as keyof typeof statusOrder] || 5;
-      const bOrder = statusOrder[b.status as keyof typeof statusOrder] || 5;
-      if (aOrder !== bOrder) return aOrder - bOrder;
+      const aStatus = statusOrder[a.status as keyof typeof statusOrder] || 5;
+      const bStatus = statusOrder[b.status as keyof typeof statusOrder] || 5;
+      if (aStatus !== bStatus) return aStatus - bStatus;
+
       return a.title.localeCompare(b.title);
     });
   }, [filteredOpportunities]);
@@ -182,8 +208,8 @@ export function OpportunityGrid({ filters }: OpportunityGridProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8">
+      <div className="flex flex-col gap-3 rounded-2xl border border-emerald-200/60 bg-white/85 p-4 shadow-sm backdrop-blur dark:border-emerald-600/40 dark:bg-[#11263b]/70 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-gray-600 dark:text-gray-300">
           Showing{" "}
           <span className="text-[#2CA15F] font-semibold">{sortedOpportunities.length}</span>{" "}
@@ -192,8 +218,8 @@ export function OpportunityGrid({ filters }: OpportunityGridProps) {
           opportunities
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedOpportunities.map((opportunity) => (
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {sortedOpportunities.map(({ derivedType: _derivedType, ...opportunity }) => (
           <OpportunityCard
             key={opportunity.id}
             opportunity={opportunity}

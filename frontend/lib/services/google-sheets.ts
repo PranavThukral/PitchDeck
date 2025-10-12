@@ -1,9 +1,10 @@
-// [FINAL, CONFIRMED, AND CORRECTED GOOGLE SHEETS UTILITY FILE]
+// [COMPLETE CODE for the sheets utility file]
 
 interface SheetRow {
   [key: string]: string;
 }
 
+// Interfaces updated with all new fields for the quiz
 interface Competition {
   id: string;
   title: string;
@@ -19,7 +20,10 @@ interface Competition {
   frequency: string;
   dates: [string, string];
   location: string;
-  cost: string;
+  cost: string; // The display cost, e.g., "$40 CAD"
+  costNumeric: number; // The filterable cost, e.g., 40
+  teamRequirement: string;
+  subjectArea: string[];
   registrationOpens?: string;
 }
 
@@ -32,17 +36,30 @@ interface BusinessOpportunity {
   startDate: string;
   endDate: string;
   cost: string;
+  costNumeric: number;
   format: string;
   status: string;
   description: string;
   applicationType: string;
   applyUrl: string;
   category: string;
+  opportunityType: string[];
+  duration: string;
+  timeCommitment: string;
 }
 
 const SPREADSHEET_ID = "1XHg2kkWfjREQxYIGd4DAcilCBH23BWZz2XRhM1WDJOc";
 const COMPETITIONS_SHEET_ID = "0";
 const OPPORTUNITIES_SHEET_ID = "530191508";
+
+const logoOverrides: Record<string, string> = {
+  "blue ocean competition": "/logos/organizations/blue-ocean.png",
+  "sunlife dbts": "/logos/business-opportunities/sunlife.svg",
+  "icon talent - scholars": "/logos/business-opportunities/icon-talent.jpg",
+  "icon fellowship": "/logos/business-opportunities/icon-talent.jpg",
+  "ta stc regional executive": "/logos/business-opportunities/target-alpha.jpg",
+  "target alpha": "/logos/business-opportunities/target-alpha.jpg",
+};
 
 function parseCSV(csvData: string): SheetRow[] {
   const lines = csvData.trim().split("\n");
@@ -106,42 +123,42 @@ function generateId(title: string): string {
 }
 
 function cleanupLogoUrl(url: string): string {
-  if (!url || url.trim() === "") return "/logos/placeholder.svg";
-  const imageExtensions = /\.(jpeg|jpg|gif|png|svg|webp)$/i;
-  if (!imageExtensions.test(url.split('?')[0])) {
-    return "/logos/placeholder.svg";
+    if (!url || url.trim() === "") return "/logos/placeholder.svg";
+    const imageExtensions = /\.(jpeg|jpg|gif|png|svg|webp)$/i;
+    if (!imageExtensions.test(url.split('?')[0])) {
+      return "/logos/placeholder.svg";
   }
-  if (url.includes("google.com/url?")) {
+    if (url.includes("google.com/url?")) {
+      try {
+        const urlObj = new URL(url);
+        const actualUrl = urlObj.searchParams.get("url");
+        if (actualUrl) return decodeURIComponent(actualUrl);
+      } catch { return "/logos/placeholder.svg"; }
+    }
     try {
-      const urlObj = new URL(url);
-      const actualUrl = urlObj.searchParams.get("url");
-      if (actualUrl) return decodeURIComponent(actualUrl);
-    } catch { return "/logos/placeholder.svg"; }
+      const parsed = new URL(url);
+      return parsed.href;
+    } catch {
+      if (url.startsWith("/")) return url;
+      return "/logos/placeholder.svg";
+    }
   }
-  try { new URL(url); return url; }
-  catch { return "/logos/placeholder.svg"; }
-}
 
 function determineStatus(deadline: string, registrationOpens?: string): string {
   const lowerDeadline = (deadline || "").toLowerCase();
   if (lowerDeadline.includes("passed") || lowerDeadline.includes("closed")) {
     return "closed";
   }
-
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
   const startDate = new Date(registrationOpens || "");
   const endDate = new Date(deadline);
-
   if (!isNaN(startDate.getTime()) && startDate > today) {
     return "upcoming";
   }
-
   if (!isNaN(endDate.getTime()) && endDate < today) {
     return "closed";
   }
-
   if (!isNaN(endDate.getTime())) {
     const twoWeeksFromNow = new Date();
     twoWeeksFromNow.setDate(today.getDate() + 14);
@@ -149,33 +166,50 @@ function determineStatus(deadline: string, registrationOpens?: string): string {
       return "closing-soon";
     }
   }
-  
   return "open";
+}
+
+// Helper to parse tags from single-entry columns
+function parseSingleTag(tagString: string): string[] {
+    if (!tagString || tagString.trim() === "") return [];
+    return [tagString.trim()];
+}
+
+// Helper to parse the cost column
+function parseCost(costString: string): number {
+    if (!costString || costString.toLowerCase().includes('free')) {
+        return 0;
+    }
+    const matches = costString.match(/\d+/);
+    return matches ? parseInt(matches[0], 10) : -1;
 }
 
 function mapRowToCompetition(row: SheetRow): Competition {
   const title = row["Name"] || "";
   const deadline = row["Deadline"] || "";
   const registrationOpens = row["When Registration Opens,"] || "";
-  const description = row["Description"] || `${title} - A business competition for high school students.`;
-  const status = determineStatus(deadline, registrationOpens);
-
+  const normalizedTitle = title.trim().toLowerCase();
+  const logoSource = logoOverrides[normalizedTitle] ?? row["Logo Link"] ?? "";
+  
   return {
     id: generateId(title),
     title,
     organizer: title.split(" ")[0] || "Unknown",
-    logo: cleanupLogoUrl(row["Logo Link"] || ""),
+    logo: cleanupLogoUrl(logoSource),
     gradeTags: parseGradeTags(row["Grade Tag"] || "[]"),
-    deadline: deadline, // Using the original string directly
+    deadline,
     prize: "TBD",
-    status,
-    description,
+    status: determineStatus(deadline, registrationOpens),
+    description: row["Description"] || `${title} - A business competition for high school students.`,
     applicationType: "external",
     applyUrl: row["Link to Application"] || "",
     frequency: "Annual",
     dates: [registrationOpens || "TBD", deadline || "TBD"],
     location: row["Virtual/In-Person"] || "",
-    cost: row["Cost"] || "",
+    cost: row["Cost"] || "Free",
+    costNumeric: parseCost(row["Cost"] || ""),
+    teamRequirement: row["Team Requirement"] || "Both",
+    subjectArea: parseSingleTag(row["Subject Area"] || ""),
     registrationOpens,
   };
 }
@@ -184,10 +218,13 @@ function mapRowToBusinessOpportunity(row: SheetRow): BusinessOpportunity {
   const title = row["Name"] || "";
   const registrationOpens = row["When Registration Opens,"] || "";
   const deadline = row["Deadline"] || "";
-  const description = row["Description"] || `${title} - A business opportunity for high school students.`;
-
-  const status = determineStatus(deadline, registrationOpens);
-
+  const normalizedTitle = title.trim().toLowerCase();
+  const rawLogo =
+    logoOverrides[normalizedTitle] ??
+    row["Logo Image "] ??
+    row["Logo Image"] ??
+    row["Logo Link"] ??
+    "";
   let category = "Program";
   if (title.toLowerCase().includes("internship")) category = "Internship";
   else if (title.toLowerCase().includes("fellowship")) category = "Fellowship";
@@ -201,17 +238,21 @@ function mapRowToBusinessOpportunity(row: SheetRow): BusinessOpportunity {
     id: generateId(title),
     title,
     organizer: title.split(" ")[0] || "Unknown",
-    logo: cleanupLogoUrl(row["Logo Image "] || row["Logo Image"] || row["Logo Link"] || ""),
+    logo: cleanupLogoUrl(rawLogo),
     gradeTags: parseGradeTags(row["Grade Tag"] || "[]"),
     startDate: registrationOpens || "TBD",
     endDate: deadline || "TBD",
-    cost: row["Cost"] || "",
+    cost: row["Cost"] || "Free",
+    costNumeric: parseCost(row["Cost"] || ""),
     format: row["Virtual/In-Person"] || "",
-    status,
-    description,
+    status: determineStatus(deadline, registrationOpens),
+    description: row["Description"] || `${title} - A business opportunity for high school students.`,
     applicationType: "external",
     applyUrl: row["Link to Application"] || "",
     category,
+    opportunityType: parseSingleTag(row["Opportunity Type"] || ""),
+    duration: row["Duration"] || "",
+    timeCommitment: row["Time Commitment"] || "",
   };
 }
 

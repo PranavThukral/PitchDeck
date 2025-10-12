@@ -63,22 +63,22 @@ export function CompetitionFilters({
 
   return (
     <div
-      className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-[#19613F]/20 dark:border-[#2CA15F]/30 mb-8 relative z-20"
+      className="relative z-20 mb-8 overflow-hidden rounded-3xl border border-indigo-200/60 bg-white/85 p-6 shadow-[0_25px_60px_-30px_rgba(60,102,219,0.35)] backdrop-blur-lg transition dark:border-indigo-500/40 dark:bg-[#101c2a]/85 sm:p-8"
       suppressHydrationWarning
     >
       <div className="flex flex-col lg:flex-row gap-4 items-center">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#19613F] dark:text-[#2CA15F] h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-indigo-500 dark:text-indigo-300" />
           <Input
             placeholder="Search competitions..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-white/90 border-[#19613F]/20 focus:border-[#2CA15F] dark:bg-gray-800/50 dark:border-[#2CA15F]/30 dark:text-white dark:placeholder:text-gray-400"
+            className="w-full rounded-full border border-indigo-200/40 bg-white/90 py-3 pl-10 pr-4 text-gray-700 shadow-sm transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-400/60 dark:border-indigo-500/40 dark:bg-[#0b1a27]/80 dark:text-gray-100 dark:placeholder:text-gray-400"
           />
         </div>
 
         <Select value={gradeFilter} onValueChange={setGradeFilter}>
-          <SelectTrigger className="w-full lg:w-48 bg-white/90 border-[#19613F]/20 focus:border-[#2CA15F] dark:bg-gray-800/50 dark:border-[#2CA15F]/30 dark:text-white">
+          <SelectTrigger className="w-full rounded-full border border-indigo-200/50 bg-white/80 py-6 text-sm text-gray-700 shadow-sm focus:ring-indigo-400/60 dark:border-indigo-500/50 dark:bg-[#0f2539]/70 dark:text-gray-100 lg:w-48">
             <SelectValue placeholder="Grade Level" />
           </SelectTrigger>
           <SelectContent>
@@ -92,7 +92,7 @@ export function CompetitionFilters({
         </Select>
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full lg:w-48 bg-white/90 border-[#19613F]/20 focus:border-[#2CA15F] dark:bg-gray-800/50 dark:border-[#2CA15F]/30 dark:text-white">
+          <SelectTrigger className="w-full rounded-full border border-indigo-200/50 bg-white/80 py-6 text-sm text-gray-700 shadow-sm focus:ring-indigo-400/60 dark:border-indigo-500/50 dark:bg-[#0f2539]/70 dark:text-gray-100 lg:w-48">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -106,10 +106,10 @@ export function CompetitionFilters({
         {showFavouritesToggle && (
           <button
             type="button"
-            className={`px-4 py-2 rounded-md border border-[#19613F]/20 dark:border-[#2CA15F]/30 text-sm font-medium transition-colors ${
+            className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
               showFavourites
-                ? "bg-[#19613F] hover:bg-[#2CA15F] text-white dark:bg-[#2CA15F] dark:hover:bg-[#19613F]"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                ? "border border-indigo-500 bg-indigo-500 text-white shadow hover:bg-indigo-600 dark:border-indigo-400 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                : "border border-indigo-200/60 bg-white/70 text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 dark:border-indigo-500/40 dark:bg-[#0f2539]/70 dark:text-indigo-200 dark:hover:bg-indigo-900/40"
             }`}
             onClick={() => setShowFavourites((prev) => !prev)}
           >

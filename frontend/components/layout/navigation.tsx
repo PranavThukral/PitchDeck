@@ -1,14 +1,21 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
+import { OPPORTUNITY_TYPE_OPTIONS } from "@/lib/constants/opportunity-types";
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -96,18 +103,50 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
-              <Link
-                href="/business-opportunities"
-                className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
-              >
-                Business Opportunities
-              </Link>
-              <Link
-                href="/competitions"
-                className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
-              >
+              <div className="ml-10 flex items-baseline space-x-4">
+                <div className="flex items-center gap-1">
+                  <Link
+                    href="/business-opportunities"
+                    className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
+                  >
+                    Business Opportunities
+                  </Link>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        className="inline-flex items-center justify-center rounded-md p-1 text-black hover:text-[#2CA15F] transition-colors dark:text-white"
+                        aria-label="Show opportunity categories"
+                      >
+                        <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="min-w-[14rem]">
+                      {OPPORTUNITY_TYPE_OPTIONS.map(({ value, label }) => (
+                        <DropdownMenuItem asChild key={value}>
+                          <Link
+                            href={`/business-opportunities?type=${encodeURIComponent(value)}`}
+                          >
+                            {label}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <Link
+                  href="/competitions"
+                  className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
+                >
                 Competitions
+              </Link>
+
+              {/* THE NEW QUIZ LINK */}
+              <Link href="/findyouropp" className="relative text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white">
+                Find Your Opportunity
+                <span className="absolute -top-2 -right-2 flex h-5 w-10 items-center justify-center rounded-full bg-yellow-400 p-1 text-xs font-bold text-yellow-900 animate-pulse">
+                  NEW!
+                </span>
               </Link>
 
               {isLoggedIn && user && (
@@ -178,12 +217,28 @@ export function Navigation() {
       {isOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-[#D9D9D9] border-b border-[#19613F]/20 dark:bg-gray-900">
+            {/* THE NEW QUIZ LINK FOR MOBILE */}
+            <Link href="/findyouropp" className="relative text-green-700 bg-green-100 block px-3 py-2 rounded-md text-base font-bold dark:bg-green-800 dark:text-white">
+              Find Your Opportunity
+            </Link>
+            
             <Link
               href="/business-opportunities"
               className="text-black hover:text-[#2CA15F] block px-3 py-2 rounded-md text-base font-medium dark:text-white"
             >
               Business Opportunities
             </Link>
+            <div className="ml-6 space-y-1 text-sm text-[#19613F] dark:text-[#2CA15F]">
+              {OPPORTUNITY_TYPE_OPTIONS.map(({ value, label }) => (
+                <Link
+                  key={value}
+                  href={`/business-opportunities${value ? `?type=${encodeURIComponent(value)}` : ""}`}
+                  className="block px-3 py-1 rounded-md hover:bg-[#2CA15F]/10 dark:hover:bg-emerald-900/40"
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
             <Link
               href="/competitions"
               className="text-black hover:text-[#2CA15F] block px-3 py-2 rounded-md text-base font-medium dark:text-white"
@@ -241,3 +296,4 @@ export function Navigation() {
     </nav>
   );
 }
+
