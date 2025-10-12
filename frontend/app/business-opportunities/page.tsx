@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   OpportunityFilters,
@@ -15,6 +15,7 @@ import { LogoWaterfall } from "@/components/animations/logo-waterfall";
 import { Sparkles } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { matchOpportunityType } from "@/lib/constants/opportunity-types";
+import { FiltersShell } from "./_components/filters-shell";
 
 const emptyFilters: OpportunityFilterState = {
   searchTerm: "",
@@ -115,7 +116,11 @@ export default function BusinessOpportunitiesPage() {
             transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
             className="space-y-8"
           >
-            <OpportunityFilters filters={filters} onFiltersChange={handleFiltersChange} />
+            <Suspense fallback={null}>
+              <FiltersShell>
+                <OpportunityFilters filters={filters} onFiltersChange={handleFiltersChange} />
+              </FiltersShell>
+            </Suspense>
             <OpportunityGrid filters={filters} />
           </motion.section>
         </div>
