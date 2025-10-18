@@ -1,6 +1,10 @@
 // [COMPLETE CODE for the new, advanced lib/quiz-logic.ts]
 
 import type { Competition, BusinessOpportunity } from './google-sheets';
+import {
+  deriveOpportunityType,
+  type OpportunityType,
+} from "@/lib/constants/opportunity-types";
 
 // --- QUIZ STRUCTURE AND QUESTIONS ---
 
@@ -51,10 +55,10 @@ export const quizQuestions = [
     id: 'opportunityType',
     question: 'What kind of experience do you want?',
     answers: [
-        { text: 'Hands-on Learning', value: 'Learning' },
-        { text: 'Mentorship or Shadowing', value: 'Mentorship' },
-        { text: 'A Leadership Role', value: 'Leadership' },
-        { text: 'Starting a Business', value: 'Entrepreneurship' },
+        { text: 'Internships & Placements', value: 'Internship' },
+        { text: 'Mentorship & Learning', value: 'Mentorship & Learning' },
+        { text: 'Leadership Track', value: 'Leadership' },
+        { text: 'Launch or Build a Venture', value: 'Entrepreneurship' },
     ],
     path: 'opportunity',
   },
@@ -97,6 +101,38 @@ function shuffleArray<T>(array: T[]): T[] {
   return array;
 }
 
+type NormalizedDuration = "Short-term" | "Medium-term" | "Long-term";
+
+function normalizeDuration(raw: string): NormalizedDuration {
+  const value = raw.toLowerCase();
+  if (value.includes("long") || value.includes("6 month") || value.includes("semester")) {
+    return "Long-term";
+  }
+  if (value.includes("week") || value.includes("month") || value.includes("medium")) {
+    return "Medium-term";
+  }
+  return "Short-term";
+}
+
+const opportunityTypeAffinity: Record<OpportunityType, { primary: OpportunityType[]; secondary: OpportunityType[] }> = {
+  Entrepreneurship: { primary: ["Entrepreneurship"], secondary: ["Leadership"] },
+  Internship: { primary: ["Internship"], secondary: ["Mentorship & Learning"] },
+  Leadership: { primary: ["Leadership"], secondary: ["Entrepreneurship", "Mentorship & Learning"] },
+  "Mentorship & Learning": { primary: ["Mentorship & Learning"], secondary: ["Internship"] },
+};
+
+const durationWeight: Record<NormalizedDuration, Record<NormalizedDuration, number>> = {
+  "Short-term": { "Short-term": 15, "Medium-term": 8, "Long-term": 0 },
+  "Medium-term": { "Short-term": 6, "Medium-term": 15, "Long-term": 8 },
+  "Long-term": { "Short-term": 0, "Medium-term": 10, "Long-term": 18 },
+};
+
+const timeCommitmentWeight: Record<string, Record<string, number>> = {
+  Low: { Low: 12, Medium: 6, High: 0 },
+  Medium: { Low: 6, Medium: 12, High: 6 },
+  High: { Low: 0, Medium: 8, High: 12 },
+};
+
 export function findBestMatches(
   answers: { [key: string]: string },
   allItems: (Competition | BusinessOpportunity)[]
@@ -106,6 +142,7 @@ export function findBestMatches(
     .filter(item => item.status !== 'closed')
     .map(item => {
       let score = 0;
+      let tieBreakerBias = 0;
       
       // --- Competition Logic ---
       if (answers.type === 'competition' && 'teamRequirement' in item) {
@@ -136,56 +173,71 @@ export function findBestMatches(
         } else if (answers.cost === 'any') {
           score += 5; // Bonus for matching "any"
         }
+
+        // Tie-breaker bias for earlier deadlines
+        if (item.deadline) {
+          const deadlineTime = new Date(item.deadline).getTime();
+          if (!Number.isNaN(deadlineTime)) {
+            tieBreakerBias -= deadlineTime / 1_000_000_000;
+          }
+        }
       }
 
       // --- Opportunity Logic ---
       if (answers.type === 'opportunity' && 'opportunityType' in item) {
-        // All opportunity questions are heavily weighted as they define the experience
-        if (item.opportunityType.includes(answers.opportunityType)) {
-          score += 10;
-        }
-        if (item.duration.startsWith(answers.duration)) {
-          score += 10;
-        }
-        if (item.timeCommitment === answers.timeCommitment) {
-          score += 10;
+        const derivedType = deriveOpportunityType({
+          opportunityType: item.opportunityType,
+          category: item.category,
+          title: item.title,
+          description: item.description,
+        });
+
+        const userType = answers.opportunityType as OpportunityType;
+        const affinity = opportunityTypeAffinity[userType];
+
+        if (affinity.primary.includes(derivedType)) {
+          score += 35;
+        } else if (affinity.secondary.includes(derivedType)) {
+          score += 18;
+        } else {
+          score -= 5;
         }
 
-        // Persona Boost: "Ambitious Entrepreneur"
-        if (answers.opportunityType === 'Entrepreneurship' && answers.duration === 'Long-term') {
-          const description = item.description.toLowerCase();
-          if (description.includes('elite') || description.includes('intensive') || description.includes('coveted')) {
-            score += 5; // Add a bonus for ambitious-sounding programs
-          }
+        const normalizedDuration = normalizeDuration(item.duration || "");
+        const desiredDuration = answers.duration as NormalizedDuration;
+        score += durationWeight[desiredDuration]?.[normalizedDuration] ?? 0;
+
+        if (item.timeCommitment) {
+          score += timeCommitmentWeight[answers.timeCommitment]?.[item.timeCommitment] ?? 0;
+        }
+
+        const description = item.description.toLowerCase();
+        if (userType === "Entrepreneurship" && description.includes("venture")) {
+          score += 6;
+        }
+        if (userType === "Mentorship & Learning" && description.includes("mentor")) {
+          score += 6;
+        }
+
+        // Dedicate tie breaker to prioritize long-form programs for leadership/internship tracks
+        if (userType === "Leadership" || userType === "Internship") {
+          if (normalizedDuration === "Long-term") tieBreakerBias += 5;
         }
       }
       
-      return { item, score };
+      return { item, score, tieBreakerBias };
     });
 
   // Sort by the highest score first
-  scoredItems.sort((a, b) => b.score - a.score);
+  scoredItems.sort((a, b) => {
+    if (b.score === a.score) {
+      return b.tieBreakerBias - a.tieBreakerBias;
+    }
+    return b.score - a.score;
+  });
 
-  // Filter for only the top-scoring items
-  const maxScore = scoredItems[0]?.score || 0;
-  if (maxScore <= 0) return []; // If no item scored positively, return nothing
+  const positiveMatches = scoredItems.filter(({ score }) => score > 0);
+  const topMatches = positiveMatches.slice(0, 3).map(({ item }) => item);
 
-  const bestMatches = scoredItems
-    .filter(scoredItem => scoredItem.score === maxScore)
-    .map(scoredItem => scoredItem.item);
-
-  // If there are more than 3 best matches, apply tie-breaker logic
-  if (bestMatches.length > 3) {
-    // Smart Tie-Breaker: Prioritize 'closing-soon' and 'open' over 'upcoming'
-    bestMatches.sort((a, b) => {
-      const statusOrder = { "closing-soon": 1, open: 2, upcoming: 3 };
-      const statusA = statusOrder[a.status as keyof typeof statusOrder] || 4;
-      const statusB = statusOrder[b.status as keyof typeof statusOrder] || 4;
-      return statusA - statusB;
-    });
-    // Then, randomly pick 3 from the top-tier results
-    return shuffleArray(bestMatches).slice(0, 3);
-  }
-
-  return bestMatches;
+  return topMatches.length > 0 ? topMatches : [];
 }
