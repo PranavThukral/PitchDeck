@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -52,7 +58,7 @@ interface Competition {
   location: string;
   cost: string;
   category: string;
-  tags: string[];
+  gradeTags: string[];
   contactEmail: string;
   submittedAt: string;
   rejectionReason?: string;
@@ -72,7 +78,7 @@ interface BusinessOpportunity {
   compensation?: string;
   duration?: string;
   contactEmail: string;
-  tags: string[];
+  gradeTags: string[];
   status: string;
   submittedAt: string;
   rejectionReason?: string;
@@ -97,8 +103,12 @@ interface PendingData {
 export default function AdminApprovalDashboard() {
   const [pendingData, setPendingData] = useState<PendingData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [processingItems, setProcessingItems] = useState<Set<string>>(new Set());
-  const [selectedItem, setSelectedItem] = useState<Competition | BusinessOpportunity | null>(null);
+  const [processingItems, setProcessingItems] = useState<Set<string>>(
+    new Set(),
+  );
+  const [selectedItem, setSelectedItem] = useState<
+    Competition | BusinessOpportunity | null
+  >(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [showRejectDialog, setShowRejectDialog] = useState(false);
 
@@ -126,8 +136,11 @@ export default function AdminApprovalDashboard() {
     }
   };
 
-  const handleApprove = async (itemId: string, itemType: "competition" | "business-opportunity") => {
-    setProcessingItems(prev => new Set(prev).add(itemId));
+  const handleApprove = async (
+    itemId: string,
+    itemType: "competition" | "business-opportunity",
+  ) => {
+    setProcessingItems((prev) => new Set(prev).add(itemId));
 
     try {
       const response = await fetch("/api/admin/approve", {
@@ -146,7 +159,9 @@ export default function AdminApprovalDashboard() {
       const data = await response.json();
 
       if (data.success) {
-        toast.success(`${itemType === "competition" ? "Competition" : "Business opportunity"} approved successfully!`);
+        toast.success(
+          `${itemType === "competition" ? "Competition" : "Business opportunity"} approved successfully!`,
+        );
         await fetchPendingItems(); // Refresh the list
       } else {
         toast.error(data.message || "Failed to approve item");
@@ -155,7 +170,7 @@ export default function AdminApprovalDashboard() {
       console.error("Approval error:", error);
       toast.error("An error occurred while approving");
     } finally {
-      setProcessingItems(prev => {
+      setProcessingItems((prev) => {
         const newSet = new Set(prev);
         newSet.delete(itemId);
         return newSet;
@@ -169,8 +184,9 @@ export default function AdminApprovalDashboard() {
       return;
     }
 
-    const itemType = "category" in selectedItem ? "competition" : "business-opportunity";
-    setProcessingItems(prev => new Set(prev).add(selectedItem._id));
+    const itemType =
+      "category" in selectedItem ? "competition" : "business-opportunity";
+    setProcessingItems((prev) => new Set(prev).add(selectedItem._id));
 
     try {
       const response = await fetch("/api/admin/approve", {
@@ -190,7 +206,9 @@ export default function AdminApprovalDashboard() {
       const data = await response.json();
 
       if (data.success) {
-        toast.success(`${itemType === "competition" ? "Competition" : "Business opportunity"} rejected successfully!`);
+        toast.success(
+          `${itemType === "competition" ? "Competition" : "Business opportunity"} rejected successfully!`,
+        );
         setShowRejectDialog(false);
         setSelectedItem(null);
         setRejectionReason("");
@@ -202,7 +220,7 @@ export default function AdminApprovalDashboard() {
       console.error("Rejection error:", error);
       toast.error("An error occurred while rejecting");
     } finally {
-      setProcessingItems(prev => {
+      setProcessingItems((prev) => {
         const newSet = new Set(prev);
         newSet.delete(selectedItem._id);
         return newSet;
@@ -231,7 +249,15 @@ export default function AdminApprovalDashboard() {
               {competition.organizer}
             </CardDescription>
           </div>
-          <Badge variant={competition.status === "pending" ? "secondary" : competition.status === "rejected" ? "destructive" : "default"}>
+          <Badge
+            variant={
+              competition.status === "pending"
+                ? "secondary"
+                : competition.status === "rejected"
+                  ? "destructive"
+                  : "default"
+            }
+          >
             {competition.status}
           </Badge>
         </div>
@@ -262,14 +288,16 @@ export default function AdminApprovalDashboard() {
 
         <div className="flex flex-wrap gap-1 mb-4">
           <Badge variant="secondary">{competition.category}</Badge>
-          {competition.tags.slice(0, 2).map((tag, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
-          {competition.tags.length > 2 && (
+          {(competition.gradeTags || [])
+            .slice(0, 2)
+            .map((tag: string, index: number) => (
+              <Badge key={index} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          {(competition.gradeTags || []).length > 2 && (
             <Badge variant="outline" className="text-xs">
-              +{competition.tags.length - 2} more
+              +{(competition.gradeTags || []).length - 2} more
             </Badge>
           )}
         </div>
@@ -321,7 +349,11 @@ export default function AdminApprovalDashboard() {
     </Card>
   );
 
-  const BusinessOpportunityCard = ({ opportunity }: { opportunity: BusinessOpportunity }) => (
+  const BusinessOpportunityCard = ({
+    opportunity,
+  }: {
+    opportunity: BusinessOpportunity;
+  }) => (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
@@ -334,7 +366,15 @@ export default function AdminApprovalDashboard() {
               {opportunity.company}
             </CardDescription>
           </div>
-          <Badge variant={opportunity.status === "pending" ? "secondary" : opportunity.status === "rejected" ? "destructive" : "default"}>
+          <Badge
+            variant={
+              opportunity.status === "pending"
+                ? "secondary"
+                : opportunity.status === "rejected"
+                  ? "destructive"
+                  : "default"
+            }
+          >
             {opportunity.status}
           </Badge>
         </div>
@@ -353,7 +393,9 @@ export default function AdminApprovalDashboard() {
             <MapPin className="h-4 w-4 text-blue-500" />
             <span>{opportunity.location}</span>
             {opportunity.remote && (
-              <Badge variant="outline" className="text-xs ml-2">Remote</Badge>
+              <Badge variant="outline" className="text-xs ml-2">
+                Remote
+              </Badge>
             )}
           </div>
           {opportunity.compensation && (
@@ -366,14 +408,16 @@ export default function AdminApprovalDashboard() {
 
         <div className="flex flex-wrap gap-1 mb-4">
           <Badge variant="secondary">{opportunity.type}</Badge>
-          {opportunity.tags.slice(0, 2).map((tag, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
-          {opportunity.tags.length > 2 && (
+          {(opportunity.gradeTags || [])
+            .slice(0, 2)
+            .map((tag: string, index: number) => (
+              <Badge key={index} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          {(opportunity.gradeTags || []).length > 2 && (
             <Badge variant="outline" className="text-xs">
-              +{opportunity.tags.length - 2} more
+              +{(opportunity.gradeTags || []).length - 2} more
             </Badge>
           )}
         </div>
@@ -396,7 +440,9 @@ export default function AdminApprovalDashboard() {
             <Button
               size="sm"
               className="flex-1 bg-green-600 hover:bg-green-700"
-              onClick={() => handleApprove(opportunity._id, "business-opportunity")}
+              onClick={() =>
+                handleApprove(opportunity._id, "business-opportunity")
+              }
               disabled={processingItems.has(opportunity._id)}
             >
               {processingItems.has(opportunity._id) ? (
@@ -472,7 +518,9 @@ export default function AdminApprovalDashboard() {
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       Pending Reviews
                     </p>
-                    <p className="text-2xl font-bold">{pendingData?.stats.totalPending || 0}</p>
+                    <p className="text-2xl font-bold">
+                      {pendingData?.stats.totalPending || 0}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -486,7 +534,9 @@ export default function AdminApprovalDashboard() {
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       Competitions
                     </p>
-                    <p className="text-2xl font-bold">{pendingData?.stats.totalPendingCompetitions || 0}</p>
+                    <p className="text-2xl font-bold">
+                      {pendingData?.stats.totalPendingCompetitions || 0}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -500,7 +550,10 @@ export default function AdminApprovalDashboard() {
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       Opportunities
                     </p>
-                    <p className="text-2xl font-bold">{pendingData?.stats.totalPendingBusinessOpportunities || 0}</p>
+                    <p className="text-2xl font-bold">
+                      {pendingData?.stats.totalPendingBusinessOpportunities ||
+                        0}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -525,7 +578,9 @@ export default function AdminApprovalDashboard() {
                 <Card>
                   <CardContent className="p-12 text-center">
                     <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">All caught up!</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      All caught up!
+                    </h3>
                     <p className="text-gray-600 dark:text-gray-400">
                       No pending submissions to review at the moment.
                     </p>
@@ -537,11 +592,15 @@ export default function AdminApprovalDashboard() {
                     <div>
                       <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                         <Trophy className="h-6 w-6 text-blue-500" />
-                        Pending Competitions ({pendingData.pending.competitions.length})
+                        Pending Competitions (
+                        {pendingData.pending.competitions.length})
                       </h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                         {pendingData.pending.competitions.map((competition) => (
-                          <CompetitionCard key={competition._id} competition={competition} />
+                          <CompetitionCard
+                            key={competition._id}
+                            competition={competition}
+                          />
                         ))}
                       </div>
                     </div>
@@ -551,12 +610,18 @@ export default function AdminApprovalDashboard() {
                     <div>
                       <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                         <Building className="h-6 w-6 text-green-500" />
-                        Pending Business Opportunities ({pendingData.pending.businessOpportunities.length})
+                        Pending Business Opportunities (
+                        {pendingData.pending.businessOpportunities.length})
                       </h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {pendingData.pending.businessOpportunities.map((opportunity) => (
-                          <BusinessOpportunityCard key={opportunity._id} opportunity={opportunity} />
-                        ))}
+                        {pendingData.pending.businessOpportunities.map(
+                          (opportunity) => (
+                            <BusinessOpportunityCard
+                              key={opportunity._id}
+                              opportunity={opportunity}
+                            />
+                          ),
+                        )}
                       </div>
                     </div>
                   )}
@@ -565,11 +630,14 @@ export default function AdminApprovalDashboard() {
             </TabsContent>
 
             <TabsContent value="rejected" className="space-y-6">
-              {(pendingData?.rejected.competitions.length === 0 && pendingData?.rejected.businessOpportunities.length === 0) ? (
+              {pendingData?.rejected.competitions.length === 0 &&
+              pendingData?.rejected.businessOpportunities.length === 0 ? (
                 <Card>
                   <CardContent className="p-12 text-center">
                     <XCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No rejected items</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      No rejected items
+                    </h3>
                     <p className="text-gray-600 dark:text-gray-400">
                       No recently rejected submissions to show.
                     </p>
@@ -581,12 +649,18 @@ export default function AdminApprovalDashboard() {
                     <div>
                       <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                         <Trophy className="h-6 w-6 text-blue-500" />
-                        Rejected Competitions ({pendingData.rejected.competitions.length})
+                        Rejected Competitions (
+                        {pendingData.rejected.competitions.length})
                       </h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        {pendingData.rejected.competitions.map((competition) => (
-                          <CompetitionCard key={competition._id} competition={competition} />
-                        ))}
+                        {pendingData.rejected.competitions.map(
+                          (competition) => (
+                            <CompetitionCard
+                              key={competition._id}
+                              competition={competition}
+                            />
+                          ),
+                        )}
                       </div>
                     </div>
                   )}
@@ -595,12 +669,18 @@ export default function AdminApprovalDashboard() {
                     <div>
                       <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                         <Building className="h-6 w-6 text-green-500" />
-                        Rejected Business Opportunities ({pendingData.rejected.businessOpportunities.length})
+                        Rejected Business Opportunities (
+                        {pendingData.rejected.businessOpportunities.length})
                       </h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {pendingData.rejected.businessOpportunities.map((opportunity) => (
-                          <BusinessOpportunityCard key={opportunity._id} opportunity={opportunity} />
-                        ))}
+                        {pendingData.rejected.businessOpportunities.map(
+                          (opportunity) => (
+                            <BusinessOpportunityCard
+                              key={opportunity._id}
+                              opportunity={opportunity}
+                            />
+                          ),
+                        )}
                       </div>
                     </div>
                   )}
@@ -618,8 +698,11 @@ export default function AdminApprovalDashboard() {
             <DialogTitle>Reject Submission</DialogTitle>
             <DialogDescription>
               Please provide a reason for rejecting this{" "}
-              {selectedItem && "category" in selectedItem ? "competition" : "business opportunity"}.
-              This will help the organizer understand what needs to be improved.
+              {selectedItem && "category" in selectedItem
+                ? "competition"
+                : "business opportunity"}
+              . This will help the organizer understand what needs to be
+              improved.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -636,13 +719,19 @@ export default function AdminApprovalDashboard() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowRejectDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowRejectDialog(false)}
+            >
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleReject}
-              disabled={!rejectionReason.trim() || (selectedItem && processingItems.has(selectedItem._id))}
+              disabled={
+                !rejectionReason.trim() ||
+                (selectedItem && processingItems.has(selectedItem._id))
+              }
             >
               {selectedItem && processingItems.has(selectedItem._id) ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />

@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,7 +40,7 @@ interface Competition {
   description: string;
   location: string;
   category: string;
-  tags: string[];
+  gradeTags: string[];
   submittedAt: string;
   rejectionReason?: string;
 }
@@ -49,7 +55,7 @@ interface BusinessOpportunity {
   deadline: string;
   description: string;
   compensation?: string;
-  tags: string[];
+  gradeTags: string[];
   status: string;
   submittedAt: string;
   rejectionReason?: string;
@@ -87,7 +93,9 @@ interface OrganizerData {
 }
 
 export default function OrganizerDashboardSimple() {
-  const [dashboardData, setDashboardData] = useState<OrganizerData | null>(null);
+  const [dashboardData, setDashboardData] = useState<OrganizerData | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -176,11 +184,13 @@ export default function OrganizerDashboardSimple() {
 
         <div className="flex flex-wrap gap-1 mb-4">
           <Badge variant="secondary">{competition.category}</Badge>
-          {competition.tags.slice(0, 2).map((tag, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
+          {(competition.gradeTags || [])
+            .slice(0, 2)
+            .map((tag: string, index: number) => (
+              <Badge key={index} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
         </div>
 
         <div className="text-sm text-gray-500 mb-4">
@@ -198,7 +208,11 @@ export default function OrganizerDashboardSimple() {
     </Card>
   );
 
-  const BusinessOpportunityCard = ({ opportunity }: { opportunity: BusinessOpportunity }) => (
+  const BusinessOpportunityCard = ({
+    opportunity,
+  }: {
+    opportunity: BusinessOpportunity;
+  }) => (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
@@ -230,7 +244,9 @@ export default function OrganizerDashboardSimple() {
             <MapPin className="h-4 w-4 text-blue-500" />
             <span>{opportunity.location}</span>
             {opportunity.remote && (
-              <Badge variant="outline" className="text-xs ml-2">Remote</Badge>
+              <Badge variant="outline" className="text-xs ml-2">
+                Remote
+              </Badge>
             )}
           </div>
           {opportunity.compensation && (
@@ -243,11 +259,13 @@ export default function OrganizerDashboardSimple() {
 
         <div className="flex flex-wrap gap-1 mb-4">
           <Badge variant="secondary">{opportunity.type}</Badge>
-          {opportunity.tags.slice(0, 2).map((tag, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
+          {(opportunity.gradeTags || [])
+            .slice(0, 2)
+            .map((tag: string, index: number) => (
+              <Badge key={index} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
         </div>
 
         <div className="text-sm text-gray-500 mb-4">
@@ -309,7 +327,8 @@ export default function OrganizerDashboardSimple() {
                   Welcome, {dashboardData.user.firstName}!
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400 mt-1">
-                  {dashboardData.user.position} at {dashboardData.user.organization}
+                  {dashboardData.user.position} at{" "}
+                  {dashboardData.user.organization}
                 </p>
               </div>
               <div className="flex space-x-4">
@@ -339,7 +358,9 @@ export default function OrganizerDashboardSimple() {
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       Total Submissions
                     </p>
-                    <p className="text-2xl font-bold">{dashboardData.stats.totalSubmissions}</p>
+                    <p className="text-2xl font-bold">
+                      {dashboardData.stats.totalSubmissions}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -353,7 +374,9 @@ export default function OrganizerDashboardSimple() {
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       Pending Review
                     </p>
-                    <p className="text-2xl font-bold">{dashboardData.stats.totalPending}</p>
+                    <p className="text-2xl font-bold">
+                      {dashboardData.stats.totalPending}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -367,7 +390,9 @@ export default function OrganizerDashboardSimple() {
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       Approved
                     </p>
-                    <p className="text-2xl font-bold">{dashboardData.stats.totalApproved}</p>
+                    <p className="text-2xl font-bold">
+                      {dashboardData.stats.totalApproved}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -381,7 +406,9 @@ export default function OrganizerDashboardSimple() {
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       Rejected
                     </p>
-                    <p className="text-2xl font-bold">{dashboardData.stats.totalRejected}</p>
+                    <p className="text-2xl font-bold">
+                      {dashboardData.stats.totalRejected}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -391,13 +418,20 @@ export default function OrganizerDashboardSimple() {
           {/* Main Content */}
           <Tabs defaultValue="competitions" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="competitions" className="flex items-center gap-2">
+              <TabsTrigger
+                value="competitions"
+                className="flex items-center gap-2"
+              >
                 <Trophy className="h-4 w-4" />
                 My Competitions ({dashboardData.stats.competitions.total})
               </TabsTrigger>
-              <TabsTrigger value="opportunities" className="flex items-center gap-2">
+              <TabsTrigger
+                value="opportunities"
+                className="flex items-center gap-2"
+              >
                 <Building className="h-4 w-4" />
-                My Opportunities ({dashboardData.stats.businessOpportunities.total})
+                My Opportunities (
+                {dashboardData.stats.businessOpportunities.total})
               </TabsTrigger>
             </TabsList>
 
@@ -406,7 +440,9 @@ export default function OrganizerDashboardSimple() {
                 <Card>
                   <CardContent className="p-12 text-center">
                     <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No competitions yet</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      No competitions yet
+                    </h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-4">
                       Create your first competition to get started!
                     </p>
@@ -420,19 +456,27 @@ export default function OrganizerDashboardSimple() {
                 </Card>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {dashboardData.mySubmissions.competitions.map((competition) => (
-                    <CompetitionCard key={competition._id} competition={competition} />
-                  ))}
+                  {dashboardData.mySubmissions.competitions.map(
+                    (competition) => (
+                      <CompetitionCard
+                        key={competition._id}
+                        competition={competition}
+                      />
+                    ),
+                  )}
                 </div>
               )}
             </TabsContent>
 
             <TabsContent value="opportunities" className="space-y-6">
-              {dashboardData.mySubmissions.businessOpportunities.length === 0 ? (
+              {dashboardData.mySubmissions.businessOpportunities.length ===
+              0 ? (
                 <Card>
                   <CardContent className="p-12 text-center">
                     <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No opportunities yet</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      No opportunities yet
+                    </h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-4">
                       Create your first business opportunity to get started!
                     </p>
@@ -446,9 +490,14 @@ export default function OrganizerDashboardSimple() {
                 </Card>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {dashboardData.mySubmissions.businessOpportunities.map((opportunity) => (
-                    <BusinessOpportunityCard key={opportunity._id} opportunity={opportunity} />
-                  ))}
+                  {dashboardData.mySubmissions.businessOpportunities.map(
+                    (opportunity) => (
+                      <BusinessOpportunityCard
+                        key={opportunity._id}
+                        opportunity={opportunity}
+                      />
+                    ),
+                  )}
                 </div>
               )}
             </TabsContent>

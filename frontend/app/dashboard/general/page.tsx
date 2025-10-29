@@ -40,7 +40,7 @@ interface Competition {
   location: string;
   category: string;
   applicationType: string;
-  tags: string[];
+  gradeTags: string[];
   description: string;
 }
 
@@ -48,14 +48,21 @@ interface BusinessOpportunity {
   _id?: string;
   id?: string;
   title: string;
-  company: string;
-  type: string;
-  location: string;
-  remote: boolean;
-  deadline: string;
-  compensation?: string;
-  tags: string[];
+  organizer: string;
+  category: string;
+  format: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  cost: string;
+  costNumeric: number;
+  gradeTags: string[];
   description: string;
+  applicationType: string;
+  applyUrl: string;
+  duration: string;
+  timeCommitment: string;
+  opportunityType: string[];
 }
 
 interface DashboardData {
@@ -100,7 +107,76 @@ export default function GeneralDashboard() {
       const data = await response.json();
 
       if (data.success) {
-        setDashboardData(data.data);
+        console.log("🔍 API DATA DEBUG:", {
+          competitionsCount: data.data.competitions?.length || 0,
+          firstCompetition: data.data.competitions?.[0]
+            ? {
+                title: data.data.competitions[0].title,
+                hasGradeTags: "gradeTags" in data.data.competitions[0],
+                gradeTagsValue: data.data.competitions[0].gradeTags,
+                hasOldTags: "tags" in data.data.competitions[0],
+                oldTagsValue: data.data.competitions[0].tags,
+                allKeys: Object.keys(data.data.competitions[0]),
+              }
+            : null,
+        });
+
+        // Validate and transform data to ensure gradeTags field exists
+        const transformedData = {
+          ...data.data,
+          competitions:
+            data.data.competitions?.map(
+              (comp: Competition & { tags?: string[] }) => ({
+                ...comp,
+                gradeTags: comp.gradeTags || comp.tags || [],
+              }),
+            ) || [],
+          businessOpportunities:
+            data.data.businessOpportunities?.map(
+              (opp: BusinessOpportunity & { tags?: string[] }) => ({
+                ...opp,
+                gradeTags: opp.gradeTags || opp.tags || [],
+              }),
+            ) || [],
+          featured: {
+            ...data.data.featured,
+            competitions:
+              data.data.featured?.competitions?.map(
+                (comp: Competition & { tags?: string[] }) => ({
+                  ...comp,
+                  gradeTags: comp.gradeTags || comp.tags || [],
+                }),
+              ) || [],
+            businessOpportunities:
+              data.data.featured?.businessOpportunities?.map(
+                (opp: BusinessOpportunity & { tags?: string[] }) => ({
+                  ...opp,
+                  gradeTags: opp.gradeTags || opp.tags || [],
+                }),
+              ) || [],
+          },
+          favourites:
+            data.data.favourites?.map(
+              (
+                fav: (Competition | BusinessOpportunity) & { tags?: string[] },
+              ) => ({
+                ...fav,
+                gradeTags: fav.gradeTags || fav.tags || [],
+              }),
+            ) || [],
+        };
+
+        console.log("🔍 TRANSFORMED DATA:", {
+          firstCompTransformed: transformedData.competitions?.[0]
+            ? {
+                title: transformedData.competitions[0].title,
+                gradeTags: transformedData.competitions[0].gradeTags,
+                hasGradeTags: "gradeTags" in transformedData.competitions[0],
+              }
+            : null,
+        });
+
+        setDashboardData(transformedData);
         setFavouriteIds(
           data.data.favourites.map(
             (fav: Competition | BusinessOpportunity) => fav._id || fav.id,
@@ -156,7 +232,20 @@ export default function GeneralDashboard() {
   };
 
   // Helper function to get ID from item with deadline to ensure uniqueness
-  const getItemId = (
+  // Get the actual database ID for API calls (favorites, etc.)
+  const getDatabaseId = (item: Competition | BusinessOpportunity): string => {
+    return item._id || item.id || "";
+  };
+
+  // Check if item is from database (has MongoDB ObjectId) vs Google Sheets
+  const isDatabaseItem = (item: Competition | BusinessOpportunity): boolean => {
+    const id = item._id || item.id || "";
+    // MongoDB ObjectIds are exactly 24 characters and hexadecimal
+    return /^[0-9a-fA-F]{24}$/.test(id);
+  };
+
+  // Get unique React key for rendering (can contain any characters)
+  const getReactKey = (
     item: Competition | BusinessOpportunity,
     index?: number,
     section?: string,
@@ -166,11 +255,32 @@ export default function GeneralDashboard() {
       item.id ||
       `fallback-${item.title?.replace(/\s+/g, "-").toLowerCase() || "unknown"}`;
 
-    // Add section prefix, deadline and index to make key truly unique
-    const deadline = item.deadline || "no-date";
+    // Add section prefix, date and index to make key truly unique
+    let dateField = "no-date";
+
+    // Type guard for Competition
+    const isCompetition = (
+      obj: Competition | BusinessOpportunity,
+    ): obj is Competition => {
+      return "deadline" in obj;
+    };
+
+    // Type guard for BusinessOpportunity
+    const isBusinessOpportunity = (
+      obj: Competition | BusinessOpportunity,
+    ): obj is BusinessOpportunity => {
+      return "startDate" in obj;
+    };
+
+    if (isCompetition(item) && item.deadline) {
+      dateField = item.deadline;
+    } else if (isBusinessOpportunity(item) && item.startDate) {
+      dateField = item.startDate;
+    }
+
     const sectionPrefix = section ? `${section}-` : "";
     const indexSuffix = index !== undefined ? `-${index}` : "";
-    const uniqueId = `${sectionPrefix}${baseId}-${deadline}${indexSuffix}`;
+    const uniqueId = `${sectionPrefix}${baseId}-${dateField}${indexSuffix}`;
 
     return uniqueId;
   };
@@ -184,7 +294,20 @@ export default function GeneralDashboard() {
   };
 
   const CompetitionCard = ({ competition }: { competition: Competition }) => {
-    const itemId = getItemId(competition);
+    console.log("🔍 CompetitionCard DEBUG:", {
+      title: competition.title,
+      hasGradeTags: "gradeTags" in competition,
+      gradeTagsValue: competition.gradeTags,
+      gradeTagsType: typeof competition.gradeTags,
+      hasOldTags: "tags" in competition,
+      oldTagsValue: (competition as Competition & { tags?: string[] }).tags,
+      allKeys: Object.keys(competition),
+    });
+
+    const databaseId = getDatabaseId(competition);
+    const reactKey = getReactKey(competition);
+    const isDbItem = isDatabaseItem(competition);
+
     return (
       <Card className="hover:shadow-lg transition-shadow">
         <CardHeader className="pb-3">
@@ -195,18 +318,30 @@ export default function GeneralDashboard() {
               </CardTitle>
               <CardDescription>{competition.organizer}</CardDescription>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleFavourite(itemId, "competition")}
-              className="ml-2"
-            >
-              {favouriteIds.includes(itemId) ? (
-                <BookmarkMinus className="h-4 w-4 text-red-500" />
-              ) : (
-                <BookmarkPlus className="h-4 w-4" />
-              )}
-            </Button>
+            {isDbItem ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleFavourite(databaseId, "competition")}
+                className="ml-2"
+              >
+                {favouriteIds.includes(databaseId) ? (
+                  <BookmarkMinus className="h-4 w-4 text-red-500" />
+                ) : (
+                  <BookmarkPlus className="h-4 w-4" />
+                )}
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled
+                className="ml-2 opacity-50 cursor-not-allowed"
+                title="Favorites are only available for database-stored items. This item is from Google Sheets."
+              >
+                <BookmarkPlus className="h-4 w-4 text-gray-300" />
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent className="pt-0">
@@ -235,22 +370,55 @@ export default function GeneralDashboard() {
 
           <div className="flex flex-wrap gap-1 mb-4">
             <Badge variant="secondary">{competition.category}</Badge>
-            {(competition.tags || [])
-              .slice(0, 2)
-              .map((tag: string, index: number) => (
-                <Badge
-                  key={`comp-tag-${itemId}-${index}`}
-                  variant="outline"
-                  className="text-xs"
-                >
-                  {tag}
-                </Badge>
-              ))}
-            {(competition.tags || []).length > 2 && (
-              <Badge variant="outline" className="text-xs">
-                +{(competition.tags || []).length - 2} more
-              </Badge>
-            )}
+            {(() => {
+              try {
+                console.log("🔍 About to render competition tags:", {
+                  title: competition.title,
+                  gradeTags: competition.gradeTags,
+                  gradeTagsType: typeof competition.gradeTags,
+                  hasGradeTags: "gradeTags" in competition,
+                  hasOldTags: "tags" in competition,
+                  oldTagsValue: (
+                    competition as Competition & { tags?: string[] }
+                  ).tags,
+                });
+
+                const tags = competition.gradeTags || [];
+                return tags.slice(0, 2).map((tag: string, index: number) => (
+                  <Badge
+                    key={`comp-tag-${reactKey}-${index}`}
+                    variant="outline"
+                    className="text-xs"
+                  >
+                    {tag}
+                  </Badge>
+                ));
+              } catch (error) {
+                console.error(
+                  "🚨 ERROR in competition tags rendering:",
+                  error,
+                  {
+                    competition,
+                    gradeTags: competition.gradeTags,
+                    hasGradeTags: "gradeTags" in competition,
+                  },
+                );
+                return null;
+              }
+            })()}
+            {(() => {
+              try {
+                const tags = competition.gradeTags || [];
+                return tags.length > 2 ? (
+                  <Badge variant="outline" className="text-xs">
+                    +{tags.length - 2} more
+                  </Badge>
+                ) : null;
+              } catch (error) {
+                console.error("🚨 ERROR in competition tags count:", error);
+                return null;
+              }
+            })()}
           </div>
 
           <Button className="w-full" size="sm">
@@ -266,7 +434,21 @@ export default function GeneralDashboard() {
   }: {
     opportunity: BusinessOpportunity;
   }) => {
-    const itemId = getItemId(opportunity);
+    console.log("🔍 BusinessOpportunityCard DEBUG:", {
+      title: opportunity.title,
+      hasGradeTags: "gradeTags" in opportunity,
+      gradeTagsValue: opportunity.gradeTags,
+      gradeTagsType: typeof opportunity.gradeTags,
+      hasOldTags: "tags" in opportunity,
+      oldTagsValue: (opportunity as BusinessOpportunity & { tags?: string[] })
+        .tags,
+      allKeys: Object.keys(opportunity),
+    });
+
+    const databaseId = getDatabaseId(opportunity);
+    const reactKey = getReactKey(opportunity);
+    const isDbItem = isDatabaseItem(opportunity);
+
     return (
       <Card className="hover:shadow-lg transition-shadow">
         <CardHeader className="pb-3">
@@ -275,20 +457,34 @@ export default function GeneralDashboard() {
               <CardTitle className="text-lg font-semibold line-clamp-2">
                 {opportunity.title}
               </CardTitle>
-              <CardDescription>{opportunity.company}</CardDescription>
+              <CardDescription>{opportunity.organizer}</CardDescription>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleFavourite(itemId, "business-opportunity")}
-              className="ml-2"
-            >
-              {favouriteIds.includes(itemId) ? (
-                <BookmarkMinus className="h-4 w-4 text-red-500" />
-              ) : (
-                <BookmarkPlus className="h-4 w-4 text-gray-500" />
-              )}
-            </Button>
+            {isDbItem ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  toggleFavourite(databaseId, "business-opportunity")
+                }
+                className="ml-2"
+              >
+                {favouriteIds.includes(databaseId) ? (
+                  <BookmarkMinus className="h-4 w-4 text-red-500" />
+                ) : (
+                  <BookmarkPlus className="h-4 w-4" />
+                )}
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled
+                className="ml-2 opacity-50 cursor-not-allowed"
+                title="Favorites are only available for database-stored items. This item is from Google Sheets."
+              >
+                <BookmarkPlus className="h-4 w-4 text-gray-300" />
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent className="pt-0">
@@ -299,48 +495,80 @@ export default function GeneralDashboard() {
           <div className="space-y-2 mb-4">
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-orange-500" />
-              <span>Deadline: {formatDate(opportunity.deadline)}</span>
+              <span>Start: {formatDate(opportunity.startDate)}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4 text-red-500" />
+              <span>End: {formatDate(opportunity.endDate)}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <MapPin className="h-4 w-4 text-blue-500" />
-              <span>{opportunity.location}</span>
-              {opportunity.remote && (
-                <Badge variant="outline" className="text-xs ml-2">
-                  Remote
-                </Badge>
-              )}
+              <span>{opportunity.format}</span>
             </div>
-            {opportunity.compensation && (
-              <div className="flex items-center gap-2 text-sm">
-                <DollarSign className="h-4 w-4 text-green-500" />
-                <span>{opportunity.compensation}</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2 text-sm">
+              <DollarSign className="h-4 w-4 text-green-500" />
+              <span>{opportunity.cost}</span>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-1 mb-4">
-            <Badge variant="secondary">{opportunity.type}</Badge>
-            {(opportunity.tags || [])
-              .slice(0, 2)
-              .map((tag: string, index: number) => (
-                <Badge
-                  key={`opp-tag-${itemId}-${index}`}
-                  variant="outline"
-                  className="text-xs"
-                >
-                  {tag}
-                </Badge>
-              ))}
-            {(opportunity.tags || []).length > 2 && (
-              <Badge variant="outline" className="text-xs">
-                +{(opportunity.tags || []).length - 2} more
-              </Badge>
-            )}
+            <Badge variant="secondary">{opportunity.category}</Badge>
+            {(() => {
+              try {
+                console.log("🔍 About to render opportunity tags:", {
+                  title: opportunity.title,
+                  gradeTags: opportunity.gradeTags,
+                  gradeTagsType: typeof opportunity.gradeTags,
+                  hasGradeTags: "gradeTags" in opportunity,
+                  hasOldTags: "tags" in opportunity,
+                  oldTagsValue: (
+                    opportunity as BusinessOpportunity & { tags?: string[] }
+                  ).tags,
+                });
+
+                const tags = opportunity.gradeTags || [];
+                return tags.slice(0, 2).map((tag: string, index: number) => (
+                  <Badge
+                    key={`opp-tag-${reactKey}-${index}`}
+                    variant="outline"
+                    className="text-xs"
+                  >
+                    {tag}
+                  </Badge>
+                ));
+              } catch (error) {
+                console.error(
+                  "🚨 ERROR in opportunity tags rendering:",
+                  error,
+                  {
+                    opportunity,
+                    gradeTags: opportunity.gradeTags,
+                    hasGradeTags: "gradeTags" in opportunity,
+                  },
+                );
+                return null;
+              }
+            })()}
+            {(() => {
+              try {
+                const tags = opportunity.gradeTags || [];
+                return tags.length > 2 ? (
+                  <Badge variant="outline" className="text-xs">
+                    +{tags.length - 2} more
+                  </Badge>
+                ) : null;
+              } catch (error) {
+                console.error("🚨 ERROR in opportunity tags count:", error);
+                return null;
+              }
+            })()}
           </div>
 
-          <Button className="w-full" size="sm">
-            View Details
-          </Button>
+          <div className="mt-4">
+            <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+              Learn More
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -499,7 +727,11 @@ export default function GeneralDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {dashboardData.featured.competitions.map(
                   (competition: Competition, index: number) => {
-                    const key = getItemId(competition, index, "featured-comp");
+                    const key = getReactKey(
+                      competition,
+                      index,
+                      "featured-comp",
+                    );
                     return (
                       <CompetitionCard key={key} competition={competition} />
                     );
@@ -517,7 +749,7 @@ export default function GeneralDashboard() {
                 {dashboardData.featured.businessOpportunities.map(
                   (opportunity: BusinessOpportunity, index: number) => (
                     <BusinessOpportunityCard
-                      key={getItemId(opportunity, index, "featured-opp")}
+                      key={getReactKey(opportunity, index, "featured-opp")}
                       opportunity={opportunity}
                     />
                   ),
@@ -532,7 +764,7 @@ export default function GeneralDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {dashboardData.competitions.map(
                   (competition: Competition, index: number) => {
-                    const key = getItemId(competition, index, "all-comp");
+                    const key = getReactKey(competition, index, "all-comp");
                     return (
                       <CompetitionCard key={key} competition={competition} />
                     );
@@ -551,7 +783,7 @@ export default function GeneralDashboard() {
                 {dashboardData.businessOpportunities.map(
                   (opportunity: BusinessOpportunity, index: number) => (
                     <BusinessOpportunityCard
-                      key={getItemId(opportunity, index, "all-opp")}
+                      key={getReactKey(opportunity, index, "all-opp")}
                       opportunity={opportunity}
                     />
                   ),
@@ -602,14 +834,14 @@ export default function GeneralDashboard() {
                       if ("category" in favourite) {
                         return (
                           <CompetitionCard
-                            key={getItemId(favourite, index, "fav-comp")}
+                            key={getReactKey(favourite, index, "fav-comp")}
                             competition={favourite as Competition}
                           />
                         );
                       } else if ("company" in favourite) {
                         return (
                           <BusinessOpportunityCard
-                            key={getItemId(favourite, index, "fav-opp")}
+                            key={getReactKey(favourite, index, "fav-opp")}
                             opportunity={favourite as BusinessOpportunity}
                           />
                         );
