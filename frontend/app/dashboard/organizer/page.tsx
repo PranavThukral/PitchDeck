@@ -1,10 +1,5 @@
-import { OrganizerDashboard } from "@/components/dashboard/organizer-dashboard"
-import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
+import OrganizerDashboardSimple from "@/components/dashboard/organizer-dashboard-simple";
 
 export default function OrganizerDashboardPage() {
-  return (
-    <DashboardLayout role="organizer">
-      <OrganizerDashboard />
-    </DashboardLayout>
-  )
+  return <OrganizerDashboardSimple />;
 }

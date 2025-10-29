@@ -1,26 +1,35 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedUser } from '../../../../lib/middleware/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { verifyAuth } from "../../../../lib/middleware/auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(request);
+    const authResult = await verifyAuth(request);
 
-    if (!user) {
+    if (!authResult.success || !authResult.user) {
       return NextResponse.json(
-        { message: "Not authenticated" },
-        { status: 401 }
+        {
+          message: "Not authenticated",
+          success: false,
+        },
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
-      { user },
-      { status: 200 }
+      {
+        user: authResult.user,
+        success: true,
+      },
+      { status: 200 },
     );
   } catch (error) {
-    console.error('Get user error:', error);
+    console.error("Get user error:", error);
     return NextResponse.json(
-      { message: "Invalid or expired token" },
-      { status: 401 }
+      {
+        message: "Authentication error",
+        success: false,
+      },
+      { status: 401 },
     );
   }
 }

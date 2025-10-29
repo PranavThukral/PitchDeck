@@ -1,10 +1,5 @@
-import { AdminDashboard } from "@/components/dashboard/admin-dashboard"
-import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
+import AdminApprovalDashboard from "@/components/dashboard/admin-approval-dashboard";
 
 export default function AdminDashboardPage() {
-  return (
-    <DashboardLayout role="admin">
-      <AdminDashboard />
-    </DashboardLayout>
-  )
+  return <AdminApprovalDashboard />;
 }

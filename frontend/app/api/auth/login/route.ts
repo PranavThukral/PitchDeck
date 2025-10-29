@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import {
   connectToDatabase,
   isMongoDBConfigured,
@@ -9,7 +8,7 @@ import {
   validateLogin,
   withValidation,
 } from "../../../../lib/middleware/validation";
-import { signToken, setAuthCookie } from "../../../../lib/middleware/auth";
+import { setAuthCookie } from "../../../../lib/middleware/auth";
 import { LoginData } from "../../../../lib/types/api";
 
 export async function POST(request: NextRequest) {
@@ -31,7 +30,12 @@ export async function POST(request: NextRequest) {
 
         await connectToDatabase();
 
-        const user = await User.findOne({ email });
+        // Find user with plain text password comparison
+        const user = await User.findOne({
+          email: email.toLowerCase().trim(),
+          password: password, // Plain text password comparison
+        });
+
         if (!user) {
           return NextResponse.json(
             { message: "Invalid credentials" },
@@ -39,25 +43,22 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
+        if (!user.approved) {
           return NextResponse.json(
-            { message: "Invalid credentials" },
-            { status: 400 },
+            { message: "User account not approved" },
+            { status: 403 },
           );
         }
 
         const { password: _, ...userData } = user.toObject();
-
-        // Create JWT
-        const token = signToken({ id: user._id.toString(), email: user.email });
 
         const response = NextResponse.json(
           { message: "Login successful", user: userData },
           { status: 200 },
         );
 
-        setAuthCookie(response, token);
+        // Set auth cookies
+        setAuthCookie(response, user.email, password, user.userType);
 
         return response;
       } catch (error) {

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import {
   connectToDatabase,
   isMongoDBConfigured,
@@ -21,10 +20,12 @@ export async function POST(request: NextRequest) {
         lastName,
         email,
         password,
-        role,
+        userType = "general",
         school,
         grade,
-        approved,
+        organization,
+        position,
+        approved = true,
         favourites = [],
       } = data;
 
@@ -40,7 +41,9 @@ export async function POST(request: NextRequest) {
 
         await connectToDatabase();
 
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({
+          email: email.toLowerCase().trim(),
+        });
         if (existingUser) {
           return NextResponse.json(
             { message: "User already exists" },
@@ -48,24 +51,29 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-
         const user = new User({
           firstName,
           lastName,
-          email,
-          password: hashedPassword,
-          role,
+          email: email.toLowerCase().trim(),
+          password: password, // Plain text password
+          userType,
           school,
           grade,
+          organization,
+          position,
           approved,
           favourites,
         });
 
         await user.save();
 
+        const { password: _, ...userData } = user.toObject();
+
         return NextResponse.json(
-          { message: "User created successfully" },
+          {
+            message: "User created successfully",
+            user: userData,
+          },
           { status: 201 },
         );
       } catch (error) {

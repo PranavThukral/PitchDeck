@@ -34,8 +34,8 @@ export function middleware(request: NextRequest) {
   }
 
   // Check if site is under construction
-  const isUnderConstruction =
-    process.env.NEXT_PUBLIC_UNDER_CONSTRUCTION === "true";
+  const isUnderConstruction = false; // Disabled for dashboard testing
+  // process.env.NEXT_PUBLIC_UNDER_CONSTRUCTION === "true";
 
   if (isUnderConstruction) {
     const url = request.nextUrl.clone();

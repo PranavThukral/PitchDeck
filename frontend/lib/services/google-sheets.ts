@@ -106,11 +106,13 @@ function parseCSVLine(line: string): string[] {
 }
 
 function parseGradeTags(tagString: string): string[] {
-  if (!tagString || !tagString.startsWith("[") || !tagString.endsWith("]")) return [];
+  if (!tagString || !tagString.startsWith("[") || !tagString.endsWith("]"))
+    return [];
   try {
     const validJsonString = tagString.replace(/'/g, '"');
     const tags = JSON.parse(validJsonString);
-    if (Array.isArray(tags) && tags.every(t => typeof t === 'string')) return tags;
+    if (Array.isArray(tags) && tags.every((t) => typeof t === "string"))
+      return tags;
     return [];
   } catch (error) {
     console.error("Failed to parse Grade Tag:", tagString, error);
@@ -119,30 +121,36 @@ function parseGradeTags(tagString: string): string[] {
 }
 
 function generateId(title: string): string {
-  return title.toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, "-").slice(0, 50);
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .replace(/\s+/g, "-")
+    .slice(0, 50);
 }
 
 function cleanupLogoUrl(url: string): string {
-    if (!url || url.trim() === "") return "/logos/placeholder.svg";
-    const imageExtensions = /\.(jpeg|jpg|gif|png|svg|webp)$/i;
-    if (!imageExtensions.test(url.split('?')[0])) {
-      return "/logos/placeholder.svg";
+  if (!url || url.trim() === "") return "/logos/placeholder.svg";
+  const imageExtensions = /\.(jpeg|jpg|gif|png|svg|webp)$/i;
+  if (!imageExtensions.test(url.split("?")[0])) {
+    return "/logos/placeholder.svg";
   }
-    if (url.includes("google.com/url?")) {
-      try {
-        const urlObj = new URL(url);
-        const actualUrl = urlObj.searchParams.get("url");
-        if (actualUrl) return decodeURIComponent(actualUrl);
-      } catch { return "/logos/placeholder.svg"; }
-    }
+  if (url.includes("google.com/url?")) {
     try {
-      const parsed = new URL(url);
-      return parsed.href;
+      const urlObj = new URL(url);
+      const actualUrl = urlObj.searchParams.get("url");
+      if (actualUrl) return decodeURIComponent(actualUrl);
     } catch {
-      if (url.startsWith("/")) return url;
       return "/logos/placeholder.svg";
     }
   }
+  try {
+    const parsed = new URL(url);
+    return parsed.href;
+  } catch {
+    if (url.startsWith("/")) return url;
+    return "/logos/placeholder.svg";
+  }
+}
 
 function determineStatus(deadline: string, registrationOpens?: string): string {
   const lowerDeadline = (deadline || "").toLowerCase();
@@ -171,17 +179,17 @@ function determineStatus(deadline: string, registrationOpens?: string): string {
 
 // Helper to parse tags from single-entry columns
 function parseSingleTag(tagString: string): string[] {
-    if (!tagString || tagString.trim() === "") return [];
-    return [tagString.trim()];
+  if (!tagString || tagString.trim() === "") return [];
+  return [tagString.trim()];
 }
 
 // Helper to parse the cost column
 function parseCost(costString: string): number {
-    if (!costString || costString.toLowerCase().includes('free')) {
-        return 0;
-    }
-    const matches = costString.match(/\d+/);
-    return matches ? parseInt(matches[0], 10) : -1;
+  if (!costString || costString.toLowerCase().includes("free")) {
+    return 0;
+  }
+  const matches = costString.match(/\d+/);
+  return matches ? parseInt(matches[0], 10) : -1;
 }
 
 function mapRowToCompetition(row: SheetRow): Competition {
@@ -190,7 +198,7 @@ function mapRowToCompetition(row: SheetRow): Competition {
   const registrationOpens = row["When Registration Opens,"] || "";
   const normalizedTitle = title.trim().toLowerCase();
   const logoSource = logoOverrides[normalizedTitle] ?? row["Logo Link"] ?? "";
-  
+
   return {
     id: generateId(title),
     title,
@@ -200,7 +208,9 @@ function mapRowToCompetition(row: SheetRow): Competition {
     deadline,
     prize: "TBD",
     status: determineStatus(deadline, registrationOpens),
-    description: row["Description"] || `${title} - A business competition for high school students.`,
+    description:
+      row["Description"] ||
+      `${title} - A business competition for high school students.`,
     applicationType: "external",
     applyUrl: row["Link to Application"] || "",
     frequency: "Annual",
@@ -228,11 +238,18 @@ function mapRowToBusinessOpportunity(row: SheetRow): BusinessOpportunity {
   let category = "Program";
   if (title.toLowerCase().includes("internship")) category = "Internship";
   else if (title.toLowerCase().includes("fellowship")) category = "Fellowship";
-  else if (title.toLowerCase().includes("academy") || title.toLowerCase().includes("school")) category = "Business Academy";
-  else if (title.toLowerCase().includes("leadership")) category = "Leadership Program";
-  else if (title.toLowerCase().includes("entrepreneur")) category = "Entrepreneurship Program";
+  else if (
+    title.toLowerCase().includes("academy") ||
+    title.toLowerCase().includes("school")
+  )
+    category = "Business Academy";
+  else if (title.toLowerCase().includes("leadership"))
+    category = "Leadership Program";
+  else if (title.toLowerCase().includes("entrepreneur"))
+    category = "Entrepreneurship Program";
   else if (title.toLowerCase().includes("conference")) category = "Conference";
-  else if (title.toLowerCase().includes("scholarship")) category = "Scholarship Program";
+  else if (title.toLowerCase().includes("scholarship"))
+    category = "Scholarship Program";
 
   return {
     id: generateId(title),
@@ -246,7 +263,9 @@ function mapRowToBusinessOpportunity(row: SheetRow): BusinessOpportunity {
     costNumeric: parseCost(row["Cost"] || ""),
     format: row["Virtual/In-Person"] || "",
     status: determineStatus(deadline, registrationOpens),
-    description: row["Description"] || `${title} - A business opportunity for high school students.`,
+    description:
+      row["Description"] ||
+      `${title} - A business opportunity for high school students.`,
     applicationType: "external",
     applyUrl: row["Link to Application"] || "",
     category,
@@ -260,33 +279,52 @@ export async function fetchCompetitionsFromSheets(): Promise<Competition[]> {
   try {
     const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${COMPETITIONS_SHEET_ID}`;
     const response = await fetch(url, { next: { revalidate: 3600 } });
-    if (!response.ok) throw new Error(`Failed to fetch competitions: ${response.status} ${response.statusText}`);
+    if (!response.ok)
+      throw new Error(
+        `Failed to fetch competitions: ${response.status} ${response.statusText}`,
+      );
     const csvData = await response.text();
-    if (!csvData || csvData.trim().length === 0) throw new Error("Empty response from Google Sheets");
+    if (!csvData || csvData.trim().length === 0)
+      throw new Error("Empty response from Google Sheets");
     const rows = parseCSV(csvData);
-    return rows.filter((row) => row["Name"] && row["Name"].trim() !== "").map(mapRowToCompetition);
+    return rows
+      .filter((row) => row["Name"] && row["Name"].trim() !== "")
+      .map(mapRowToCompetition);
   } catch (error) {
     console.error("Error fetching competitions from Google Sheets:", error);
     throw error;
   }
 }
 
-export async function fetchBusinessOpportunitiesFromSheets(): Promise<BusinessOpportunity[]> {
+export async function fetchBusinessOpportunitiesFromSheets(): Promise<
+  BusinessOpportunity[]
+> {
   try {
     const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${OPPORTUNITIES_SHEET_ID}`;
     const response = await fetch(url, { next: { revalidate: 3600 } });
-    if (!response.ok) throw new Error(`Failed to fetch business opportunities: ${response.status} ${response.statusText}`);
+    if (!response.ok)
+      throw new Error(
+        `Failed to fetch business opportunities: ${response.status} ${response.statusText}`,
+      );
     const csvData = await response.text();
-    if (!csvData || csvData.trim().length === 0) throw new Error("Empty response from Google Sheets");
+    if (!csvData || csvData.trim().length === 0)
+      throw new Error("Empty response from Google Sheets");
     const rows = parseCSV(csvData);
-    return rows.filter((row) => row["Name"] && row["Name"].trim() !== "").map(mapRowToBusinessOpportunity);
+    return rows
+      .filter((row) => row["Name"] && row["Name"].trim() !== "")
+      .map(mapRowToBusinessOpportunity);
   } catch (error) {
-    console.error("Error fetching business opportunities from Google Sheets:", error);
+    console.error(
+      "Error fetching business opportunities from Google Sheets:",
+      error,
+    );
     throw error;
   }
 }
 
-export async function getCompetitionsSortedByDeadline(): Promise<Competition[]> {
+export async function getCompetitionsSortedByDeadline(): Promise<
+  Competition[]
+> {
   const competitions = await fetchCompetitionsFromSheets();
   return competitions.sort((a, b) => {
     const dateA = new Date(a.deadline);
@@ -297,7 +335,9 @@ export async function getCompetitionsSortedByDeadline(): Promise<Competition[]> 
   });
 }
 
-export async function getBusinessOpportunitiesSorted(): Promise<BusinessOpportunity[]> {
+export async function getBusinessOpportunitiesSorted(): Promise<
+  BusinessOpportunity[]
+> {
   const opportunities = await fetchBusinessOpportunitiesFromSheets();
   return opportunities.sort((a, b) => {
     const statusOrder = { open: 1, "closing-soon": 2, upcoming: 3, closed: 4 };
@@ -305,6 +345,19 @@ export async function getBusinessOpportunitiesSorted(): Promise<BusinessOpportun
     const statusB = statusOrder[b.status as keyof typeof statusOrder] || 5;
     if (statusA !== statusB) return statusA - statusB;
     return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+  });
+}
+
+export async function getBusinessOpportunitiesSortedByDeadline(): Promise<
+  BusinessOpportunity[]
+> {
+  const opportunities = await fetchBusinessOpportunitiesFromSheets();
+  return opportunities.sort((a, b) => {
+    const dateA = new Date(a.endDate);
+    const dateB = new Date(b.endDate);
+    if (isNaN(dateA.getTime())) return 1;
+    if (isNaN(dateB.getTime())) return -1;
+    return dateA.getTime() - dateB.getTime();
   });
 }
 
