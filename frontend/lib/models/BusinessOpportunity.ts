@@ -19,6 +19,7 @@ export interface IBusinessOpportunity extends Document {
   website?: string;
   applyUrl?: string;
   tags: string[];
+  likes: number;
   status: "draft" | "pending" | "approved" | "rejected" | "live" | "closed";
   approved: boolean;
   rejectionReason?: string;
@@ -120,6 +121,11 @@ const BusinessOpportunitySchema: Schema = new Schema(
         message: "Maximum 10 tags allowed",
       },
     },
+    likes: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     status: {
       type: String,
       required: true,
@@ -169,4 +175,7 @@ BusinessOpportunitySchema.pre("save", function (next) {
 });
 
 export default mongoose.models.BusinessOpportunity ||
-  mongoose.model<IBusinessOpportunity>("BusinessOpportunity", BusinessOpportunitySchema);
+  mongoose.model<IBusinessOpportunity>(
+    "BusinessOpportunity",
+    BusinessOpportunitySchema,
+  );

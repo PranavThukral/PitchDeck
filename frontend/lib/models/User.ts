@@ -11,7 +11,8 @@ export interface IUser extends Document {
   organization?: string;
   position?: string;
   approved: boolean;
-  favourites: ObjectId[];
+  favourites: (ObjectId | string)[];
+  likedItems: (ObjectId | string)[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -65,9 +66,8 @@ const UserSchema: Schema = new Schema(
       trim: true,
     },
     approved: { type: Boolean, default: true },
-    favourites: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "Competition", default: [] },
-    ],
+    favourites: [{ type: mongoose.Schema.Types.Mixed, default: [] }],
+    likedItems: [{ type: mongoose.Schema.Types.Mixed, default: [] }],
   },
   {
     timestamps: true,

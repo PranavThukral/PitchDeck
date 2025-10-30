@@ -24,6 +24,7 @@ export interface ICompetition extends Document {
   contactPhone?: string;
   website?: string;
   tags: string[];
+  likes: number;
   approved: boolean;
   rejectionReason?: string;
   submittedAt: Date;
@@ -155,6 +156,11 @@ const CompetitionSchema: Schema = new Schema(
         },
         message: "Maximum 10 tags allowed",
       },
+    },
+    likes: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     approved: {
       type: Boolean,

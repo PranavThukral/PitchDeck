@@ -42,6 +42,7 @@ interface Competition {
   applicationType: string;
   gradeTags: string[];
   description: string;
+  likes?: number;
 }
 
 interface BusinessOpportunity {
@@ -63,6 +64,7 @@ interface BusinessOpportunity {
   duration: string;
   timeCommitment: string;
   opportunityType: string[];
+  likes?: number;
 }
 
 interface DashboardData {
@@ -73,10 +75,12 @@ interface DashboardData {
     businessOpportunities: BusinessOpportunity[];
   };
   favourites: (Competition | BusinessOpportunity)[];
+  likedItems: string[];
   stats: {
     totalCompetitions: number;
     totalBusinessOpportunities: number;
     totalFavourites: number;
+    totalLikes: number;
     categories: Array<{ _id: string; count: number }>;
     opportunityTypes: Array<{ _id: string; count: number }>;
   };
@@ -96,6 +100,7 @@ export default function GeneralDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [favouriteIds, setFavouriteIds] = useState<string[]>([]);
+  const [likedIds, setLikedIds] = useState<string[]>([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -182,6 +187,7 @@ export default function GeneralDashboard() {
             (fav: Competition | BusinessOpportunity) => fav._id || fav.id,
           ),
         );
+        setLikedIds(data.data.likedItems || []);
       } else {
         toast.error(data.message || "Failed to load dashboard");
       }
@@ -197,9 +203,16 @@ export default function GeneralDashboard() {
     itemId: string,
     itemType: "competition" | "business-opportunity",
   ) => {
+    console.log("🔍 toggleFavourite called:", { itemId, itemType });
     try {
       const isFavourite = favouriteIds.includes(itemId);
       const method = isFavourite ? "DELETE" : "POST";
+
+      console.log("🔍 Making favourites API call:", {
+        method,
+        itemId,
+        itemType,
+      });
 
       const response = await fetch("/api/auth/favourites", {
         method,
@@ -212,7 +225,14 @@ export default function GeneralDashboard() {
         }),
       });
 
+      console.log("🔍 Favourites API response:", {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+      });
+
       const data = await response.json();
+      console.log("🔍 Favourites API data:", data);
 
       if (data.success) {
         if (isFavourite) {
@@ -223,25 +243,94 @@ export default function GeneralDashboard() {
           toast.success("Added to favourites");
         }
       } else {
+        console.error("🚨 Favourites API error:", data);
         toast.error(data.message || "Failed to update favourites");
       }
     } catch (error) {
-      console.error("Favourite error:", error);
-      toast.error("An error occurred");
+      console.error("🚨 Favourite error:", error);
+      toast.error(
+        `Network error: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    }
+  };
+
+  const toggleLike = async (
+    itemId: string,
+    itemType: "competition" | "business-opportunity",
+  ) => {
+    console.log("🔍 toggleLike called:", { itemId, itemType });
+    try {
+      const isLiked = likedIds.includes(itemId);
+      const method = isLiked ? "DELETE" : "POST";
+
+      console.log("🔍 Making likes API call:", { method, itemId, itemType });
+
+      const response = await fetch("/api/auth/likes", {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          itemId,
+          itemType,
+        }),
+      });
+
+      console.log("🔍 Likes API response:", {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+      });
+
+      const data = await response.json();
+      console.log("🔍 Likes API data:", data);
+
+      if (data.success) {
+        if (isLiked) {
+          setLikedIds((prev) => prev.filter((id) => id !== itemId));
+          toast.success("Removed like");
+        } else {
+          setLikedIds((prev) => [...prev, itemId]);
+          toast.success("Liked!");
+        }
+        // Refresh dashboard to update like counts
+        fetchDashboardData();
+      } else {
+        console.error("🚨 Likes API error:", data);
+        toast.error(data.message || "Failed to update likes");
+      }
+    } catch (error) {
+      console.error("🚨 Like error:", error);
+      toast.error(
+        `Network error: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   };
 
   // Helper function to get ID from item with deadline to ensure uniqueness
   // Get the actual database ID for API calls (favorites, etc.)
   const getDatabaseId = (item: Competition | BusinessOpportunity): string => {
-    return item._id || item.id || "";
+    const id = item._id || item.id || "";
+    console.log("🔍 getDatabaseId:", {
+      title: item.title,
+      id,
+      _id: item._id,
+      itemId: item.id,
+    });
+    return id;
   };
 
-  // Check if item is from database (has MongoDB ObjectId) vs Google Sheets
-  const isDatabaseItem = (item: Competition | BusinessOpportunity): boolean => {
+  // Check if item has a valid ID for like/bookmark functionality
+  const canInteract = (item: Competition | BusinessOpportunity): boolean => {
     const id = item._id || item.id || "";
-    // MongoDB ObjectIds are exactly 24 characters and hexadecimal
-    return /^[0-9a-fA-F]{24}$/.test(id);
+    const hasValidId = id.length > 0;
+    console.log("🔍 canInteract:", {
+      title: item.title,
+      id,
+      hasValidId,
+      isDbItem: /^[0-9a-fA-F]{24}$/.test(id),
+    });
+    return hasValidId;
   };
 
   // Get unique React key for rendering (can contain any characters)
@@ -306,7 +395,52 @@ export default function GeneralDashboard() {
 
     const databaseId = getDatabaseId(competition);
     const reactKey = getReactKey(competition);
-    const isDbItem = isDatabaseItem(competition);
+    const canUserInteract = canInteract(competition);
+
+    console.log("🔍 CompetitionCard render:", {
+      title: competition.title,
+      databaseId,
+      canUserInteract,
+      _id: competition._id,
+      id: competition.id,
+      rawIdCheck: competition._id || competition.id,
+    });
+
+    const handleBookmarkClick = async (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("🔍 Bookmark button clicked:", {
+        databaseId,
+        canUserInteract,
+        title: competition.title,
+        _id: competition._id,
+        id: competition.id,
+      });
+      if (canUserInteract && databaseId) {
+        await toggleFavourite(databaseId, "competition");
+      } else {
+        console.log("❌ Cannot bookmark:", { canUserInteract, databaseId });
+        toast.error("This item cannot be bookmarked (missing ID)");
+      }
+    };
+
+    const handleLikeClick = async (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("🔍 Like button clicked:", {
+        databaseId,
+        canUserInteract,
+        title: competition.title,
+        _id: competition._id,
+        id: competition.id,
+      });
+      if (canUserInteract && databaseId) {
+        await toggleLike(databaseId, "competition");
+      } else {
+        console.log("❌ Cannot like:", { canUserInteract, databaseId });
+        toast.error("This item cannot be liked (missing ID)");
+      }
+    };
 
     return (
       <Card className="hover:shadow-lg transition-shadow">
@@ -318,30 +452,52 @@ export default function GeneralDashboard() {
               </CardTitle>
               <CardDescription>{competition.organizer}</CardDescription>
             </div>
-            {isDbItem ? (
+            <div className="flex gap-1 ml-2">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => toggleFavourite(databaseId, "competition")}
-                className="ml-2"
+                onClick={handleBookmarkClick}
+                disabled={!canUserInteract}
+                title={
+                  !canUserInteract
+                    ? "Missing item ID"
+                    : favouriteIds.includes(databaseId)
+                      ? "Remove bookmark"
+                      : "Bookmark"
+                }
               >
                 {favouriteIds.includes(databaseId) ? (
                   <BookmarkMinus className="h-4 w-4 text-red-500" />
                 ) : (
-                  <BookmarkPlus className="h-4 w-4" />
+                  <BookmarkPlus
+                    className={`h-4 w-4 ${!canUserInteract ? "text-gray-300" : ""}`}
+                  />
                 )}
               </Button>
-            ) : (
               <Button
                 variant="ghost"
                 size="sm"
-                disabled
-                className="ml-2 opacity-50 cursor-not-allowed"
-                title="Favorites are only available for database-stored items. This item is from Google Sheets."
+                onClick={handleLikeClick}
+                disabled={!canUserInteract}
+                title={
+                  !canUserInteract
+                    ? "Missing item ID"
+                    : likedIds.includes(databaseId)
+                      ? "Unlike"
+                      : "Like"
+                }
               >
-                <BookmarkPlus className="h-4 w-4 text-gray-300" />
+                <Heart
+                  className={`h-4 w-4 ${
+                    !canUserInteract
+                      ? "text-gray-300"
+                      : likedIds.includes(databaseId)
+                        ? "text-red-500 fill-red-500"
+                        : ""
+                  }`}
+                />
               </Button>
-            )}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="pt-0">
@@ -421,9 +577,15 @@ export default function GeneralDashboard() {
             })()}
           </div>
 
-          <Button className="w-full" size="sm">
-            View Details
-          </Button>
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <Heart className="h-4 w-4" />
+              <span>{competition.likes || 0} likes</span>
+            </div>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              Learn More
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -447,7 +609,58 @@ export default function GeneralDashboard() {
 
     const databaseId = getDatabaseId(opportunity);
     const reactKey = getReactKey(opportunity);
-    const isDbItem = isDatabaseItem(opportunity);
+    const canUserInteract = canInteract(opportunity);
+
+    console.log("🔍 BusinessOpportunityCard render:", {
+      title: opportunity.title,
+      databaseId,
+      canUserInteract,
+      _id: opportunity._id,
+      id: opportunity.id,
+      rawIdCheck: opportunity._id || opportunity.id,
+    });
+
+    const handleBookmarkClick = async (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("🔍 Opportunity Bookmark button clicked:", {
+        databaseId,
+        canUserInteract,
+        title: opportunity.title,
+        _id: opportunity._id,
+        id: opportunity.id,
+      });
+      if (canUserInteract && databaseId) {
+        await toggleFavourite(databaseId, "business-opportunity");
+      } else {
+        console.log("❌ Cannot bookmark opportunity:", {
+          canUserInteract,
+          databaseId,
+        });
+        toast.error("This item cannot be bookmarked (missing ID)");
+      }
+    };
+
+    const handleLikeClick = async (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("🔍 Opportunity Like button clicked:", {
+        databaseId,
+        canUserInteract,
+        title: opportunity.title,
+        _id: opportunity._id,
+        id: opportunity.id,
+      });
+      if (canUserInteract && databaseId) {
+        await toggleLike(databaseId, "business-opportunity");
+      } else {
+        console.log("❌ Cannot like opportunity:", {
+          canUserInteract,
+          databaseId,
+        });
+        toast.error("This item cannot be liked (missing ID)");
+      }
+    };
 
     return (
       <Card className="hover:shadow-lg transition-shadow">
@@ -459,32 +672,52 @@ export default function GeneralDashboard() {
               </CardTitle>
               <CardDescription>{opportunity.organizer}</CardDescription>
             </div>
-            {isDbItem ? (
+            <div className="flex gap-1 ml-2">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() =>
-                  toggleFavourite(databaseId, "business-opportunity")
+                onClick={handleBookmarkClick}
+                disabled={!canUserInteract}
+                title={
+                  !canUserInteract
+                    ? "Missing item ID"
+                    : favouriteIds.includes(databaseId)
+                      ? "Remove bookmark"
+                      : "Bookmark"
                 }
-                className="ml-2"
               >
                 {favouriteIds.includes(databaseId) ? (
                   <BookmarkMinus className="h-4 w-4 text-red-500" />
                 ) : (
-                  <BookmarkPlus className="h-4 w-4" />
+                  <BookmarkPlus
+                    className={`h-4 w-4 ${!canUserInteract ? "text-gray-300" : ""}`}
+                  />
                 )}
               </Button>
-            ) : (
               <Button
                 variant="ghost"
                 size="sm"
-                disabled
-                className="ml-2 opacity-50 cursor-not-allowed"
-                title="Favorites are only available for database-stored items. This item is from Google Sheets."
+                onClick={handleLikeClick}
+                disabled={!canUserInteract}
+                title={
+                  !canUserInteract
+                    ? "Missing item ID"
+                    : likedIds.includes(databaseId)
+                      ? "Unlike"
+                      : "Like"
+                }
               >
-                <BookmarkPlus className="h-4 w-4 text-gray-300" />
+                <Heart
+                  className={`h-4 w-4 ${
+                    !canUserInteract
+                      ? "text-gray-300"
+                      : likedIds.includes(databaseId)
+                        ? "text-red-500 fill-red-500"
+                        : ""
+                  }`}
+                />
               </Button>
-            )}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="pt-0">
@@ -564,8 +797,12 @@ export default function GeneralDashboard() {
             })()}
           </div>
 
-          <div className="mt-4">
-            <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <Heart className="h-4 w-4" />
+              <span>{opportunity.likes || 0} likes</span>
+            </div>
+            <Button className="bg-green-600 hover:bg-green-700 text-white">
               Learn More
             </Button>
           </div>
@@ -612,9 +849,73 @@ export default function GeneralDashboard() {
                 {dashboardData.user.school} • {dashboardData.user.grade}
               </p>
             </div>
-            <Link href="/auth/logout">
-              <Button variant="outline">Logout</Button>
-            </Link>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    console.log("🔍 === DEBUGGING SESSION START ===");
+
+                    // Test auth
+                    const response = await fetch("/api/debug/test-auth");
+                    const data = await response.json();
+                    console.log("🔍 Debug Auth Response:", data);
+
+                    // Log current dashboard data
+                    console.log("🔍 Current Dashboard Data:", {
+                      totalCompetitions:
+                        dashboardData?.competitions?.length || 0,
+                      totalOpportunities:
+                        dashboardData?.businessOpportunities?.length || 0,
+                      favouriteIds: favouriteIds,
+                      likedIds: likedIds,
+                    });
+
+                    // Check interactive items (both DB and Google Sheets)
+                    const interactiveComps =
+                      dashboardData?.competitions?.filter(
+                        (c) => (c._id || c.id || "").length > 0,
+                      ) || [];
+                    const interactiveOpps =
+                      dashboardData?.businessOpportunities?.filter(
+                        (o) => (o._id || o.id || "").length > 0,
+                      ) || [];
+
+                    const dbComps =
+                      dashboardData?.competitions?.filter((c) =>
+                        /^[0-9a-fA-F]{24}$/.test(c._id || c.id || ""),
+                      ) || [];
+
+                    console.log("🔍 Interactive Items Found:", {
+                      interactiveCompetitions: interactiveComps.length,
+                      interactiveOpportunities: interactiveOpps.length,
+                      dbCompetitions: dbComps.length,
+                      firstInteractiveComp: interactiveComps[0]
+                        ? {
+                            title: interactiveComps[0].title,
+                            id:
+                              interactiveComps[0]._id || interactiveComps[0].id,
+                          }
+                        : null,
+                    });
+
+                    console.log("🔍 === DEBUGGING SESSION END ===");
+                    toast.success(
+                      "Debug info logged to console - check browser dev tools!",
+                    );
+                  } catch (error) {
+                    console.error("🚨 Debug error:", error);
+                    toast.error("Debug failed - check console for details");
+                  }
+                }}
+              >
+                🔍 Debug All
+              </Button>
+              <Link href="/auth/logout">
+                <Button variant="outline">Logout</Button>
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -674,11 +975,10 @@ export default function GeneralDashboard() {
                 <TrendingUp className="h-8 w-8 text-purple-500" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    New This Week
+                    Your Likes
                   </p>
                   <p className="text-2xl font-bold">
-                    {dashboardData.featured.competitions.length +
-                      dashboardData.featured.businessOpportunities.length}
+                    {dashboardData.stats.totalLikes}
                   </p>
                 </div>
               </div>

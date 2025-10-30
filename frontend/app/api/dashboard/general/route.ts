@@ -3,9 +3,11 @@ import {
   connectToDatabase,
   isMongoDBConfigured,
 } from "../../../../lib/config/database";
-import Competition from "../../../../lib/models/Competition";
-import BusinessOpportunity from "../../../../lib/models/BusinessOpportunity";
-import User from "../../../../lib/models/User";
+import Competition, { ICompetition } from "../../../../lib/models/Competition";
+import BusinessOpportunity, {
+  IBusinessOpportunity,
+} from "../../../../lib/models/BusinessOpportunity";
+import User, { IUser } from "../../../../lib/models/User";
 import { verifyAuth } from "../../../../lib/middleware/auth";
 import { getCompetitionsSortedByDeadline } from "../../../../lib/services/google-sheets";
 import { getBusinessOpportunitiesSortedByDeadline } from "../../../../lib/services/google-sheets";
@@ -13,7 +15,17 @@ import { getBusinessOpportunitiesSortedByDeadline } from "../../../../lib/servic
 export async function GET(request: NextRequest) {
   try {
     // Check if MongoDB is configured and handle accordingly
-    let authResult: any = null;
+    let authResult: {
+      success: boolean;
+      user?: {
+        email: string;
+        firstName: string;
+        lastName: string;
+        school: string;
+        grade: string;
+        userType: string;
+      };
+    } = { success: false };
     let useDatabase = false;
 
     if (isMongoDBConfigured()) {
@@ -50,8 +62,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Get data from both sources
-    let sheetsCompetitions = [];
-    let sheetsBusinessOpportunities = [];
+    let sheetsCompetitions: Array<{ [key: string]: any }> = [];
+    let sheetsBusinessOpportunities: Array<{ [key: string]: any }> = [];
 
     try {
       // Get competitions and business opportunities from Google Sheets
@@ -63,8 +75,8 @@ export async function GET(request: NextRequest) {
       // Continue without Google Sheets data
     }
 
-    let dbCompetitions: any[] = [];
-    let dbBusinessOpportunities: any[] = [];
+    let dbCompetitions: ICompetition[] = [];
+    let dbBusinessOpportunities: IBusinessOpportunity[] = [];
 
     if (useDatabase) {
       // Get approved and live competitions from database
@@ -88,12 +100,15 @@ export async function GET(request: NextRequest) {
 
     // Convert database items to match the expected format
     const formattedDbCompetitions = dbCompetitions.map((comp) => ({
-      id: comp._id.toString(),
+      id: (comp._id as any).toString(),
+      _id: (comp._id as any).toString(),
       title: comp.title,
       organizer: comp.organizer,
       logo: comp.logo,
       gradeTags: comp.gradeEligibility
-        ? comp.gradeEligibility.split(",").map((g) => g.trim().toLowerCase())
+        ? comp.gradeEligibility
+            .split(",")
+            .map((g: string) => g.trim().toLowerCase())
         : [],
       deadline: comp.deadline.toISOString(),
       prize: comp.prize,
@@ -112,29 +127,44 @@ export async function GET(request: NextRequest) {
       contactPhone: comp.contactPhone,
       website: comp.website,
       tags: comp.tags,
+      likes: comp.likes || 0,
     }));
 
     const formattedDbBusinessOpportunities = dbBusinessOpportunities.map(
       (opp) => ({
-        id: opp._id.toString(),
+        id: (opp._id as any).toString(),
+        _id: (opp._id as any).toString(),
         title: opp.title,
         company: opp.company,
+        organizer: opp.company,
         logo: opp.logo,
-        gradeTags: opp.gradeEligibility
-          ? opp.gradeEligibility.split(",").map((g) => g.trim().toLowerCase())
+        gradeTags: (opp as any).gradeEligibility
+          ? (opp as any).gradeEligibility
+              .split(",")
+              .map((g: string) => g.trim().toLowerCase())
           : [],
         deadline: opp.deadline.toISOString(),
+        startDate: opp.deadline.toISOString(),
+        endDate: opp.deadline.toISOString(),
         type: opp.type,
+        category: opp.type,
+        format: opp.remote ? "Remote" : "On-site",
         status: opp.status,
+        cost: opp.compensation || "Not specified",
+        costNumeric: 0,
+        duration: opp.duration || "Not specified",
+        timeCommitment: opp.duration || "Not specified",
+        opportunityType: [opp.type],
+        applicationType: "individual",
         description: opp.description,
         applyUrl: opp.applyUrl,
         location: opp.location,
-        duration: opp.duration,
         compensation: opp.compensation,
         requirements: opp.requirements,
         contactEmail: opp.contactEmail,
         website: opp.website,
         tags: opp.tags,
+        likes: opp.likes || 0,
       }),
     );
 
@@ -153,8 +183,8 @@ export async function GET(request: NextRequest) {
       (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime(),
     );
 
-    // Get user's favourites (only if database is available)
-    let user: any = null;
+    // Get user's favourites and liked items (only if database is available)
+    let user: IUser | null = null;
     if (useDatabase) {
       user = await User.findOne({
         email: authResult.user.email,
@@ -172,8 +202,8 @@ export async function GET(request: NextRequest) {
     const featuredBusinessOpportunities = allBusinessOpportunities.slice(0, 6);
 
     // Get categories from database competitions (only if database is available)
-    let competitionCategories: any[] = [];
-    let opportunityTypes: any[] = [];
+    let competitionCategories: Array<{ _id: string; count: number }> = [];
+    let opportunityTypes: Array<{ _id: string; count: number }> = [];
 
     if (useDatabase) {
       competitionCategories = await Competition.aggregate([
@@ -220,10 +250,12 @@ export async function GET(request: NextRequest) {
             businessOpportunities: featuredBusinessOpportunities,
           },
           favourites: user?.favourites || [],
+          likedItems: user?.likedItems || [],
           stats: {
             totalCompetitions: allCompetitions.length,
             totalBusinessOpportunities: allBusinessOpportunities.length,
             totalFavourites: user?.favourites?.length || 0,
+            totalLikes: user?.likedItems?.length || 0,
             categories: competitionCategories,
             opportunityTypes,
           },

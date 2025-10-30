@@ -131,32 +131,45 @@ export async function POST(request: NextRequest) {
 
         const { itemId, itemType } = data;
 
-        // Verify the item exists and is approved
-        let item;
-        if (itemType === "competition") {
-          item = await Competition.findOne({
-            _id: itemId,
-            approved: true,
-            status: "live",
-          });
-        } else if (itemType === "business-opportunity") {
-          item = await BusinessOpportunity.findOne({
-            _id: itemId,
-            approved: true,
-            status: "live",
-          });
-        } else {
-          return NextResponse.json(
-            { message: "Invalid item type" },
-            { status: 400 },
-          );
-        }
+        // Check if itemId is a MongoDB ObjectId (24 char hex) or Google Sheets ID
+        const isMongoId = /^[0-9a-fA-F]{24}$/.test(itemId);
 
-        if (!item) {
-          return NextResponse.json(
-            { message: `${itemType} not found or not available` },
-            { status: 404 },
-          );
+        // For MongoDB items, verify they exist and are approved
+        if (isMongoId) {
+          let item;
+          if (itemType === "competition") {
+            item = await Competition.findOne({
+              _id: itemId,
+              approved: true,
+              status: "live",
+            });
+          } else if (itemType === "business-opportunity") {
+            item = await BusinessOpportunity.findOne({
+              _id: itemId,
+              approved: true,
+              status: "live",
+            });
+          } else {
+            return NextResponse.json(
+              { message: "Invalid item type" },
+              { status: 400 },
+            );
+          }
+
+          if (!item) {
+            return NextResponse.json(
+              { message: `${itemType} not found or not available` },
+              { status: 404 },
+            );
+          }
+        } else {
+          // For Google Sheets items, just validate the itemType
+          if (!["competition", "business-opportunity"].includes(itemType)) {
+            return NextResponse.json(
+              { message: "Invalid item type" },
+              { status: 400 },
+            );
+          }
         }
 
         // Get user
@@ -171,7 +184,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Check if already in favourites
+        // Check if already in favourites (handle both MongoDB ObjectIds and string IDs)
         const isAlreadyFavourite = user.favourites.some(
           (fav) => fav.toString() === itemId,
         );
@@ -183,8 +196,8 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Add to favourites
-        user.favourites.push(itemId);
+        // Add to favourites (MongoDB will handle both ObjectId and string storage)
+        user.favourites.push(itemId as any);
         await user.save();
 
         return NextResponse.json(
@@ -258,7 +271,7 @@ export async function DELETE(request: NextRequest) {
           );
         }
 
-        // Check if in favourites
+        // Check if in favourites (handle both MongoDB ObjectIds and string IDs)
         const favouriteIndex = user.favourites.findIndex(
           (fav) => fav.toString() === itemId,
         );

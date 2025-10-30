@@ -25,6 +25,7 @@ interface Competition {
   teamRequirement: string;
   subjectArea: string[];
   registrationOpens?: string;
+  likes: number; // Like count from Google Sheets
 }
 
 interface BusinessOpportunity {
@@ -46,6 +47,7 @@ interface BusinessOpportunity {
   opportunityType: string[];
   duration: string;
   timeCommitment: string;
+  likes: number; // Like count from Google Sheets
 }
 
 const SPREADSHEET_ID = "1XHg2kkWfjREQxYIGd4DAcilCBH23BWZz2XRhM1WDJOc";
@@ -221,6 +223,7 @@ function mapRowToCompetition(row: SheetRow): Competition {
     teamRequirement: row["Team Requirement"] || "Both",
     subjectArea: parseSingleTag(row["Subject Area"] || ""),
     registrationOpens,
+    likes: parseInt(row["Likes"] || "0", 10) || 0,
   };
 }
 
@@ -272,6 +275,7 @@ function mapRowToBusinessOpportunity(row: SheetRow): BusinessOpportunity {
     opportunityType: parseSingleTag(row["Opportunity Type"] || ""),
     duration: row["Duration"] || "",
     timeCommitment: row["Time Commitment"] || "",
+    likes: parseInt(row["Likes"] || "0", 10) || 0,
   };
 }
 
