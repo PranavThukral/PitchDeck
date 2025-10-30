@@ -3,11 +3,15 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import React, { useMemo } from "react";
+import React, { useState, useEffect } from "react";
+
 // The list of all your logos from the public/images/ directory
 const logos = [
   { src: "/images/td-logo.svg", alt: "TD Bank" },
-  { src: "/images/hospital-for-sick-children-logo.svg", alt: "SickKids Foundation" },
+  {
+    src: "/images/hospital-for-sick-children-logo.svg",
+    alt: "SickKids Foundation",
+  },
   { src: "/images/ja-central-ontario-logo.png", alt: "JA Canada" },
   { src: "/images/icon-talent-partners-logo.png", alt: "Icon Talent Partners" },
   { src: "/images/uoft-logo.jpg", alt: "University of Toronto" },
@@ -47,47 +51,68 @@ const LogoParticle = ({ logo, initialX, duration, delay }) => {
 };
 
 export function LogoWaterfall() {
-  const particles = useMemo(() => {
-    // Proximity threshold (as a percentage of screen width). 
-    // Two of the same logo cannot be within this distance of each other.
-    const HORIZONTAL_PROXIMITY_THRESHOLD = 15; // 15%
-    const numParticles = 30;
-    const particleList = [];
+  const [particles, setParticles] = useState([]);
+  const [isClient, setIsClient] = useState(false);
 
-    for (let i = 0; i < numParticles; i++) {
-      let newParticle;
-      let hasConflict;
-      let attempts = 0;
-      const MAX_RETRIES = 20; // Safety break to prevent infinite loops
+  useEffect(() => {
+    setIsClient(true);
 
-      do {
-        hasConflict = false;
-        // 1. Generate a candidate particle with truly random properties
-        newParticle = {
-          logo: logos[Math.floor(Math.random() * logos.length)],
-          initialX: Math.random() * 95,
-          duration: Math.random() * 7 + 8,
-          delay: Math.random() * 15,
-        };
+    // Generate particles only on client side to avoid hydration mismatch
+    const generateParticles = () => {
+      // Proximity threshold (as a percentage of screen width).
+      // Two of the same logo cannot be within this distance of each other.
+      const HORIZONTAL_PROXIMITY_THRESHOLD = 15; // 15%
+      const numParticles = 30;
+      const particleList = [];
 
-        // 2. Check for proximity conflicts with all previously placed particles
-        for (const existingParticle of particleList) {
-          if (
-            existingParticle.logo.src === newParticle.logo.src &&
-            Math.abs(existingParticle.initialX - newParticle.initialX) < HORIZONTAL_PROXIMITY_THRESHOLD
-          ) {
-            hasConflict = true; // Found a conflict!
-            break; // No need to check further, we must retry
+      for (let i = 0; i < numParticles; i++) {
+        let newParticle;
+        let hasConflict;
+        let attempts = 0;
+        const MAX_RETRIES = 20; // Safety break to prevent infinite loops
+
+        do {
+          hasConflict = false;
+          // 1. Generate a candidate particle with truly random properties
+          newParticle = {
+            logo: logos[Math.floor(Math.random() * logos.length)],
+            initialX: Math.random() * 95,
+            duration: Math.random() * 7 + 8,
+            delay: Math.random() * 15,
+          };
+
+          // 2. Check for proximity conflicts with all previously placed particles
+          for (const existingParticle of particleList) {
+            if (
+              existingParticle.logo.src === newParticle.logo.src &&
+              Math.abs(existingParticle.initialX - newParticle.initialX) <
+                HORIZONTAL_PROXIMITY_THRESHOLD
+            ) {
+              hasConflict = true; // Found a conflict!
+              break; // No need to check further, we must retry
+            }
           }
-        }
-        attempts++;
-      } while (hasConflict && attempts < MAX_RETRIES);
+          attempts++;
+        } while (hasConflict && attempts < MAX_RETRIES);
 
-      // 3. Add the validated particle to our list
-      particleList.push(newParticle);
-    }
-    return particleList;
+        // 3. Add the validated particle to our list
+        particleList.push(newParticle);
+      }
+      return particleList;
+    };
+
+    setParticles(generateParticles());
   }, []);
+
+  // Don't render particles until client-side hydration is complete
+  if (!isClient) {
+    return (
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 z-10 [mask-image:linear-gradient(to_bottom,transparent,white_5%,white_95%,transparent)]" />
+        <div className="relative w-full h-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
