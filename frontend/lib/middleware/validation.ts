@@ -110,9 +110,9 @@ const businessOpportunitySchema = Joi.object({
     .default([]),
 });
 
-// Favourites validation
+// Favourites validation - supports both MongoDB ObjectIds and Google Sheets string IDs
 const favouritesSchema = Joi.object({
-  itemId: Joi.string().hex().length(24).required(),
+  itemId: Joi.string().min(1).required(),
   itemType: Joi.string()
     .valid("competition", "business-opportunity")
     .required(),
