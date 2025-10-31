@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
 
         const { itemId, itemType, action, rejectionReason } = data;
 
+        // eslint-disable-next-line prefer-const
         let item;
         let Model;
 
@@ -95,6 +96,7 @@ export async function POST(request: NextRequest) {
         await item.save();
 
         // Remove sensitive data from response
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { organizerId, ...itemData } = item.toObject();
 
         return NextResponse.json(

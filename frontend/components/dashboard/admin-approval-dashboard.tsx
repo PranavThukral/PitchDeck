@@ -20,7 +20,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Shield,
@@ -32,7 +31,6 @@ import {
   Users,
   Check,
   X,
-  Eye,
   Clock,
   AlertCircle,
   CheckCircle,
@@ -588,33 +586,38 @@ export default function AdminApprovalDashboard() {
                 </Card>
               ) : (
                 <>
-                  {pendingData?.pending.competitions.length > 0 && (
+                  {(pendingData?.pending.competitions?.length || 0) > 0 && (
                     <div>
                       <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                         <Trophy className="h-6 w-6 text-blue-500" />
                         Pending Competitions (
-                        {pendingData.pending.competitions.length})
+                        {pendingData?.pending.competitions?.length || 0})
                       </h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        {pendingData.pending.competitions.map((competition) => (
-                          <CompetitionCard
-                            key={competition._id}
-                            competition={competition}
-                          />
-                        ))}
+                        {pendingData?.pending.competitions?.map(
+                          (competition) => (
+                            <CompetitionCard
+                              key={competition._id}
+                              competition={competition}
+                            />
+                          ),
+                        )}
                       </div>
                     </div>
                   )}
 
-                  {pendingData?.pending.businessOpportunities.length > 0 && (
+                  {(pendingData?.pending.businessOpportunities?.length || 0) >
+                    0 && (
                     <div>
                       <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                         <Building className="h-6 w-6 text-green-500" />
                         Pending Business Opportunities (
-                        {pendingData.pending.businessOpportunities.length})
+                        {pendingData?.pending.businessOpportunities?.length ||
+                          0}
+                        )
                       </h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {pendingData.pending.businessOpportunities.map(
+                        {pendingData?.pending.businessOpportunities?.map(
                           (opportunity) => (
                             <BusinessOpportunityCard
                               key={opportunity._id}
@@ -630,8 +633,9 @@ export default function AdminApprovalDashboard() {
             </TabsContent>
 
             <TabsContent value="rejected" className="space-y-6">
-              {pendingData?.rejected.competitions.length === 0 &&
-              pendingData?.rejected.businessOpportunities.length === 0 ? (
+              {(pendingData?.rejected.competitions?.length || 0) === 0 &&
+              (pendingData?.rejected.businessOpportunities?.length || 0) ===
+                0 ? (
                 <Card>
                   <CardContent className="p-12 text-center">
                     <XCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -645,15 +649,15 @@ export default function AdminApprovalDashboard() {
                 </Card>
               ) : (
                 <>
-                  {pendingData?.rejected.competitions.length > 0 && (
+                  {(pendingData?.rejected.competitions?.length || 0) > 0 && (
                     <div>
                       <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                         <Trophy className="h-6 w-6 text-blue-500" />
                         Rejected Competitions (
-                        {pendingData.rejected.competitions.length})
+                        {pendingData?.rejected.competitions?.length || 0})
                       </h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        {pendingData.rejected.competitions.map(
+                        {pendingData?.rejected.competitions?.map(
                           (competition) => (
                             <CompetitionCard
                               key={competition._id}
@@ -665,15 +669,18 @@ export default function AdminApprovalDashboard() {
                     </div>
                   )}
 
-                  {pendingData?.rejected.businessOpportunities.length > 0 && (
+                  {(pendingData?.rejected.businessOpportunities?.length || 0) >
+                    0 && (
                     <div>
                       <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                         <Building className="h-6 w-6 text-green-500" />
                         Rejected Business Opportunities (
-                        {pendingData.rejected.businessOpportunities.length})
+                        {pendingData?.rejected.businessOpportunities?.length ||
+                          0}
+                        )
                       </h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {pendingData.rejected.businessOpportunities.map(
+                        {pendingData?.rejected.businessOpportunities?.map(
                           (opportunity) => (
                             <BusinessOpportunityCard
                               key={opportunity._id}
@@ -730,7 +737,7 @@ export default function AdminApprovalDashboard() {
               onClick={handleReject}
               disabled={
                 !rejectionReason.trim() ||
-                (selectedItem && processingItems.has(selectedItem._id))
+                (selectedItem ? processingItems.has(selectedItem._id) : false)
               }
             >
               {selectedItem && processingItems.has(selectedItem._id) ? (
