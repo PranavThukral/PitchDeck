@@ -3,11 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Trophy, Shield, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { Trophy, Shield, Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminLoginPage() {
@@ -42,7 +48,9 @@ export default function AdminLoginPage() {
         toast.success("Admin login successful! Welcome back.");
         router.push("/dashboard/admin");
       } else {
-        toast.error(data.message || "Login failed. Please check your credentials.");
+        toast.error(
+          data.message || "Login failed. Please check your credentials.",
+        );
       }
     } catch (error) {
       console.error("Admin login error:", error);
@@ -54,7 +62,7 @@ export default function AdminLoginPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -90,22 +98,6 @@ export default function AdminLoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-4">
-            {/* Admin Credentials Info */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-              <div className="flex items-start space-x-3">
-                <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-                <div>
-                  <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                    Admin Credentials
-                  </h4>
-                  <div className="mt-2 text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                    <p><strong>Email:</strong> admin@admin.com</p>
-                    <p><strong>Password:</strong> Admin@pass</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
@@ -115,7 +107,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="admin@admin.com"
+                  placeholder="Enter your admin email"
                   required
                   disabled={isLoading}
                   className="border-gray-300 dark:border-gray-600"
@@ -131,7 +123,7 @@ export default function AdminLoginPage() {
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={handleInputChange}
-                    placeholder="Admin@pass"
+                    placeholder="Enter your password"
                     required
                     disabled={isLoading}
                     className="border-gray-300 dark:border-gray-600 pr-10"
@@ -141,7 +133,11 @@ export default function AdminLoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -178,8 +174,9 @@ export default function AdminLoginPage() {
 
             <div className="mt-6 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
               <p className="text-xs text-yellow-800 dark:text-yellow-200 text-center">
-                <strong>Security Notice:</strong> Admin access is restricted to authorized personnel only.
-                All admin actions are logged and monitored.
+                <strong>Security Notice:</strong> Admin access is restricted to
+                authorized personnel only. All admin actions are logged and
+                monitored.
               </p>
             </div>
           </CardContent>

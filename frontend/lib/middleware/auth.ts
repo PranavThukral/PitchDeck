@@ -95,14 +95,17 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
       };
     }
 
-    // Handle admin authentication (hardcoded credentials)
+    // Handle admin authentication (using environment variables)
     if (userType === "admin") {
-      if (email === "admin@admin.com" && password === "Admin@pass") {
+      const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@admin.com";
+      const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@pass";
+
+      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
         return {
           success: true,
           user: {
             id: "admin",
-            email: "admin@admin.com",
+            email: ADMIN_EMAIL,
             userType: "admin",
             firstName: "Admin",
             lastName: "User",

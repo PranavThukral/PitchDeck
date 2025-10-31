@@ -11,9 +11,9 @@ import {
 import { setAuthCookie } from "../../../../../lib/middleware/auth";
 import { LoginData } from "../../../../../lib/types/api";
 
-// Admin credentials (in production, this should be in environment variables)
-const ADMIN_EMAIL = "admin@admin.com";
-const ADMIN_PASSWORD = "Admin@pass";
+// Admin credentials from environment variables
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@admin.com";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@pass";
 
 export async function POST(request: NextRequest) {
   return withValidation<LoginData>(
