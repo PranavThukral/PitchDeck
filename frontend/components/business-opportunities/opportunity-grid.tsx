@@ -14,8 +14,8 @@ import {
 const opportunityTypeOrder: OpportunityType[] = [
   "Entrepreneurship",
   "Internship",
-  "Mentorship",
-  "Learning",
+  "Leadership",
+  "Mentorship & Learning",
 ];
 
 // 1. UPDATED INTERFACE to use gradeTags
@@ -159,8 +159,8 @@ export function OpportunityGrid({ filters }: OpportunityGridProps) {
 
   const sortedOpportunities = useMemo(() => {
     return [...filteredOpportunities].sort((a, b) => {
-      const typeIndexA = opportunityTypeOrder.indexOf(a.derivedType ?? "Learning");
-      const typeIndexB = opportunityTypeOrder.indexOf(b.derivedType ?? "Learning");
+      const typeIndexA = opportunityTypeOrder.indexOf(a.derivedType ?? "Mentorship & Learning");
+      const typeIndexB = opportunityTypeOrder.indexOf(b.derivedType ?? "Mentorship & Learning");
       if (typeIndexA !== typeIndexB) return typeIndexA - typeIndexB;
 
       const statusOrder = { "closing-soon": 1, open: 2, upcoming: 3, closed: 4 };
