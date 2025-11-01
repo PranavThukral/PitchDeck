@@ -19,8 +19,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-// hi
-
 interface Competition {
   id: string;
   title: string;
