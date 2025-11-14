@@ -9,10 +9,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +41,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Navigation } from "@/components/layout/navigation";
+import Image from "next/image";
 
 interface Competition {
   _id: string;
@@ -98,12 +101,28 @@ interface PendingData {
   };
 }
 
+interface AnnouncementSettings {
+  isEnabled: boolean;
+  title: string;
+  message: string;
+  imageUrl: string;
+  primaryCtaLabel: string;
+  primaryCtaUrl: string;
+  secondaryCtaLabel: string;
+  secondaryCtaUrl: string;
+  updatedAt?: string;
+}
+
 export default function AdminApprovalDashboard() {
   const [pendingData, setPendingData] = useState<PendingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [processingItems, setProcessingItems] = useState<Set<string>>(
     new Set(),
   );
+  const [announcementSettings, setAnnouncementSettings] =
+    useState<AnnouncementSettings | null>(null);
+  const [announcementLoading, setAnnouncementLoading] = useState(true);
+  const [announcementSaving, setAnnouncementSaving] = useState(false);
   const [selectedItem, setSelectedItem] = useState<
     Competition | BusinessOpportunity | null
   >(null);
@@ -112,7 +131,55 @@ export default function AdminApprovalDashboard() {
 
   useEffect(() => {
     fetchPendingItems();
+    fetchAnnouncementSettings();
   }, []);
+
+  const fetchAnnouncementSettings = async () => {
+    try {
+      const response = await fetch("/api/admin/announcement", {
+        credentials: "include",
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setAnnouncementSettings(data.data);
+      } else if (data.message) {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Failed to load announcement settings:", error);
+      toast.error("Failed to load popup settings");
+    } finally {
+      setAnnouncementLoading(false);
+    }
+  };
+
+  const handleAnnouncementSave = async () => {
+    if (!announcementSettings) return;
+    setAnnouncementSaving(true);
+    try {
+      const response = await fetch("/api/admin/announcement", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(announcementSettings),
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success("Popup settings updated");
+        setAnnouncementSettings(data.data);
+      } else {
+        toast.error(data.message || "Failed to update popup settings");
+      }
+    } catch (error) {
+      console.error("Failed to update popup settings:", error);
+      toast.error("Failed to update popup settings");
+    } finally {
+      setAnnouncementSaving(false);
+    }
+  };
 
   const fetchPendingItems = async () => {
     try {
@@ -557,6 +624,155 @@ export default function AdminApprovalDashboard() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Popup Controls */}
+          <Card className="mb-8 border-emerald-200/70 dark:border-emerald-700/40">
+            <CardHeader>
+              <CardTitle>Social Welcome Popup</CardTitle>
+              <CardDescription>
+                Manage the pop-up students see when they land on TPD from Instagram or TikTok.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {announcementLoading ? (
+                <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-300">
+                  <Loader2 className="h-4 w-4 animate-spin text-emerald-500" />
+                  Loading popup settings...
+                </div>
+              ) : announcementSettings ? (
+                <div className="space-y-6">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-2 flex-1">
+                      <Label htmlFor="popup-title">Title</Label>
+                      <Input
+                        id="popup-title"
+                        value={announcementSettings.title}
+                        onChange={(event) =>
+                          setAnnouncementSettings((prev) =>
+                            prev
+                              ? { ...prev, title: event.target.value }
+                              : prev,
+                          )
+                        }
+                        placeholder="Coming from our socials?"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="popup-enabled"
+                        checked={announcementSettings.isEnabled}
+                        onCheckedChange={(checked) =>
+                          setAnnouncementSettings((prev) =>
+                            prev
+                              ? { ...prev, isEnabled: checked === true }
+                              : prev,
+                          )
+                        }
+                      />
+                      <Label
+                        htmlFor="popup-enabled"
+                        className="text-sm text-gray-600 dark:text-gray-300"
+                      >
+                        Show popup to new visitors
+                      </Label>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="popup-message">Message</Label>
+                    <Textarea
+                      id="popup-message"
+                      value={announcementSettings.message}
+                      onChange={(event) =>
+                        setAnnouncementSettings((prev) =>
+                          prev
+                            ? { ...prev, message: event.target.value }
+                            : prev,
+                        )
+                      }
+                      rows={3}
+                      placeholder="Let students know what to do next..."
+                    />
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="popup-image">Poster image URL</Label>
+                      <Input
+                        id="popup-image"
+                        value={announcementSettings.imageUrl}
+                        onChange={(event) =>
+                          setAnnouncementSettings((prev) =>
+                            prev
+                              ? { ...prev, imageUrl: event.target.value }
+                              : prev,
+                          )
+                        }
+                        placeholder="https://..."
+                      />
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Use a hosted image or poster to tease the opportunity.
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-center rounded-2xl border border-dashed border-emerald-200/70 bg-emerald-50/40 p-4 dark:border-emerald-700/50 dark:bg-emerald-900/20">
+                      <div className="relative h-32 w-full max-w-[180px] overflow-hidden rounded-xl">
+                        <Image
+                          src={
+                            announcementSettings.imageUrl?.trim() ||
+                            "/images/TPD.png"
+                          }
+                          alt="Popup preview"
+                          fill
+                          className="object-cover"
+                          sizes="180px"
+                          unoptimized
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="popup-signup-link">Sign up link</Label>
+                    <Input
+                      id="popup-signup-link"
+                      value={announcementSettings.primaryCtaUrl}
+                      onChange={(event) =>
+                        setAnnouncementSettings((prev) =>
+                          prev
+                            ? { ...prev, primaryCtaUrl: event.target.value }
+                            : prev,
+                        )
+                      }
+                      placeholder="https://"
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Controls the glowing green “Sign up” button. Secondary button is locked to the opportunities page.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3">
+                    <Button
+                      onClick={handleAnnouncementSave}
+                      disabled={announcementSaving}
+                    >
+                      {announcementSaving ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        "Save popup"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Unable to load popup settings.
+                </p>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Main Content */}
           <Tabs defaultValue="pending" className="space-y-6">

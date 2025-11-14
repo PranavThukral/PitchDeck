@@ -10,6 +10,7 @@ import {
   OrganizationStructuredData,
   WebSiteStructuredData,
 } from "@/components/seo/structured-data";
+import { SocialPopup } from "@/components/layout/social-popup";
 
 const arvo = Arvo({
   weight: ["400", "700"],
@@ -57,6 +58,7 @@ export default function RootLayout({
           {children}
           <Toaster />
           <Analytics />
+          <SocialPopup />
         </ThemeProvider>
       </body>
     </html>

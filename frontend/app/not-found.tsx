@@ -50,11 +50,12 @@ export default function NotFound() {
           >
             <div className="relative mx-auto h-32 w-32 sm:h-40 sm:w-40">
               <Image
-                src="/images/not-found-illustration.png"
-                alt="Illustration of a student with a map"
+                src="/images/TPD.png"
+                alt="Illustration of a student exploring opportunities"
                 fill
                 className="rounded-full object-cover shadow-lg"
                 sizes="160px"
+                priority
               />
             </div>
             <div className="space-y-4">
@@ -62,10 +63,10 @@ export default function NotFound() {
                 lost?
               </span>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
-                We don&apos;t have that page—yet.
+                We don&apos;t have that page yet.
               </h1>
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300">
-                No worries! Here are the top places students use every day to find real opportunities and events.
+                No worries! These links will get you to the most popular spots in seconds.
               </p>
             </div>
           </motion.div>
@@ -105,7 +106,7 @@ export default function NotFound() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="mt-6 text-sm text-gray-500 dark:text-gray-400"
           >
-            Need something specific? DM us on Instagram @thepitch.deck and we&apos;ll help you find it.
+            Need something specific? DM us on Instagram @thepitchdeck and we&apos;ll help you find it.
           </motion.p>
         </section>
       </main>
@@ -114,3 +115,7 @@ export default function NotFound() {
     </div>
   );
 }
+
+
+
+
