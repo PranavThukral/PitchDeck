@@ -179,6 +179,30 @@ function determineStatus(deadline: string, registrationOpens?: string): string {
   return "open";
 }
 
+function normalizeStatusTag(
+  statusTag: string | undefined,
+  fallbackStatus: string,
+): string {
+  // Sheets store status tags as strings like ["Closed"] - clean them up and fall back to our computed status
+  const validStatuses = new Set(["open", "closed", "upcoming", "closing-soon"]);
+  const cleaned = (statusTag || "")
+    .replace(/[\[\]"']/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+
+  if (!cleaned || !validStatuses.has(cleaned)) {
+    return fallbackStatus;
+  }
+
+  // When the sheet says "closed" but our date logic says otherwise, trust the dates
+  if (cleaned === "closed" && fallbackStatus !== "closed") {
+    return fallbackStatus;
+  }
+
+  return cleaned;
+}
+
 // Helper to parse tags from single-entry columns
 function parseSingleTag(tagString: string): string[] {
   if (!tagString || tagString.trim() === "") return [];
@@ -265,7 +289,10 @@ function mapRowToBusinessOpportunity(row: SheetRow): BusinessOpportunity {
     cost: row["Cost"] || "Free",
     costNumeric: parseCost(row["Cost"] || ""),
     format: row["Virtual/In-Person"] || "",
-    status: determineStatus(deadline, registrationOpens),
+    status: normalizeStatusTag(
+      row["Status Tag"],
+      determineStatus(deadline, registrationOpens),
+    ),
     description:
       row["Description"] ||
       `${title} - A business opportunity for high school students.`,
