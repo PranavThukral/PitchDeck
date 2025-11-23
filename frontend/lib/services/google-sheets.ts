@@ -64,54 +64,85 @@ const logoOverrides: Record<string, string> = {
 };
 
 function parseCSV(csvData: string): SheetRow[] {
-  const lines = csvData.trim().split("\n");
-  if (lines.length < 2) return [];
-  const headerLine = lines[0];
-  const headers = parseCSVLine(headerLine);
-  const rows: SheetRow[] = [];
-  for (let i = 1; i < lines.length; i++) {
-    const values = parseCSVLine(lines[i]);
-    if (values.length > 0 && values[0].trim() !== "") {
-      const row: SheetRow = {};
-      headers.forEach((header, index) => {
-        row[header] = (values[index] || "").trim();
-      });
-      rows.push(row);
-    }
-  }
-  return rows;
-}
-
-function parseCSVLine(line: string): string[] {
-  const result: string[] = [];
-  let current = "";
+  // Robust CSV parser that respects quoted fields with embedded commas/newlines
+  const normalized = csvData.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const rawRows: string[][] = [];
+  let currentField = "";
+  let currentRow: string[] = [];
   let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    const nextChar = line[i + 1];
+
+  const pushField = () => {
+    currentRow.push(currentField);
+    currentField = "";
+  };
+
+  const pushRow = () => {
+    // Skip empty rows that can appear from stray newlines
+    if (currentRow.every((value) => value.trim() === "")) {
+      currentRow = [];
+      return;
+    }
+    rawRows.push(currentRow);
+    currentRow = [];
+  };
+
+  for (let i = 0; i < normalized.length; i++) {
+    const char = normalized[i];
+    const nextChar = normalized[i + 1];
+
     if (char === '"') {
       if (inQuotes && nextChar === '"') {
-        current += '"';
+        currentField += '"';
         i++;
       } else {
         inQuotes = !inQuotes;
       }
-    } else if (char === "," && !inQuotes) {
-      result.push(current.trim().replace(/^"|"$/g, ""));
-      current = "";
-    } else {
-      current += char;
+      continue;
     }
+
+    if (char === "," && !inQuotes) {
+      pushField();
+      continue;
+    }
+
+    if (char === "\n" && !inQuotes) {
+      pushField();
+      pushRow();
+      continue;
+    }
+
+    currentField += char;
   }
-  result.push(current.trim().replace(/^"|"$/g, ""));
-  return result;
+
+  // Capture the final field/row
+  pushField();
+  pushRow();
+
+  if (rawRows.length < 2) return [];
+
+  const headers = rawRows[0].map((header) => header.trim());
+  return rawRows.slice(1).reduce<SheetRow[]>((rows, values) => {
+    const row: SheetRow = {};
+    headers.forEach((header, index) => {
+      row[header] = (values[index] || "").trim();
+    });
+    if (row["Name"] && row["Name"].trim() !== "") {
+      rows.push(row);
+    }
+    return rows;
+  }, []);
 }
 
 function parseGradeTags(tagString: string): string[] {
-  if (!tagString || !tagString.startsWith("[") || !tagString.endsWith("]"))
+  const cleanedInput = (tagString || "").replace(/[\r\n]+/g, "").trim();
+  if (
+    !cleanedInput ||
+    !cleanedInput.startsWith("[") ||
+    !cleanedInput.endsWith("]")
+  )
     return [];
   try {
-    const validJsonString = tagString.replace(/'/g, '"');
+    const validJsonString = cleanedInput.replace(/'/g, '"');
     const tags = JSON.parse(validJsonString);
     if (Array.isArray(tags) && tags.every((t) => typeof t === "string"))
       return tags;
@@ -205,8 +236,9 @@ function normalizeStatusTag(
 
 // Helper to parse tags from single-entry columns
 function parseSingleTag(tagString: string): string[] {
-  if (!tagString || tagString.trim() === "") return [];
-  return [tagString.trim()];
+  const cleaned = (tagString || "").replace(/[\r\n]+/g, " ").trim();
+  if (!cleaned) return [];
+  return [cleaned];
 }
 
 // Helper to parse the cost column
@@ -299,7 +331,9 @@ function mapRowToBusinessOpportunity(row: SheetRow): BusinessOpportunity {
     applicationType: "external",
     applyUrl: row["Link to Application"] || "",
     category,
-    opportunityType: parseSingleTag(row["Opportunity Type"] || ""),
+    opportunityType: parseSingleTag(
+      row["Opportunity Type"] || row["Oppurtunity Type"] || "",
+    ),
     duration: row["Duration"] || "",
     timeCommitment: row["Time Commitment"] || "",
     likes: parseInt(row["Likes"] || "0", 10) || 0,
