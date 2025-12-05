@@ -100,9 +100,9 @@ export function NewsletterSection() {
         <AnimatedElement animation="fadeIn" delay={0.6}>
           <p className="text-xl text-white/90 mb-10 max-w-3xl mx-auto leading-relaxed">
             {/* Subheading text changed */}
-            Get notified about Canada&apos;s best high school opportunities,
-            exclusive professional opportunities, and gain a network of
-            ambitious peers.
+            Get notified about the best case competitions and business
+            opportunities, exclusive resources, and a community of ambitious
+            peers.
           </p>
         </AnimatedElement>
 

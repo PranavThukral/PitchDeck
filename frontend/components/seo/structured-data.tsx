@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface StructuredDataProps {
   data: object;
@@ -26,10 +26,10 @@ interface BreadcrumbsProps {
 
 export function BreadcrumbStructuredData({ items }: BreadcrumbsProps) {
   const breadcrumbData = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
     itemListElement: items.map((item, index) => ({
-      '@type': 'ListItem',
+      "@type": "ListItem",
       position: index + 1,
       name: item.name,
       item: item.url,
@@ -40,20 +40,22 @@ export function BreadcrumbStructuredData({ items }: BreadcrumbsProps) {
 }
 
 export function OrganizationStructuredData() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://thepitchdeck.com';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || "https://thepitchdeck.com";
 
   const organizationData = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'The Pitch Deck',
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "The Pitch Deck",
     url: baseUrl,
     logo: `${baseUrl}/logo.png`,
-    description: 'The All-in-One Platform for Case Competitors',
-    foundingDate: '2024',
+    description:
+      "Discover and apply to case competitions, business programs, and opportunities in one place.",
+    foundingDate: "2024",
     contactPoint: {
-      '@type': 'ContactPoint',
-      contactType: 'customer service',
-      availableLanguage: 'English',
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      availableLanguage: "English",
     },
     sameAs: [
       // Add social media URLs when available
@@ -64,21 +66,23 @@ export function OrganizationStructuredData() {
 }
 
 export function WebSiteStructuredData() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://thepitchdeck.com';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || "https://thepitchdeck.com";
 
   const websiteData = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'The Pitch Deck',
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "The Pitch Deck",
     url: baseUrl,
-    description: 'The All-in-One Platform for Case Competitors',
+    description:
+      "Discover and apply to case competitions, business programs, and opportunities in one place.",
     potentialAction: {
-      '@type': 'SearchAction',
+      "@type": "SearchAction",
       target: {
-        '@type': 'EntryPoint',
+        "@type": "EntryPoint",
         urlTemplate: `${baseUrl}/competitions?search={search_term_string}`,
       },
-      'query-input': 'required name=search_term_string',
+      "query-input": "required name=search_term_string",
     },
   };
 
