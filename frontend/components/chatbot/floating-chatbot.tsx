@@ -193,6 +193,18 @@ export function FloatingChatbot() {
     setMessages([welcomeMessage()]);
   };
 
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    if (typeof window !== "undefined") {
+      window.addEventListener("tpd-open-chatbot", handleOpen);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("tpd-open-chatbot", handleOpen);
+      }
+    };
+  }, []);
+
   return (
     <div className="fixed bottom-5 right-4 z-[70] flex flex-col items-end gap-3">
       {isOpen && (

@@ -84,7 +84,7 @@ export function HeroSection() {
               />
               <div className="-mt-2 sm:-mt-3">
                 <AnimatedText
-                  text="Case Competitors"
+                  text="Business Opportunities"
                   className="gradient-text inline-block"
                   animation="wordByWord"
                   staggerChildren={0.1}

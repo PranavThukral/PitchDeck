@@ -6,12 +6,51 @@ type IncomingMessage = {
   content?: string;
 };
 
-const MODEL = process.env.GROK_MODEL || "grok-2";
+const MODEL = process.env.GROK_MODEL || "grok-4.1-fast";
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 12;
+
+type RateEntry = {
+  count: number;
+  resetAt: number;
+};
+
+const rateLimiter = new Map<string, RateEntry>();
 const MAX_CONTEXT = 12;
 const MAX_CONTENT_LENGTH = 2000;
 
 export async function POST(request: NextRequest) {
   try {
+    const clientKey =
+      request.ip ||
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("cf-connecting-ip") ||
+      "unknown";
+
+    const now = Date.now();
+    const entry = rateLimiter.get(clientKey);
+
+    if (entry && entry.resetAt > now) {
+      if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Rate limit exceeded. Please wait a moment.",
+          },
+          { status: 429 },
+        );
+      }
+      rateLimiter.set(clientKey, {
+        count: entry.count + 1,
+        resetAt: entry.resetAt,
+      });
+    } else {
+      rateLimiter.set(clientKey, {
+        count: 1,
+        resetAt: now + RATE_LIMIT_WINDOW_MS,
+      });
+    }
+
     const body = await request.json();
     const incoming: IncomingMessage[] = Array.isArray(body?.messages)
       ? body.messages
@@ -41,9 +80,9 @@ export async function POST(request: NextRequest) {
     }
 
     const systemPrompt = `
-      You are PitchDeck's helpful assistant. Keep answers concise, actionable, and relevant to The Pitch Deck platform (student opportunities, competitions, onboarding, navigation).
+      You are PitchDeck's respectful, kind, and concise assistant. ONLY answer questions related to The Pitch Deck platform: opportunities, competitions, deadlines, navigation, accounts, and onboarding. If asked about unrelated topics, politely decline and guide the user back to PitchDeck topics.
       User status: ${user ? `logged in as ${user.firstName || "member"} (${user.userType})` : "guest (not logged in)"}.
-      Use the conversation history to maintain context. Never expose private data. If you do not know the answer, be honest and suggest where to look in the site.
+      Keep responses short, actionable, and supportive. Never expose private data. If unsure, be honest and suggest where to look on the site.
     `.trim();
 
     const response = await fetch("https://api.x.ai/v1/chat/completions", {
