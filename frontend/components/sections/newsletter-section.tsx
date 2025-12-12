@@ -62,7 +62,7 @@ export function NewsletterSection() {
       <FloatingElements count={15} minSize={10} maxSize={80} />
 
       <ParallaxElement speed={0.4} className="absolute inset-0">
-        <div className="absolute inset-0 opacity-10 bg-[url('/images/newsletter-bg.jpg')] bg-cover bg-center mix-blend-overlay"></div>
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.25),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(25,97,63,0.35),transparent_30%),radial-gradient(circle_at_30%_80%,rgba(44,161,95,0.3),transparent_32%)] mix-blend-overlay"></div>
       </ParallaxElement>
 
       {/* Background animated shapes are unchanged */}

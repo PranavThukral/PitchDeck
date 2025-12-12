@@ -78,7 +78,7 @@ export default function OurStoryPage() {
           <LogoWaterfall />
           <FloatingElements count={14} color="rgba(79, 70, 229, 0.1)" />
           <ParallaxElement speed={0.2} className="absolute inset-0">
-            <div className="absolute inset-0 opacity-10 bg-[url('/images/hero-pattern.jpg')] bg-cover bg-center" />
+            <div className="absolute inset-0 opacity-15 bg-[radial-gradient(circle_at_15%_20%,rgba(25,97,63,0.16),transparent_28%),radial-gradient(circle_at_80%_15%,rgba(255,211,156,0.24),transparent_30%),radial-gradient(circle_at_50%_75%,rgba(44,161,95,0.18),transparent_32%)]" />
           </ParallaxElement>
           <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-emerald-50/70 to-amber-50/60 dark:from-[#0a1628]/85 dark:via-[#0f2a30]/60 dark:to-[#0b1e34]/70" />
 
@@ -100,11 +100,12 @@ export default function OurStoryPage() {
                     Built for momentum
                   </p>
                   <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight text-gray-900 dark:text-white">
-                    Opportunities should feel{" "}
-                    <span className="relative inline-block px-1">
-                      <span className="relative z-10">simple.</span>
+                    <span className="relative inline-flex px-1">
+                      <span className="relative z-10">
+                        Opportunities should feel simple.
+                      </span>
                       <span
-                        className="absolute -bottom-2 left-0 right-0 h-3 rounded-full bg-gradient-to-r from-emerald-200 via-amber-100 to-emerald-300 blur-[2px] dark:from-emerald-500/50 dark:via-amber-400/50 dark:to-emerald-400/50"
+                        className="absolute -bottom-2 inset-x-0 h-3 rounded-full bg-gradient-to-r from-emerald-200 via-amber-100 to-emerald-300 blur-[2px] dark:from-emerald-500/50 dark:via-amber-400/50 dark:to-emerald-400/50"
                         aria-hidden="true"
                       />
                     </span>
@@ -306,20 +307,30 @@ export default function OurStoryPage() {
             <div className="grid gap-6 md:grid-cols-2">
               {involvement.map(({ title, description, footer, cta }, index) => {
                 const Icon = cta.icon;
+                const isExecutive = index === 0;
+                const cardBg = isExecutive
+                  ? "bg-gradient-to-br from-emerald-600/15 via-emerald-50/70 to-white"
+                  : "bg-gradient-to-br from-indigo-600/12 via-amber-50/70 to-white";
+                const cardBorder = isExecutive
+                  ? "border-emerald-200/70"
+                  : "border-amber-200/70";
+                const ctaClasses = isExecutive
+                  ? "bg-emerald-700 hover:bg-emerald-800"
+                  : "bg-indigo-700 hover:bg-indigo-800";
+                const accentText = isExecutive
+                  ? "text-emerald-800 dark:text-emerald-200"
+                  : "text-indigo-800 dark:text-amber-200";
+
                 return (
                   <motion.div
                     key={title}
-                    className={`relative overflow-hidden rounded-2xl border border-white/60 bg-white/95 p-8 shadow-2xl backdrop-blur transition duration-300 hover:-translate-y-2 hover:shadow-[0_25px_70px_-35px_rgba(25,97,63,0.6)] dark:border-white/10 dark:bg-[#0d1f33]/90 ${
-                      index === 0
-                        ? "bg-gradient-to-br from-emerald-50 via-white to-indigo-50"
-                        : "bg-gradient-to-br from-indigo-50 via-white to-amber-50"
-                    }`}
+                    className={`relative w-full overflow-hidden rounded-2xl border p-8 shadow-2xl backdrop-blur transition duration-300 hover:-translate-y-2 hover:shadow-[0_25px_70px_-35px_rgba(25,97,63,0.6)] ${cardBg} ${cardBorder} dark:border-white/10 dark:bg-[#0d1f33]/90`}
                     initial={{ opacity: 0, y: 16 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4 }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/40 via-transparent to-indigo-200/50 opacity-60 dark:from-emerald-500/20 dark:via-transparent dark:to-indigo-500/20" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-white/40 opacity-60 dark:from-white/5 dark:via-transparent dark:to-white/5" />
                     <div className="relative space-y-4">
                       <h4 className="text-2xl font-semibold text-gray-900 dark:text-white">
                         {title}
@@ -327,12 +338,12 @@ export default function OurStoryPage() {
                       <p className="text-base text-gray-700 dark:text-gray-200">
                         {description}
                       </p>
-                      <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-200">
+                      <p className={`text-sm font-semibold ${accentText}`}>
                         {footer}
                       </p>
                       <Link
                         href={cta.href}
-                        className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-emerald-700"
+                        className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 ${ctaClasses}`}
                       >
                         <Icon className="h-4 w-4" />
                         {cta.label}

@@ -203,6 +203,12 @@ export function Navigation() {
               >
                 Competitions
               </Link>
+              <Link
+                href="/our-story"
+                className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
+              >
+                Our Story
+              </Link>
 
               <Link
                 href="/findyouropp"
@@ -365,6 +371,12 @@ export function Navigation() {
               className="text-black hover:text-[#2CA15F] block px-3 py-2 rounded-md text-base font-medium dark:text-white"
             >
               Competitions
+            </Link>
+            <Link
+              href="/our-story"
+              className="text-black hover:text-[#2CA15F] block px-3 py-2 rounded-md text-base font-medium dark:text-white"
+            >
+              Our Story
             </Link>
 
             <div className="pt-4 pb-3 border-t border-gray-200">
