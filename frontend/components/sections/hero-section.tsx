@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   Trophy,
-  Users,
-  Award,
   Sparkles,
   Briefcase,
   Compass,
@@ -84,7 +82,7 @@ export function HeroSection() {
               />
               <div className="-mt-2 sm:-mt-3">
                 <AnimatedText
-                  text="Business Opportunities"
+                  text="High School Business Opportunities"
                   className="gradient-text inline-block"
                   animation="wordByWord"
                   staggerChildren={0.1}
@@ -206,130 +204,7 @@ export function HeroSection() {
             </div>
           </AnimatedElement>
 
-          {/* Stats Section */}
-          {!isUnderConstruction && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              <AnimatedElement animation="zoom" delay={2.6} duration={0.5}>
-                <motion.div
-                  className="text-center p-5 bg-white/50 dark:bg-[#1a3047]/70 rounded-lg shadow-sm backdrop-blur-sm dark:border dark:border-[#2CA15F]/20"
-                  whileHover={{
-                    y: -8,
-                    boxShadow:
-                      "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                >
-                  <div className="flex justify-center mb-4">
-                    <motion.div
-                      animate={{ rotate: [0, 10, 0, -10, 0] }}
-                      transition={{
-                        duration: 5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      <Trophy className="h-12 w-12 text-[#19613F]" />
-                    </motion.div>
-                  </div>
-                  <motion.h3
-                    className="text-3xl font-bold font-serif text-[#2CA15F] mb-2 dark:text-card-foreground"
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 3.0, duration: 0.5 }}
-                  >
-                    <AnimatedText
-                      text="50+"
-                      animation="highlight"
-                      delay={3.2}
-                    />
-                  </motion.h3>
-                  <p className="text-black dark:text-gray-300">
-                    Active Competitions
-                  </p>
-                </motion.div>
-              </AnimatedElement>
 
-              <AnimatedElement animation="zoom" delay={2.8} duration={0.5}>
-                <motion.div
-                  className="text-center p-5 bg-white/50 dark:bg-[#1a3047]/70 rounded-lg shadow-sm backdrop-blur-sm dark:border dark:border-[#2CA15F]/20"
-                  whileHover={{
-                    y: -8,
-                    boxShadow:
-                      "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                >
-                  <div className="flex justify-center mb-4">
-                    <motion.div
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      <Users className="h-12 w-12 text-[#19613F]" />
-                    </motion.div>
-                  </div>
-                  <motion.h3
-                    className="text-3xl font-bold font-serif text-[#2CA15F] mb-2 dark:text-card-foreground"
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 3.2, duration: 0.5 }}
-                  >
-                    <AnimatedText
-                      text="5,000+"
-                      animation="highlight"
-                      delay={3.4}
-                    />
-                  </motion.h3>
-                  <p className="text-black dark:text-gray-300">
-                    Student Competitors
-                  </p>
-                </motion.div>
-              </AnimatedElement>
-
-              <AnimatedElement animation="zoom" delay={3.0} duration={0.5}>
-                <motion.div
-                  className="text-center p-5 bg-white/50 dark:bg-[#1a3047]/70 rounded-lg shadow-sm backdrop-blur-sm dark:border dark:border-[#2CA15F]/20"
-                  whileHover={{
-                    y: -8,
-                    boxShadow:
-                      "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                >
-                  <div className="flex justify-center mb-4">
-                    <motion.div
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      <Award className="h-12 w-12 text-[#19613F]" />
-                    </motion.div>
-                  </div>
-                  <motion.h3
-                    className="text-3xl font-bold font-serif text-[#2CA15F] mb-2 dark:text-card-foreground"
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 3.4, duration: 0.5 }}
-                  >
-                    <AnimatedText
-                      text="$250K+"
-                      animation="highlight"
-                      delay={3.6}
-                    />
-                  </motion.h3>
-                  <p className="text-black dark:text-gray-300">
-                    Total Prize Money
-                  </p>
-                </motion.div>
-              </AnimatedElement>
-            </div>
-          )}
         </div>
       </div>
     </section>

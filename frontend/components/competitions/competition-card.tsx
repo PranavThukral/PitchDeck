@@ -135,17 +135,18 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
               {competition.title}
             </h3>
           </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-dashed border-green-300 dark:border-green-600 flex items-center justify-center min-h-[100px]">
-            <div className="w-24 h-24 flex items-center justify-center">
-              <img
-                src={competition.logo || "/logos/placeholder.svg"}
-                alt={`${competition.organizer} logo`}
-                width="96"
-                height="96"
-                className="rounded-lg object-contain max-w-full max-h-full"
-                loading="lazy"
-              />
-            </div>
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg border-2 border-dashed border-green-300 dark:border-green-600 flex items-center justify-center h-32 sm:h-36 w-full"
+            style={{ padding: "5%" }}
+          >
+            <img
+              src={competition.logo || "/logos/placeholder.svg"}
+              alt={`${competition.organizer} logo`}
+              width="160"
+              height="120"
+              className="rounded-lg object-contain h-full w-full"
+              loading="lazy"
+            />
           </div>
           {competition.description && (
             <blockquote className="mt-4 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border-l-4 border-green-300 dark:border-green-600">
@@ -201,18 +202,16 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
               href={competition.applyUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className={`flex-1 ${isClosed ? "pointer-events-none" : ""}`}
+              className="flex-1"
               onClick={(e) => {
-                if (isClosed) e.preventDefault();
                 e.stopPropagation();
               }}
             >
               <Button
                 className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold shadow-lg"
-                disabled={isClosed}
               >
-                {isClosed ? "Closed" : "Apply"}
-                {!isClosed && <ExternalLink className="h-4 w-4 ml-1" />}
+                Apply
+                <ExternalLink className="h-4 w-4 ml-1" />
               </Button>
             </a>
           </div>
@@ -239,7 +238,8 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
                   alt={`${competition.organizer} logo`}
                   width="64"
                   height="64"
-                  className="rounded object-contain max-w-full max-h-full"
+                  className="rounded object-contain h-full w-full"
+                  style={{ padding: "5%" }}
                   loading="lazy"
                 />
               </div>

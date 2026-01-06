@@ -11,7 +11,7 @@ import {
   WebSiteStructuredData,
 } from "@/components/seo/structured-data";
 import { SocialPopup } from "@/components/layout/social-popup";
-import { FloatingChatbot } from "@/components/chatbot/floating-chatbot";
+import { FloatingChatbotLoader } from "@/components/chatbot/floating-chatbot-loader";
 
 const arvo = Arvo({
   weight: ["400", "700"],
@@ -60,7 +60,7 @@ export default function RootLayout({
           <Toaster />
           <Analytics />
           <SocialPopup />
-          <FloatingChatbot />
+          <FloatingChatbotLoader />
         </ThemeProvider>
       </body>
     </html>

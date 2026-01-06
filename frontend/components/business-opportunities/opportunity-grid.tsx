@@ -185,6 +185,16 @@ export function OpportunityGrid({ filters }: OpportunityGridProps) {
 
   const sortedOpportunities = useMemo(() => {
     return [...filteredOpportunities].sort((a, b) => {
+      const statusOrder = {
+        upcoming: 1,
+        open: 2,
+        "closing-soon": 2,
+        closed: 3,
+      };
+      const aStatus = statusOrder[a.status as keyof typeof statusOrder] || 5;
+      const bStatus = statusOrder[b.status as keyof typeof statusOrder] || 5;
+      if (aStatus !== bStatus) return aStatus - bStatus;
+
       const typeIndexA = opportunityTypeOrder.indexOf(
         a.derivedType ?? "Mentorship & Learning",
       );
@@ -192,16 +202,6 @@ export function OpportunityGrid({ filters }: OpportunityGridProps) {
         b.derivedType ?? "Mentorship & Learning",
       );
       if (typeIndexA !== typeIndexB) return typeIndexA - typeIndexB;
-
-      const statusOrder = {
-        "closing-soon": 1,
-        open: 2,
-        upcoming: 3,
-        closed: 4,
-      };
-      const aStatus = statusOrder[a.status as keyof typeof statusOrder] || 5;
-      const bStatus = statusOrder[b.status as keyof typeof statusOrder] || 5;
-      if (aStatus !== bStatus) return aStatus - bStatus;
 
       return a.title.localeCompare(b.title);
     });
@@ -263,7 +263,7 @@ export function OpportunityGrid({ filters }: OpportunityGridProps) {
           opportunities
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {sortedOpportunities.map(
           ({ derivedType: _derivedType, ...opportunity }) => (
             <OpportunityCard

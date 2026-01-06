@@ -28,7 +28,7 @@ export default function CompetitionsPage() {
       <BreadcrumbStructuredData items={breadcrumbItems} />
       <Navigation />
 
-      <main className="relative flex-1 overflow-hidden pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+      <main className="relative flex-1 overflow-hidden pt-24 pb-20 px-2 sm:px-3 lg:px-5">
         <div className="absolute inset-0 pointer-events-none">
           <LogoWaterfall />
           <FloatingElements count={12} color="rgba(60, 102, 219, 0.12)" />
@@ -40,7 +40,7 @@ export default function CompetitionsPage() {
           <div className="absolute bottom-[-7rem] left-[-5rem] h-80 w-80 rounded-full bg-sky-200/40 blur-[120px] dark:bg-sky-500/10" />
         </div>
 
-        <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-12">
+        <div className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-col gap-12">
           <motion.header
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}

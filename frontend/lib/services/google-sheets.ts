@@ -391,7 +391,12 @@ export async function getCompetitionsSortedByDeadline(): Promise<
   Competition[]
 > {
   const competitions = await fetchCompetitionsFromSheets();
+  const statusOrder = { upcoming: 1, open: 2, "closing-soon": 2, closed: 3 };
   return competitions.sort((a, b) => {
+    const statusA = statusOrder[a.status as keyof typeof statusOrder] || 4;
+    const statusB = statusOrder[b.status as keyof typeof statusOrder] || 4;
+    if (statusA !== statusB) return statusA - statusB;
+
     const dateA = new Date(a.deadline);
     const dateB = new Date(b.deadline);
     if (isNaN(dateA.getTime())) return 1;
@@ -404,12 +409,17 @@ export async function getBusinessOpportunitiesSorted(): Promise<
   BusinessOpportunity[]
 > {
   const opportunities = await fetchBusinessOpportunitiesFromSheets();
+  const statusOrder = { upcoming: 1, open: 2, "closing-soon": 2, closed: 3 };
   return opportunities.sort((a, b) => {
-    const statusOrder = { open: 1, "closing-soon": 2, upcoming: 3, closed: 4 };
-    const statusA = statusOrder[a.status as keyof typeof statusOrder] || 5;
-    const statusB = statusOrder[b.status as keyof typeof statusOrder] || 5;
+    const statusA = statusOrder[a.status as keyof typeof statusOrder] || 4;
+    const statusB = statusOrder[b.status as keyof typeof statusOrder] || 4;
     if (statusA !== statusB) return statusA - statusB;
-    return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+
+    const dateA = new Date(a.endDate);
+    const dateB = new Date(b.endDate);
+    if (isNaN(dateA.getTime())) return 1;
+    if (isNaN(dateB.getTime())) return -1;
+    return dateA.getTime() - dateB.getTime();
   });
 }
 

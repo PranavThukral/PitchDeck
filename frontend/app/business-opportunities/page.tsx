@@ -78,7 +78,7 @@ function BusinessOpportunitiesContent() {
 
   const breadcrumbItems = [
     { name: "Home", url: "/" },
-    { name: "Business Opportunities", url: "/business-opportunities" },
+    { name: "High School Business Opportunities", url: "/business-opportunities" },
   ];
 
   return (
@@ -86,7 +86,7 @@ function BusinessOpportunitiesContent() {
       <BreadcrumbStructuredData items={breadcrumbItems} />
       <Navigation />
 
-      <main className="relative flex-1 overflow-hidden pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+      <main className="relative flex-1 overflow-hidden pt-24 pb-20 px-1 sm:px-2 lg:px-4">
         <div className="absolute inset-0 pointer-events-none">
           <LogoWaterfall />
           <FloatingElements count={14} color="rgba(34, 120, 82, 0.12)" />
@@ -98,7 +98,7 @@ function BusinessOpportunitiesContent() {
           <div className="absolute bottom-[-6rem] left-[-4rem] h-80 w-80 rounded-full bg-lime-200/35 blur-3xl dark:bg-emerald-400/10" />
         </div>
 
-        <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-12">
+        <div className="relative z-10 mx-auto flex w-full max-w-[100rem] flex-col gap-12">
           <motion.header
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -110,7 +110,7 @@ function BusinessOpportunitiesContent() {
               Opportunity Directory
             </span>
             <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl dark:text-white">
-              Business Opportunities
+              High School Business Opportunities
             </h1>
             <p className="mx-auto max-w-3xl text-lg text-gray-600 dark:text-gray-300">
               Explore curated programs, internships, fellowships, and leadership experiences designed to accelerate your career and{" "}

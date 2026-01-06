@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CompetitionCard } from "./competition-card";
 import { Loader2, AlertCircle } from "lucide-react";
 
@@ -29,6 +29,21 @@ interface CompetitionGridProps {
     statusFilter: string;
   };
 }
+
+const normalizeStatus = (rawStatus: string | undefined): string => {
+  const cleaned = (rawStatus || "")
+    .replace(/[\[\]"']/g, "")
+    .trim()
+    .toLowerCase();
+
+  if (["open", "closed", "upcoming", "closing-soon"].includes(cleaned))
+    return cleaned;
+  if (cleaned.includes("close")) return "closed";
+  if (cleaned.includes("open")) return "open";
+  if (cleaned.includes("upcoming")) return "upcoming";
+  if (cleaned.includes("closing")) return "closing-soon";
+  return "open";
+};
 
 // Helper object to map the filter dropdown values to the actual sheet tags
 const gradeFilterMap: { [key: string]: string[] } = {
@@ -63,10 +78,19 @@ export function CompetitionGrid({ filters }: CompetitionGridProps) {
         console.error("Fetch error:", err);
         setError("Failed to load competitions.");
         setLoading(false);
-      });
+    });
   }, []);
 
-  const filteredCompetitions = competitions.filter((competition) => {
+  const normalizedCompetitions = useMemo(
+    () =>
+      competitions.map((competition) => ({
+        ...competition,
+        status: normalizeStatus(competition.status),
+      })),
+    [competitions],
+  );
+
+  const filteredCompetitions = normalizedCompetitions.filter((competition) => {
     // Search filter logic (unchanged)
     const matchesSearch =
       competition.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
@@ -100,6 +124,23 @@ export function CompetitionGrid({ filters }: CompetitionGridProps) {
     return matchesSearch && matchesGrade && matchesStatus;
   });
 
+  const sortedCompetitions = useMemo(() => {
+    const statusOrder = {
+      upcoming: 1,
+      open: 2,
+      "closing-soon": 2,
+      closed: 3,
+    };
+
+    return [...filteredCompetitions].sort((a, b) => {
+      const aStatus = statusOrder[a.status as keyof typeof statusOrder] || 4;
+      const bStatus = statusOrder[b.status as keyof typeof statusOrder] || 4;
+      if (aStatus !== bStatus) return aStatus - bStatus;
+
+      return a.title.localeCompare(b.title);
+    });
+  }, [filteredCompetitions]);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -119,7 +160,7 @@ export function CompetitionGrid({ filters }: CompetitionGridProps) {
     );
   }
 
-  if (filteredCompetitions.length === 0) {
+  if (sortedCompetitions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-3xl border border-indigo-200/60 bg-white/80 py-16 text-center shadow-inner backdrop-blur dark:border-indigo-500/40 dark:bg-[#11263b]/70">
         <AlertCircle className="mb-4 h-12 w-12 text-indigo-500 dark:text-indigo-300" />
@@ -136,7 +177,7 @@ export function CompetitionGrid({ filters }: CompetitionGridProps) {
       <div className="flex flex-col gap-3 rounded-2xl border border-indigo-200/60 bg-white/85 p-4 shadow-sm backdrop-blur dark:border-indigo-500/40 dark:bg-[#11263b]/70 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-gray-600 dark:text-gray-300">
           Showing{" "}
-          <span className="text-indigo-600 font-semibold dark:text-indigo-300">{filteredCompetitions.length}</span>{" "}
+          <span className="text-indigo-600 font-semibold dark:text-indigo-300">{sortedCompetitions.length}</span>{" "}
           competitions
         </p>
         <span className="text-xs font-medium uppercase tracking-wider text-indigo-600 dark:text-indigo-300">
@@ -144,7 +185,7 @@ export function CompetitionGrid({ filters }: CompetitionGridProps) {
         </span>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 sm:gap-6 lg:gap-8">
-        {filteredCompetitions.map((competition) => (
+        {sortedCompetitions.map((competition) => (
           <CompetitionCard
             key={competition.id}
             competition={competition}
