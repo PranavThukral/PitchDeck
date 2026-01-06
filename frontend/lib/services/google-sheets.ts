@@ -50,7 +50,7 @@ interface BusinessOpportunity {
   likes: number; // Like count from Google Sheets
 }
 
-const SPREADSHEET_ID = "1XHg2kkWfjREQxYIGd4DAcilCBH23BWZz2XRhM1WDJOc";
+const SPREADSHEET_ID = "1a0_JfkOsRG_xPOr5ZjkRGKnlrvskxA_LepiKef5oiHg";
 const COMPETITIONS_SHEET_ID = "0";
 const OPPORTUNITIES_SHEET_ID = "530191508";
 
