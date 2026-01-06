@@ -409,3 +409,4 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
     </>
   );
 }
+//test
