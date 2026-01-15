@@ -53,6 +53,10 @@ interface BusinessOpportunity {
 const SPREADSHEET_ID = "1a0_JfkOsRG_xPOr5ZjkRGKnlrvskxA_LepiKef5oiHg";
 const COMPETITIONS_SHEET_ID = "0";
 const OPPORTUNITIES_SHEET_ID = "530191508";
+const MEDICINE_OPPORTUNITIES_SHEET_ID = "352298986";
+const MEDICINE_COMPETITIONS_SHEET_ID = "2091744259";
+const ENGINEERING_OPPORTUNITIES_SHEET_ID = "1845076928";
+const ENGINEERING_COMPETITIONS_SHEET_ID = "1387527132";
 
 const logoOverrides: Record<string, string> = {
   "blue ocean competition": "/logos/organizations/blue-ocean.png",
@@ -135,22 +139,26 @@ function parseCSV(csvData: string): SheetRow[] {
 
 function parseGradeTags(tagString: string): string[] {
   const cleanedInput = (tagString || "").replace(/[\r\n]+/g, "").trim();
-  if (
-    !cleanedInput ||
-    !cleanedInput.startsWith("[") ||
-    !cleanedInput.endsWith("]")
-  )
-    return [];
-  try {
-    const validJsonString = cleanedInput.replace(/'/g, '"');
-    const tags = JSON.parse(validJsonString);
-    if (Array.isArray(tags) && tags.every((t) => typeof t === "string"))
-      return tags;
-    return [];
-  } catch (error) {
-    console.error("Failed to parse Grade Tag:", tagString, error);
-    return [];
+  if (!cleanedInput) return [];
+
+  if (cleanedInput.startsWith("[") && cleanedInput.endsWith("]")) {
+    try {
+      const validJsonString = cleanedInput.replace(/'/g, '"');
+      const tags = JSON.parse(validJsonString);
+      if (Array.isArray(tags) && tags.every((t) => typeof t === "string")) {
+        return tags;
+      }
+    } catch {
+      // Fall back to non-JSON list parsing.
+    }
   }
+
+  const normalized = cleanedInput.replace(/^\[|\]$/g, "");
+  const tags = normalized
+    .split(/[,;]+/)
+    .map((value) => value.trim().replace(/^["']|["']$/g, ""))
+    .filter(Boolean);
+  return tags.length > 0 ? tags : [];
 }
 
 function generateId(title: string): string {
@@ -185,53 +193,69 @@ function cleanupLogoUrl(url: string): string {
   }
 }
 
-function determineStatus(deadline: string, registrationOpens?: string): string {
-  const lowerDeadline = (deadline || "").toLowerCase();
-  if (lowerDeadline.includes("passed") || lowerDeadline.includes("closed")) {
-    return "closed";
+const INVALID_DATE_TOKENS = [
+  "tbd",
+  "does not specify",
+  "none",
+  "none yet",
+  "n/a",
+  "na",
+  "unknown",
+  "not specified",
+];
+
+function parseDateValue(value: string | undefined): Date | null {
+  const raw = (value || "").trim();
+  if (!raw) return null;
+  const normalized = raw.toLowerCase();
+  if (INVALID_DATE_TOKENS.some((token) => normalized.includes(token))) {
+    return null;
   }
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const startDate = new Date(registrationOpens || "");
-  const endDate = new Date(deadline);
-  if (!isNaN(startDate.getTime()) && startDate > today) {
-    return "upcoming";
-  }
-  if (!isNaN(endDate.getTime()) && endDate < today) {
-    return "closed";
-  }
-  if (!isNaN(endDate.getTime())) {
-    const twoWeeksFromNow = new Date();
-    twoWeeksFromNow.setDate(today.getDate() + 14);
-    if (endDate <= twoWeeksFromNow) {
-      return "closing-soon";
-    }
-  }
-  return "open";
+  const date = new Date(raw);
+  if (isNaN(date.getTime())) return null;
+  date.setHours(0, 0, 0, 0);
+  return date;
 }
 
-function normalizeStatusTag(
-  statusTag: string | undefined,
-  fallbackStatus: string,
-): string {
-  // Sheets store status tags as strings like ["Closed"] - clean them up and fall back to our computed status
-  const validStatuses = new Set(["open", "closed", "upcoming", "closing-soon"]);
-  const cleaned = (statusTag || "")
-    .replace(/[\[\]"']/g, "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "-");
+function determineStatus({
+  opensAt,
+  closesAt,
+}: {
+  opensAt?: string;
+  closesAt?: string;
+}): string {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const openDate = parseDateValue(opensAt);
+  const closeDate = parseDateValue(closesAt);
 
-  if (!cleaned || !validStatuses.has(cleaned)) {
-    return fallbackStatus;
+  if (closeDate && closeDate < today) {
+    return "closed";
   }
 
-  // When the sheet says "closed" but our date logic says otherwise, trust the dates
-  if (cleaned === "closed" && fallbackStatus !== "closed") {
-    return fallbackStatus;
+  if (openDate && openDate > today) {
+    const upcomingThreshold = new Date(today);
+    upcomingThreshold.setDate(today.getDate() + 30);
+    if (openDate <= upcomingThreshold) {
+      return "upcoming";
+    }
+    return "closed";
   }
 
-  return cleaned;
+  if (closeDate) {
+    const closingSoonThreshold = new Date(today);
+    closingSoonThreshold.setDate(today.getDate() + 7);
+    if (closeDate >= today && closeDate <= closingSoonThreshold) {
+      return "closing-soon";
+    }
+    return "open";
+  }
+
+  if (openDate && openDate <= today) {
+    return "open";
+  }
+
+  return "closed";
 }
 
 // Helper to parse tags from single-entry columns
@@ -256,6 +280,12 @@ function mapRowToCompetition(row: SheetRow): Competition {
   const registrationOpens = row["When Registration Opens,"] || "";
   const normalizedTitle = title.trim().toLowerCase();
   const logoSource = logoOverrides[normalizedTitle] ?? row["Logo Link"] ?? "";
+  const location =
+    row["Location"] ||
+    row["City, Province"] ||
+    row["City"] ||
+    row["Virtual/In-Person"] ||
+    "";
 
   return {
     id: generateId(title),
@@ -265,7 +295,7 @@ function mapRowToCompetition(row: SheetRow): Competition {
     gradeTags: parseGradeTags(row["Grade Tag"] || "[]"),
     deadline,
     prize: "TBD",
-    status: determineStatus(deadline, registrationOpens),
+    status: determineStatus({ opensAt: registrationOpens, closesAt: deadline }),
     description:
       row["Description"] ||
       `${title} - A business competition for high school students.`,
@@ -273,7 +303,7 @@ function mapRowToCompetition(row: SheetRow): Competition {
     applyUrl: row["Link to Application"] || "",
     frequency: "Annual",
     dates: [registrationOpens || "TBD", deadline || "TBD"],
-    location: row["Virtual/In-Person"] || "",
+    location,
     cost: row["Cost"] || "Free",
     costNumeric: parseCost(row["Cost"] || ""),
     teamRequirement: row["Team Requirement"] || "Both",
@@ -321,10 +351,7 @@ function mapRowToBusinessOpportunity(row: SheetRow): BusinessOpportunity {
     cost: row["Cost"] || "Free",
     costNumeric: parseCost(row["Cost"] || ""),
     format: row["Virtual/In-Person"] || "",
-    status: normalizeStatusTag(
-      row["Status Tag"],
-      determineStatus(deadline, registrationOpens),
-    ),
+    status: determineStatus({ opensAt: registrationOpens, closesAt: deadline }),
     description:
       row["Description"] ||
       `${title} - A business opportunity for high school students.`,
@@ -341,8 +368,26 @@ function mapRowToBusinessOpportunity(row: SheetRow): BusinessOpportunity {
 }
 
 export async function fetchCompetitionsFromSheets(): Promise<Competition[]> {
+  return fetchCompetitionsFromSheet(COMPETITIONS_SHEET_ID);
+}
+
+export async function fetchMedicineCompetitionsFromSheets(): Promise<
+  Competition[]
+> {
+  return fetchCompetitionsFromSheet(MEDICINE_COMPETITIONS_SHEET_ID);
+}
+
+export async function fetchEngineeringCompetitionsFromSheets(): Promise<
+  Competition[]
+> {
+  return fetchCompetitionsFromSheet(ENGINEERING_COMPETITIONS_SHEET_ID);
+}
+
+async function fetchCompetitionsFromSheet(
+  sheetId: string,
+): Promise<Competition[]> {
   try {
-    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${COMPETITIONS_SHEET_ID}`;
+    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${sheetId}`;
     const response = await fetch(url, { next: { revalidate: 3600 } });
     if (!response.ok)
       throw new Error(
@@ -364,8 +409,26 @@ export async function fetchCompetitionsFromSheets(): Promise<Competition[]> {
 export async function fetchBusinessOpportunitiesFromSheets(): Promise<
   BusinessOpportunity[]
 > {
+  return fetchBusinessOpportunitiesFromSheet(OPPORTUNITIES_SHEET_ID);
+}
+
+export async function fetchMedicineOpportunitiesFromSheets(): Promise<
+  BusinessOpportunity[]
+> {
+  return fetchBusinessOpportunitiesFromSheet(MEDICINE_OPPORTUNITIES_SHEET_ID);
+}
+
+export async function fetchEngineeringOpportunitiesFromSheets(): Promise<
+  BusinessOpportunity[]
+> {
+  return fetchBusinessOpportunitiesFromSheet(ENGINEERING_OPPORTUNITIES_SHEET_ID);
+}
+
+async function fetchBusinessOpportunitiesFromSheet(
+  sheetId: string,
+): Promise<BusinessOpportunity[]> {
   try {
-    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${OPPORTUNITIES_SHEET_ID}`;
+    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${sheetId}`;
     const response = await fetch(url, { next: { revalidate: 3600 } });
     if (!response.ok)
       throw new Error(
@@ -387,10 +450,7 @@ export async function fetchBusinessOpportunitiesFromSheets(): Promise<
   }
 }
 
-export async function getCompetitionsSortedByDeadline(): Promise<
-  Competition[]
-> {
-  const competitions = await fetchCompetitionsFromSheets();
+function sortCompetitionsByDeadline(competitions: Competition[]): Competition[] {
   const statusOrder = { upcoming: 1, open: 2, "closing-soon": 2, closed: 3 };
   return competitions.sort((a, b) => {
     const statusA = statusOrder[a.status as keyof typeof statusOrder] || 4;
@@ -405,10 +465,9 @@ export async function getCompetitionsSortedByDeadline(): Promise<
   });
 }
 
-export async function getBusinessOpportunitiesSorted(): Promise<
-  BusinessOpportunity[]
-> {
-  const opportunities = await fetchBusinessOpportunitiesFromSheets();
+function sortOpportunitiesByDeadline(
+  opportunities: BusinessOpportunity[],
+): BusinessOpportunity[] {
   const statusOrder = { upcoming: 1, open: 2, "closing-soon": 2, closed: 3 };
   return opportunities.sort((a, b) => {
     const statusA = statusOrder[a.status as keyof typeof statusOrder] || 4;
@@ -421,6 +480,48 @@ export async function getBusinessOpportunitiesSorted(): Promise<
     if (isNaN(dateB.getTime())) return -1;
     return dateA.getTime() - dateB.getTime();
   });
+}
+
+export async function getCompetitionsSortedByDeadline(): Promise<
+  Competition[]
+> {
+  const competitions = await fetchCompetitionsFromSheets();
+  return sortCompetitionsByDeadline(competitions);
+}
+
+export async function getMedicineCompetitionsSortedByDeadline(): Promise<
+  Competition[]
+> {
+  const competitions = await fetchMedicineCompetitionsFromSheets();
+  return sortCompetitionsByDeadline(competitions);
+}
+
+export async function getEngineeringCompetitionsSortedByDeadline(): Promise<
+  Competition[]
+> {
+  const competitions = await fetchEngineeringCompetitionsFromSheets();
+  return sortCompetitionsByDeadline(competitions);
+}
+
+export async function getBusinessOpportunitiesSorted(): Promise<
+  BusinessOpportunity[]
+> {
+  const opportunities = await fetchBusinessOpportunitiesFromSheets();
+  return sortOpportunitiesByDeadline(opportunities);
+}
+
+export async function getMedicineOpportunitiesSorted(): Promise<
+  BusinessOpportunity[]
+> {
+  const opportunities = await fetchMedicineOpportunitiesFromSheets();
+  return sortOpportunitiesByDeadline(opportunities);
+}
+
+export async function getEngineeringOpportunitiesSorted(): Promise<
+  BusinessOpportunity[]
+> {
+  const opportunities = await fetchEngineeringOpportunitiesFromSheets();
+  return sortOpportunitiesByDeadline(opportunities);
 }
 
 export async function getBusinessOpportunitiesSortedByDeadline(): Promise<

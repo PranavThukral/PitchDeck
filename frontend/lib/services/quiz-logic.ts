@@ -11,11 +11,20 @@ import {
 // The structure remains the same, but the logic will interpret the values differently.
 export const quizQuestions = [
   {
+    id: 'path',
+    question: 'Choose your path.',
+    answers: [
+      { text: 'Business', value: 'business' },
+      { text: 'Medicine', value: 'medicine' },
+      { text: 'Engineering', value: 'engineering' },
+    ],
+  },
+  {
     id: 'type',
     question: 'What are you looking for?',
     answers: [
-      { text: 'Business Competitions', value: 'competition' },
-      { text: 'Business Opportunities', value: 'opportunity' },
+      { text: 'Competitions', value: 'competition' },
+      { text: 'Opportunities', value: 'opportunity' },
     ],
   },
   // --- Competition Path ---
@@ -39,6 +48,7 @@ export const quizQuestions = [
       { text: 'I\'m open to anything!', value: 'General' },
     ],
     path: 'competition',
+    domain: 'business',
   },
   {
     id: 'cost',

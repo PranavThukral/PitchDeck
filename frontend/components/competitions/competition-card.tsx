@@ -175,12 +175,12 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
               </span>
             </div>
             <div className="flex items-center text-sm">
-              <Clock className="h-4 w-4 mr-2 flex-shrink-0 text-purple-600 dark:text-purple-400" />
+              <MapPin className="h-4 w-4 mr-2 flex-shrink-0 text-purple-600 dark:text-purple-400" />
               <span className="font-medium text-gray-700 dark:text-gray-300 mr-1">
-                Frequency:
+                Location:
               </span>
               <span className="font-semibold text-gray-800 dark:text-gray-100">
-                {competition.frequency}
+                {competition.location || "TBD"}
               </span>
             </div>
           </div>

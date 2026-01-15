@@ -5,13 +5,33 @@ import { FloatingElements, ParallaxElement } from "@/components/animations";
 import { LogoWaterfall } from "@/components/animations/logo-waterfall";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
-import { fetchCompetitionsFromSheets, fetchBusinessOpportunitiesFromSheets } from "@/lib/services/google-sheets";
+import {
+  fetchBusinessOpportunitiesFromSheets,
+  fetchCompetitionsFromSheets,
+  fetchEngineeringCompetitionsFromSheets,
+  fetchEngineeringOpportunitiesFromSheets,
+  fetchMedicineCompetitionsFromSheets,
+  fetchMedicineOpportunitiesFromSheets,
+} from "@/lib/services/google-sheets";
 import { Sparkles } from "lucide-react";
 
 export default async function QuizPage() {
   // Fetch all data on the server to pass to the client component
-  const competitions = await fetchCompetitionsFromSheets();
-  const opportunities = await fetchBusinessOpportunitiesFromSheets();
+  const [
+    businessCompetitions,
+    businessOpportunities,
+    medicineCompetitions,
+    medicineOpportunities,
+    engineeringCompetitions,
+    engineeringOpportunities,
+  ] = await Promise.all([
+    fetchCompetitionsFromSheets(),
+    fetchBusinessOpportunitiesFromSheets(),
+    fetchMedicineCompetitionsFromSheets(),
+    fetchMedicineOpportunitiesFromSheets(),
+    fetchEngineeringCompetitionsFromSheets(),
+    fetchEngineeringOpportunitiesFromSheets(),
+  ]);
 
   return (
     <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-[#f2f8f4] via-white to-[#e5f5ec] dark:from-[#0c1a2e] dark:via-[#102338] dark:to-[#193252]">
@@ -40,7 +60,16 @@ export default async function QuizPage() {
             </p>
           </div>
 
-          <QuizForm allItems={[...competitions, ...opportunities]} />
+          <QuizForm
+            itemsByPath={{
+              business: [...businessCompetitions, ...businessOpportunities],
+              medicine: [...medicineCompetitions, ...medicineOpportunities],
+              engineering: [
+                ...engineeringCompetitions,
+                ...engineeringOpportunities,
+              ],
+            }}
+          />
         </div>
       </main>
       <Footer />

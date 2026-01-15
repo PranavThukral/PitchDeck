@@ -119,13 +119,12 @@ export function OpportunityCard({ opportunity, isFavourited, onFavourite }: Oppo
 
                 <div className="flex items-center gap-4">
                     <div
-                        className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl border border-emerald-100/70 bg-white shadow-sm dark:border-emerald-800/70 dark:bg-emerald-950/40"
-                        style={{ padding: "6%" }}
+                        className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl border border-emerald-100/70 bg-white p-1 shadow-sm dark:border-emerald-800/70 dark:bg-emerald-950/40"
                     >
                         <img
                             src={opportunity.logo}
                             alt={`${opportunity.organizer} logo`}
-                            className="h-full w-full object-contain"
+                            className="h-full w-full object-contain scale-110"
                             loading="lazy"
                         />
                     </div>
@@ -133,15 +132,12 @@ export function OpportunityCard({ opportunity, isFavourited, onFavourite }: Oppo
                         <h3 className="text-lg font-semibold leading-tight text-gray-900 dark:text-white line-clamp-2">
                             {opportunity.title}
                         </h3>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700/80 dark:text-emerald-200/80">
-                            {opportunity.organizer}
-                        </p>
                     </div>
                 </div>
             </CardHeader>
 
             <CardContent className="relative z-10 flex-grow px-4 pb-4 pt-2 space-y-4">
-                <div className="rounded-2xl border border-emerald-100/60 bg-white/85 p-3 text-sm text-gray-600 leading-relaxed shadow-inner dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-100/90">
+                <div className="rounded-2xl border border-emerald-100/60 bg-white/85 p-3 text-center text-sm text-gray-600 leading-relaxed shadow-inner dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-100/90">
                     <p className="line-clamp-4">{opportunity.description}</p>
                 </div>
 

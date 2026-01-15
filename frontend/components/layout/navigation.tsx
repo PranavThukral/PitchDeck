@@ -27,7 +27,6 @@ import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
-import { OPPORTUNITY_TYPE_OPTIONS } from "@/lib/constants/opportunity-types";
 
 interface User {
   firstName: string;
@@ -140,7 +139,7 @@ export function Navigation() {
 
   return (
     <nav className="fixed top-0 w-full bg-[#D9D9D9]/90 backdrop-blur-md z-50 border-b border-[#19613F]/20 dark:bg-gray-900/80 dark:border-[#2CA15F]/30 dark:text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-1 sm:px-2 lg:px-3">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link
@@ -166,53 +165,35 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
-              <div className="flex items-center gap-1">
-                <Link
-                  href="/business-opportunities"
-                  className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
-                >
-                  Business Opportunities
-                </Link>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className="inline-flex items-center justify-center rounded-md p-1 text-black hover:text-[#2CA15F] transition-colors dark:text-white"
-                      aria-label="Show opportunity categories"
-                    >
-                      <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="min-w-[14rem]">
-                    {OPPORTUNITY_TYPE_OPTIONS.map(({ value, label }) => (
-                      <DropdownMenuItem asChild key={value}>
-                        <Link
-                          href={`/business-opportunities?type=${encodeURIComponent(value)}`}
-                        >
-                          {label}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+            <div className="ml-4 flex items-baseline space-x-3">
               <Link
-                href="/competitions"
-                className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
+                href="/business-opportunities"
+                className="text-black hover:text-[#2CA15F] px-2 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors dark:text-white"
               >
-                Competitions
+                Business
+              </Link>
+              <Link
+                href="/medicine-opportunities"
+                className="text-black hover:text-[#2CA15F] px-2 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors dark:text-white"
+              >
+                Medicine
+              </Link>
+              <Link
+                href="/engineering-opportunities"
+                className="text-black hover:text-[#2CA15F] px-2 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors dark:text-white"
+              >
+                Engineering
               </Link>
               <Link
                 href="/our-story"
-                className="text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
+                className="text-black hover:text-[#2CA15F] px-2 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors dark:text-white"
               >
                 Our Story
               </Link>
 
               <Link
                 href="/findyouropp"
-                className="relative text-black hover:text-[#2CA15F] px-3 py-2 rounded-md text-sm font-medium transition-colors dark:text-white"
+                className="relative text-black hover:text-[#2CA15F] px-2 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors dark:text-white"
               >
                 Find Your Opportunity
                 <span className="absolute -top-2 -right-2 flex h-5 w-10 items-center justify-center rounded-full bg-yellow-400 p-1 text-xs font-bold text-yellow-900 animate-pulse">
@@ -353,24 +334,19 @@ export function Navigation() {
               href="/business-opportunities"
               className="text-black hover:text-[#2CA15F] block px-3 py-2 rounded-md text-base font-medium dark:text-white"
             >
-              Business Opportunities
+              Business
             </Link>
-            <div className="ml-6 space-y-1 text-sm text-[#19613F] dark:text-[#2CA15F]">
-              {OPPORTUNITY_TYPE_OPTIONS.map(({ value, label }) => (
-                <Link
-                  key={value}
-                  href={`/business-opportunities${value ? `?type=${encodeURIComponent(value)}` : ""}`}
-                  className="block px-3 py-1 rounded-md hover:bg-[#2CA15F]/10 dark:hover:bg-emerald-900/40"
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
             <Link
-              href="/competitions"
+              href="/medicine-opportunities"
               className="text-black hover:text-[#2CA15F] block px-3 py-2 rounded-md text-base font-medium dark:text-white"
             >
-              Competitions
+              Medicine
+            </Link>
+            <Link
+              href="/engineering-opportunities"
+              className="text-black hover:text-[#2CA15F] block px-3 py-2 rounded-md text-base font-medium dark:text-white"
+            >
+              Engineering
             </Link>
             <Link
               href="/our-story"
