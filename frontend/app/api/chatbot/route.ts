@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth } from "@/lib/middleware/auth";
+import { buildChatbotContext } from "@/lib/services/chatbot-retrieval";
 
 type IncomingMessage = {
   role?: string;
@@ -68,6 +69,11 @@ export async function POST(request: NextRequest) {
         content: (message.content || "").slice(0, MAX_CONTENT_LENGTH),
       }));
 
+    const lastUserMessage =
+      [...messages].reverse().find((message) => message.role === "user")
+        ?.content || "";
+    const context = await buildChatbotContext(lastUserMessage);
+
     const authResult = await verifyAuth(request);
     const user = authResult.success && authResult.user ? authResult.user : null;
 
@@ -84,6 +90,9 @@ export async function POST(request: NextRequest) {
       User status: ${user ? `logged in as ${user.firstName || "member"} (${user.userType})` : "guest (not logged in)"}.
       Keep responses short, actionable, and supportive. Never expose private data. If unsure, be honest and suggest where to look on the site.
     `.trim();
+    const systemContext = context
+      ? `Site context (use this to answer accurately):\n${context}`
+      : "";
 
     const response = await fetch("https://api.x.ai/v1/chat/completions", {
       method: "POST",
@@ -93,7 +102,11 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         model: MODEL,
-        messages: [{ role: "system", content: systemPrompt }, ...messages],
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...(systemContext ? [{ role: "system", content: systemContext }] : []),
+          ...messages,
+        ],
         temperature: 0.5,
       }),
     });

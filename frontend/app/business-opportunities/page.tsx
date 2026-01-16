@@ -21,6 +21,7 @@ import {
   OPPORTUNITY_TYPE_ORDER,
   type OpportunityType,
 } from "@/lib/constants/opportunity-types";
+import { normalizeStatus, STATUS_ORDER } from "@/lib/utils/status";
 
 interface BusinessOpportunity {
   id: string;
@@ -59,28 +60,6 @@ interface Competition {
   cost: string;
   registrationOpens?: string;
 }
-
-const normalizeStatus = (rawStatus: string | undefined): string => {
-  const cleaned = (rawStatus || "")
-    .replace(/[\[\]"']/g, "")
-    .trim()
-    .toLowerCase();
-
-  if (["open", "closed", "upcoming", "closing-soon"].includes(cleaned))
-    return cleaned;
-  if (cleaned.includes("close")) return "closed";
-  if (cleaned.includes("open")) return "open";
-  if (cleaned.includes("upcoming")) return "upcoming";
-  if (cleaned.includes("closing")) return "closing-soon";
-  return "open";
-};
-
-const statusOrder = {
-  upcoming: 1,
-  open: 2,
-  "closing-soon": 2,
-  closed: 3,
-};
 
 export default function BusinessOpportunitiesPage() {
   const [opportunities, setOpportunities] = useState<BusinessOpportunity[]>([]);
@@ -188,8 +167,8 @@ export default function BusinessOpportunitiesPage() {
 
   const sortedOpportunities = useMemo(() => {
     return [...enrichedOpportunities].sort((a, b) => {
-      const aStatus = statusOrder[a.status as keyof typeof statusOrder] || 5;
-      const bStatus = statusOrder[b.status as keyof typeof statusOrder] || 5;
+      const aStatus = STATUS_ORDER[a.status as keyof typeof STATUS_ORDER] || 5;
+      const bStatus = STATUS_ORDER[b.status as keyof typeof STATUS_ORDER] || 5;
       if (aStatus !== bStatus) return aStatus - bStatus;
 
       const typeIndexA = OPPORTUNITY_TYPE_ORDER.indexOf(
@@ -215,8 +194,8 @@ export default function BusinessOpportunitiesPage() {
 
   const sortedCompetitions = useMemo(() => {
     return [...normalizedCompetitions].sort((a, b) => {
-      const aStatus = statusOrder[a.status as keyof typeof statusOrder] || 5;
-      const bStatus = statusOrder[b.status as keyof typeof statusOrder] || 5;
+      const aStatus = STATUS_ORDER[a.status as keyof typeof STATUS_ORDER] || 5;
+      const bStatus = STATUS_ORDER[b.status as keyof typeof STATUS_ORDER] || 5;
       if (aStatus !== bStatus) return aStatus - bStatus;
       return a.title.localeCompare(b.title);
     });

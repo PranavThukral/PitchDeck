@@ -1,5 +1,7 @@
 // [COMPLETE CODE for the sheets utility file]
 
+import { STATUS_ORDER } from "@/lib/utils/status";
+
 interface SheetRow {
   [key: string]: string;
 }
@@ -451,10 +453,9 @@ async function fetchBusinessOpportunitiesFromSheet(
 }
 
 function sortCompetitionsByDeadline(competitions: Competition[]): Competition[] {
-  const statusOrder = { upcoming: 1, open: 2, "closing-soon": 2, closed: 3 };
   return competitions.sort((a, b) => {
-    const statusA = statusOrder[a.status as keyof typeof statusOrder] || 4;
-    const statusB = statusOrder[b.status as keyof typeof statusOrder] || 4;
+    const statusA = STATUS_ORDER[a.status as keyof typeof STATUS_ORDER] || 4;
+    const statusB = STATUS_ORDER[b.status as keyof typeof STATUS_ORDER] || 4;
     if (statusA !== statusB) return statusA - statusB;
 
     const dateA = new Date(a.deadline);
@@ -468,10 +469,9 @@ function sortCompetitionsByDeadline(competitions: Competition[]): Competition[] 
 function sortOpportunitiesByDeadline(
   opportunities: BusinessOpportunity[],
 ): BusinessOpportunity[] {
-  const statusOrder = { upcoming: 1, open: 2, "closing-soon": 2, closed: 3 };
   return opportunities.sort((a, b) => {
-    const statusA = statusOrder[a.status as keyof typeof statusOrder] || 4;
-    const statusB = statusOrder[b.status as keyof typeof statusOrder] || 4;
+    const statusA = STATUS_ORDER[a.status as keyof typeof STATUS_ORDER] || 4;
+    const statusB = STATUS_ORDER[b.status as keyof typeof STATUS_ORDER] || 4;
     if (statusA !== statusB) return statusA - statusB;
 
     const dateA = new Date(a.endDate);

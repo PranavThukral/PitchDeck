@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CompetitionCard } from "./competition-card";
 import { Loader2, AlertCircle } from "lucide-react";
+import { normalizeStatus, STATUS_ORDER } from "@/lib/utils/status";
 
 // 1. UPDATED INTERFACE to use gradeTags and match the new data structure
 interface Competition {
@@ -29,21 +30,6 @@ interface CompetitionGridProps {
     statusFilter: string;
   };
 }
-
-const normalizeStatus = (rawStatus: string | undefined): string => {
-  const cleaned = (rawStatus || "")
-    .replace(/[\[\]"']/g, "")
-    .trim()
-    .toLowerCase();
-
-  if (["open", "closed", "upcoming", "closing-soon"].includes(cleaned))
-    return cleaned;
-  if (cleaned.includes("close")) return "closed";
-  if (cleaned.includes("open")) return "open";
-  if (cleaned.includes("upcoming")) return "upcoming";
-  if (cleaned.includes("closing")) return "closing-soon";
-  return "open";
-};
 
 // Helper object to map the filter dropdown values to the actual sheet tags
 const gradeFilterMap: { [key: string]: string[] } = {
@@ -125,16 +111,9 @@ export function CompetitionGrid({ filters }: CompetitionGridProps) {
   });
 
   const sortedCompetitions = useMemo(() => {
-    const statusOrder = {
-      upcoming: 1,
-      open: 2,
-      "closing-soon": 2,
-      closed: 3,
-    };
-
     return [...filteredCompetitions].sort((a, b) => {
-      const aStatus = statusOrder[a.status as keyof typeof statusOrder] || 4;
-      const bStatus = statusOrder[b.status as keyof typeof statusOrder] || 4;
+      const aStatus = STATUS_ORDER[a.status as keyof typeof STATUS_ORDER] || 4;
+      const bStatus = STATUS_ORDER[b.status as keyof typeof STATUS_ORDER] || 4;
       if (aStatus !== bStatus) return aStatus - bStatus;
 
       return a.title.localeCompare(b.title);
