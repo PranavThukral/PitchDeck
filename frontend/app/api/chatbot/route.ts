@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth } from "@/lib/middleware/auth";
 import { buildChatbotContext } from "@/lib/services/chatbot-retrieval";
+import { buildChatbotRecommendationReply } from "@/lib/services/chatbot-recommendations";
 
 type IncomingMessage = {
   role?: string;
@@ -55,7 +56,18 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const body = await request.json();
+    const rawBody = await request.text();
+    let body: { messages?: IncomingMessage[] } = {};
+    try {
+      body = rawBody ? (JSON.parse(rawBody) as { messages?: IncomingMessage[] }) : {};
+    } catch (error) {
+      console.error("Chatbot request JSON parse failed:", error);
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON body" },
+        { status: 400 },
+      );
+    }
+
     const incoming: IncomingMessage[] = Array.isArray(body?.messages)
       ? body.messages
       : [];
@@ -71,6 +83,12 @@ export async function POST(request: NextRequest) {
         role: message.role === "assistant" ? "assistant" : "user",
         content: (message.content || "").slice(0, MAX_CONTENT_LENGTH),
       }));
+
+    const recommendationReply =
+      await buildChatbotRecommendationReply(messages);
+    if (recommendationReply) {
+      return NextResponse.json({ success: true, reply: recommendationReply });
+    }
 
     const lastUserMessage =
       [...messages].reverse().find((message) => message.role === "user")

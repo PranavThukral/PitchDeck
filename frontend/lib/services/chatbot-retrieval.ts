@@ -8,10 +8,10 @@ import {
   fetchMedicineOpportunitiesFromSheets,
 } from "@/lib/services/google-sheets";
 
-type ChatDomain = "business" | "medicine" | "engineering";
-type ChatKind = "opportunity" | "competition";
+export type ChatDomain = "business" | "medicine" | "engineering";
+export type ChatKind = "opportunity" | "competition";
 
-type ChatCatalogItem = {
+export type ChatCatalogItem = {
   id: string;
   title: string;
   description: string;
@@ -22,6 +22,14 @@ type ChatCatalogItem = {
   startDate?: string;
   endDate?: string;
   location?: string;
+  format?: string;
+  gradeTags?: string[];
+  opportunityType?: string[];
+  category?: string;
+  teamRequirement?: string;
+  subjectArea?: string[];
+  cost?: string;
+  costNumeric?: number;
   organizer?: string;
   applyUrl?: string;
   url: string;
@@ -236,28 +244,43 @@ function buildCatalogItems(
     let deadline: string | undefined;
     let startDate: string | undefined;
     let endDate: string | undefined;
+    let gradeTags: string[] = [];
+    let opportunityType: string[] | undefined;
+    let category: string | undefined;
+    let teamRequirement: string | undefined;
+    let subjectArea: string[] | undefined;
+    let format: string | undefined;
+    let cost: string | undefined;
+    let costNumeric: number | undefined;
 
     if (isCompetition) {
       const competition = item as Competition;
-      tags = [
-        ...(competition.gradeTags || []),
-        ...(competition.teamRequirement ? [competition.teamRequirement] : []),
-        ...(competition.subjectArea || []),
-      ];
+      gradeTags = competition.gradeTags || [];
+      teamRequirement = competition.teamRequirement || "";
+      subjectArea = competition.subjectArea || [];
       location = competition.location || "";
       deadline = competition.deadline;
+      cost = competition.cost;
+      costNumeric = competition.costNumeric;
+      tags = [
+        ...gradeTags,
+        teamRequirement,
+        ...subjectArea,
+        cost || "",
+        location,
+      ];
     } else {
       const opportunity = item as BusinessOpportunity;
-      tags = [
-        ...(opportunity.gradeTags || []),
-        ...(opportunity.opportunityType || []),
-        opportunity.category || "",
-      ];
-      typeLabel = `${opportunity.category || ""} ${(
-        opportunity.opportunityType || []
-      ).join(" ")}`.trim();
+      gradeTags = opportunity.gradeTags || [];
+      opportunityType = opportunity.opportunityType || [];
+      category = opportunity.category || "";
+      format = opportunity.format || "";
       startDate = opportunity.startDate;
       endDate = opportunity.endDate;
+      cost = opportunity.cost;
+      costNumeric = opportunity.costNumeric;
+      tags = [...gradeTags, ...opportunityType, category, format, cost || ""];
+      typeLabel = `${category} ${opportunityType.join(" ")}`.trim();
     }
 
     return {
@@ -271,6 +294,14 @@ function buildCatalogItems(
       startDate,
       endDate,
       location: location || undefined,
+      format: format || undefined,
+      gradeTags,
+      opportunityType,
+      category,
+      teamRequirement,
+      subjectArea,
+      cost,
+      costNumeric,
       organizer: item.organizer,
       applyUrl: item.applyUrl,
       url,
@@ -323,6 +354,9 @@ const loadCatalog = async (): Promise<ChatCatalogItem[]> => {
   return items;
 };
 
+export const getChatCatalog = async (): Promise<ChatCatalogItem[]> =>
+  loadCatalog();
+
 const formatSummaryLine = (item: ChatCatalogItem): string => {
   const descriptor = `${item.domain} ${item.kind}`;
   const description = item.description
@@ -349,6 +383,10 @@ const buildSiteMap = (): string =>
 
 export async function buildChatbotContext(query: string): Promise<string> {
   try {
+    if (!query.trim()) {
+      return buildSiteMap();
+    }
+
     const catalog = await loadCatalog();
     const normalizedQuery = normalizeText(query);
     const domainHint = detectHint(normalizedQuery, DOMAIN_HINTS) as

@@ -26,8 +26,8 @@ export function Footer({ className = "" }: FooterProps) {
               <span className="font-bold text-xl">The Pitch Deck</span>
             </div>
             <p className="text-[#D9D9D9] mb-4 max-w-md dark:text-gray-300">
-              The all-in-one platform to discover, apply to, and host business
-              case competitions.
+              The all-in-one platform for Canadian high school oppurtunities
+              across business, medicine, and engineering.
             </p>
             {/* --- EMAIL SECTION UPDATED --- */}
             <div className="text-[#D9D9D9] dark:text-gray-300">
@@ -48,19 +48,26 @@ export function Footer({ className = "" }: FooterProps) {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/competitions"
-                  className="text-[#D9D9D9] hover:text-[#2CA15F] dark:text-gray-200 dark:hover:text-[#3dd67f] transition-colors"
-                >
-                  Competitions
-                </Link>
-              </li>
-              {/* --- LINK ADDED HERE --- */}
-              <li>
-                <Link
                   href="/business-opportunities"
                   className="text-[#D9D9D9] hover:text-[#2CA15F] dark:text-gray-200 dark:hover:text-[#3dd67f] transition-colors"
                 >
-                  Business Opportunities
+                  Business
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/medicine-opportunities"
+                  className="text-[#D9D9D9] hover:text-[#2CA15F] dark:text-gray-200 dark:hover:text-[#3dd67f] transition-colors"
+                >
+                  Medicine
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/engineering-opportunities"
+                  className="text-[#D9D9D9] hover:text-[#2CA15F] dark:text-gray-200 dark:hover:text-[#3dd67f] transition-colors"
+                >
+                  Engineering
                 </Link>
               </li>
             </ul>
@@ -99,7 +106,7 @@ export function Footer({ className = "" }: FooterProps) {
         </div>
 
         <div className="border-t border-[#2CA15F] mt-8 pt-8 text-center text-[#D9D9D9] dark:border-[#3dd67f]/30">
-          <p>&copy; 2025 The Pitch Deck. All rights reserved.</p>
+          <p>&copy; 2026 The Pitch Deck. All rights reserved.</p>
         </div>
       </div>
     </footer>
