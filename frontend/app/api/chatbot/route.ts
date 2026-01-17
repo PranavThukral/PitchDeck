@@ -7,7 +7,6 @@ type IncomingMessage = {
   content?: string;
 };
 
-const MODEL = process.env.GROK_MODEL || "grok-4.1-fast";
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 12;
 
@@ -19,6 +18,10 @@ type RateEntry = {
 const rateLimiter = new Map<string, RateEntry>();
 const MAX_CONTEXT = 12;
 const MAX_CONTENT_LENGTH = 2000;
+const DEFAULT_MODEL = "grok-4-1-fast-non-reasoning";
+
+const sanitizeEnvValue = (value: string | undefined): string =>
+  (value || "").trim().replace(/^["']|["']$/g, "");
 
 export async function POST(request: NextRequest) {
   try {
@@ -77,8 +80,10 @@ export async function POST(request: NextRequest) {
     const authResult = await verifyAuth(request);
     const user = authResult.success && authResult.user ? authResult.user : null;
 
-    const apiKey = process.env.GROK_API_KEY;
+    const apiKey = sanitizeEnvValue(process.env.GROK_API_KEY);
+    const model = sanitizeEnvValue(process.env.GROK_MODEL) || DEFAULT_MODEL;
     if (!apiKey) {
+      console.error("Missing GROK_API_KEY");
       return NextResponse.json(
         { success: false, error: "Missing GROK_API_KEY" },
         { status: 500 },
@@ -101,7 +106,7 @@ export async function POST(request: NextRequest) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: MODEL,
+        model,
         messages: [
           { role: "system", content: systemPrompt },
           ...(systemContext ? [{ role: "system", content: systemContext }] : []),
