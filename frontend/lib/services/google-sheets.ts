@@ -389,16 +389,7 @@ async function fetchCompetitionsFromSheet(
   sheetId: string,
 ): Promise<Competition[]> {
   try {
-    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${sheetId}`;
-    const response = await fetch(url, { next: { revalidate: 3600 } });
-    if (!response.ok)
-      throw new Error(
-        `Failed to fetch competitions: ${response.status} ${response.statusText}`,
-      );
-    const csvData = await response.text();
-    if (!csvData || csvData.trim().length === 0)
-      throw new Error("Empty response from Google Sheets");
-    const rows = parseCSV(csvData);
+    const rows = await fetchSheetRows(sheetId, "competitions");
     return rows
       .filter((row) => row["Name"] && row["Name"].trim() !== "")
       .map(mapRowToCompetition);
@@ -430,16 +421,7 @@ async function fetchBusinessOpportunitiesFromSheet(
   sheetId: string,
 ): Promise<BusinessOpportunity[]> {
   try {
-    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${sheetId}`;
-    const response = await fetch(url, { next: { revalidate: 3600 } });
-    if (!response.ok)
-      throw new Error(
-        `Failed to fetch business opportunities: ${response.status} ${response.statusText}`,
-      );
-    const csvData = await response.text();
-    if (!csvData || csvData.trim().length === 0)
-      throw new Error("Empty response from Google Sheets");
-    const rows = parseCSV(csvData);
+    const rows = await fetchSheetRows(sheetId, "opportunities");
     return rows
       .filter((row) => row["Name"] && row["Name"].trim() !== "")
       .map(mapRowToBusinessOpportunity);
@@ -450,6 +432,24 @@ async function fetchBusinessOpportunitiesFromSheet(
     );
     throw error;
   }
+}
+
+async function fetchSheetRows(
+  sheetId: string,
+  label: string,
+): Promise<SheetRow[]> {
+  const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${sheetId}`;
+  const response = await fetch(url, { next: { revalidate: 3600 } });
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch ${label}: ${response.status} ${response.statusText}`,
+    );
+  }
+  const csvData = await response.text();
+  if (!csvData || csvData.trim().length === 0) {
+    throw new Error("Empty response from Google Sheets");
+  }
+  return parseCSV(csvData);
 }
 
 function sortCompetitionsByDeadline(competitions: Competition[]): Competition[] {

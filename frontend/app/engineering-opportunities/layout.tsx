@@ -1,25 +1,13 @@
-import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/simple-metadata";
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Engineering Opportunities & Competitions | The Pitch Deck",
   description:
     "Discover STEM challenges, design labs, engineering programs, and competitions for high school innovators.",
   keywords:
     "engineering opportunities, engineering competitions, STEM programs, robotics competitions, design challenges, engineering internships",
-  openGraph: {
-    title: "Engineering Opportunities & Competitions | The Pitch Deck",
-    description:
-      "Discover STEM challenges, design labs, engineering programs, and competitions for high school innovators.",
-    type: "website",
-    url: "/engineering-opportunities",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Engineering Opportunities & Competitions | The Pitch Deck",
-    description:
-      "Discover STEM challenges, design labs, engineering programs, and competitions for high school innovators.",
-  },
-};
+  url: "/engineering-opportunities",
+});
 
 export default function EngineeringOpportunitiesLayout({
   children,

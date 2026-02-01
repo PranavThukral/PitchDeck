@@ -142,6 +142,12 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/apply/pitch-deck",
+        destination:
+          "https://docs.google.com/forms/d/e/1FAIpQLSfBqDSxPHuirfaeGgqFXIAyQFN0Nc3h-loKr0fs9PUPruFy8g/viewform",
+        permanent: false,
+      },
+      {
         source: "/dashboard/competitor/competitions",
         destination: "/competitions",
         permanent: false,

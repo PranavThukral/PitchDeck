@@ -1,25 +1,13 @@
-import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/simple-metadata";
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Medicine Opportunities & Competitions | The Pitch Deck",
   description:
     "Explore research labs, shadowing, healthcare programs, and medical competitions curated for aspiring clinicians.",
   keywords:
     "medicine opportunities, medical competitions, pre-med programs, hospital shadowing, healthcare internships, research labs",
-  openGraph: {
-    title: "Medicine Opportunities & Competitions | The Pitch Deck",
-    description:
-      "Explore research labs, shadowing, healthcare programs, and medical competitions curated for aspiring clinicians.",
-    type: "website",
-    url: "/medicine-opportunities",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Medicine Opportunities & Competitions | The Pitch Deck",
-    description:
-      "Explore research labs, shadowing, healthcare programs, and medical competitions curated for aspiring clinicians.",
-  },
-};
+  url: "/medicine-opportunities",
+});
 
 export default function MedicineOpportunitiesLayout({
   children,

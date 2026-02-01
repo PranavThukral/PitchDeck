@@ -1,25 +1,14 @@
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/simple-metadata";
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Organizer Dashboard | The Pitch Deck",
   description:
     "Manage your competitions, review applications, and organize events through your organizer dashboard.",
-  keywords: "organizer dashboard, competition management, event organization, admin portal",
+  keywords:
+    "organizer dashboard, competition management, event organization, admin portal",
   robots: "noindex, nofollow",
-  openGraph: {
-    title: "Organizer Dashboard | The Pitch Deck",
-    description:
-      "Manage your competitions, review applications, and organize events through your organizer dashboard.",
-    type: "website",
-    url: "/dashboard/organizer",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Organizer Dashboard | The Pitch Deck",
-    description:
-      "Manage your competitions, review applications, and organize events through your organizer dashboard.",
-  },
-};
+  url: "/dashboard/organizer",
+});
 
 export default function OrganizerDashboardLayout({
   children,

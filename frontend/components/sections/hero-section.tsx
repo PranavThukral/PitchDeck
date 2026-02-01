@@ -7,8 +7,6 @@ import {
   Sparkles,
   Briefcase,
   Compass,
-  LogIn,
-  UserPlus,
   Stethoscope,
   Cpu,
 } from "lucide-react";
@@ -156,51 +154,57 @@ export function HeroSection() {
 
           <AnimatedElement animation="slideUp" delay={2.2}>
             <div className="flex flex-col items-center gap-4 justify-center mb-16">
-              {/* --- THE NEW QUIZ BUTTON --- */}
-              <div className="relative group w-full sm:w-auto">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-                <Link href="/findyouropp">
+              <div className="grid w-full max-w-5xl grid-cols-1 items-stretch justify-items-center gap-4 lg:grid-cols-2">
+                {/* --- THE NEW QUIZ BUTTON --- */}
+                <div className="relative group w-full max-w-[520px]">
+                  <div className="pointer-events-none absolute -inset-0.5 rounded-lg bg-gradient-to-r from-pink-500/50 via-purple-500/50 to-indigo-500/50 blur-sm opacity-45 transition duration-500 group-hover:opacity-70"></div>
                   <Button
+                    asChild
                     size="lg"
-                    className="relative w-full sm:w-auto h-auto text-lg px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 font-bold transition-all duration-200"
+                    className="relative z-10 h-full min-h-[84px] w-full text-lg px-5 py-3 bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 font-semibold transition-all duration-200 shadow-[0_10px_25px_-15px_rgba(0,0,0,0.6)]"
                   >
-                    <div className="text-center">
-                      <div className="flex items-center justify-center">
-                        <Sparkles className="h-5 w-5 mr-2 text-yellow-400" />
-                        <p className="text-xl">Find Your Perfect Opportunity</p>
+                    <Link href="/findyouropp">
+                      <div className="text-center">
+                        <div className="flex items-center justify-center">
+                          <Sparkles className="h-5 w-5 mr-2 text-yellow-400" />
+                          <p className="text-lg sm:text-xl">Find Your Perfect Opportunity</p>
+                        </div>
+                        <p className="text-[11px] font-normal mt-1 opacity-80">
+                          Take our 30-second quiz!
+                        </p>
                       </div>
-                      <p className="text-xs font-normal mt-1 opacity-80">
-                        Take our 30-second quiz!
-                      </p>
-                    </div>
+                    </Link>
                   </Button>
-                </Link>
-              </div>
-
-              {/* Login Section for Non-Authenticated Users */}
-              {!loading && !isLoggedIn && (
-                <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center">
-                  <Link href="/auth/login-select">
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      className="w-full sm:w-auto bg-white hover:bg-gray-50 text-[#19613F] border-[#19613F] hover:border-[#2CA15F] transition-all duration-200"
-                    >
-                      <LogIn className="h-5 w-5 mr-2" />
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link href="/auth/login-select">
-                    <Button
-                      size="lg"
-                      className="w-full sm:w-auto bg-[#19613F] hover:bg-[#2CA15F] text-white transition-all duration-200"
-                    >
-                      <UserPlus className="h-5 w-5 mr-2" />
-                      Get Started Free
-                    </Button>
-                  </Link>
                 </div>
-              )}
+
+                {/* --- TPD CASE COMPETITION CTA --- */}
+                <div className="relative group w-full max-w-[520px]">
+                  <div className="pointer-events-none absolute -inset-0.5 rounded-lg bg-gradient-to-r from-[#1E7D4B]/60 via-[#1F9D5A]/60 to-[#2CA15F]/60 blur-sm opacity-45 transition duration-500 group-hover:opacity-70" />
+                  <Button
+                    asChild
+                    size="lg"
+                    className="relative z-10 h-full min-h-[84px] w-full text-lg px-3 py-3 bg-gradient-to-r from-[#19613F] via-[#1F8A52] to-[#2CA15F] text-white font-semibold shadow-[0_14px_28px_-18px_rgba(25,97,63,0.8)] transition-transform duration-200 hover:scale-[1.01]"
+                  >
+                    <a
+                      href="https://docs.google.com/forms/d/e/1FAIpQLSfBqDSxPHuirfaeGgqFXIAyQFN0Nc3h-loKr0fs9PUPruFy8g/viewform"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <div className="text-center">
+                        <p className="text-lg sm:text-xl">Sign up for TPD&apos;s Case Competition</p>
+                        <p className="text-[11px] font-normal mt-1 text-white/90">
+                          <span className="block">
+                            Win Prizes, Coffee Chats with Judges from Ivey and CIBC,
+                          </span>
+                          <span className="block">
+                            and exclusive future oppurtuntities!
+                          </span>
+                        </p>
+                      </div>
+                    </a>
+                  </Button>
+                </div>
+              </div>
 
               {/* Dashboard Link for Authenticated Users */}
               {!loading && isLoggedIn && (
