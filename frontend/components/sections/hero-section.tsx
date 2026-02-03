@@ -177,7 +177,7 @@ export function HeroSection() {
                   </Button>
                 </div>
 
-                {/* --- TPD CASE COMPETITION CTA --- */}
+                {/* - */}
                 <div className="relative group w-full max-w-[520px]">
                   <div className="pointer-events-none absolute -inset-0.5 rounded-lg bg-gradient-to-r from-[#1E7D4B]/60 via-[#1F9D5A]/60 to-[#2CA15F]/60 blur-sm opacity-45 transition duration-500 group-hover:opacity-70" />
                   <Button
