@@ -282,3 +282,4 @@ export function HeroSection() {
     </section>
   );
 }
+console.log("hello world")
