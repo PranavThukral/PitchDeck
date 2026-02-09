@@ -135,7 +135,7 @@ export function HeroSection() {
               />
               <div className="-mt-2 sm:-mt-3">
                 <AnimatedText
-                  text="Canadian High School Oppurtunities"
+                  text="Canadian High School Opportunities"
                   className="gradient-text inline-block"
                   animation="wordByWord"
                   staggerChildren={0.1}
