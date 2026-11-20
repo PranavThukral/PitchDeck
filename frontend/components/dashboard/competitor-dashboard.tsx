@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { CompetitionFilters } from "@/components/competitions/competition-filters";
 import { CompetitionCard } from "@/components/competitions/competition-card";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 interface Competition {

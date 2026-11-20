@@ -48,7 +48,7 @@ export function NewsletterSection() {
           description: "Please check your email and try again.",
         });
       }
-    } catch (error) {
+    } catch {
       toast.error("Subscription failed", {
         description: "Please check your internet connection and try again.",
       });

@@ -6,14 +6,12 @@ import {
   ShieldCheck,
   User,
   Share2,
-  Database,
   Lock,
   MessageSquare,
   ClipboardList,
   Globe,
   Users,
-  FileText,
-} from "lucide-react";
+  } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | The Pitch Deck",
