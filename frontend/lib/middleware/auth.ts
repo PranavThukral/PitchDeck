@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import User from "../models/User";
+import { adminCredentials } from "../auth/login";
+import {
+  readSession,
+  SESSION_COOKIE,
+  SESSION_TTL_SECONDS,
+  signSession,
+  type SessionClaims,
+  type UserType,
+} from "../auth/session";
 import { connectToDatabase, isMongoDBConfigured } from "../config/database";
+import User from "../models/User";
 
 export interface AuthUser {
   id: string;
   email: string;
-  userType: "general" | "organizer" | "admin";
+  userType: UserType;
   firstName: string;
   lastName: string;
   approved: boolean;
@@ -21,244 +30,97 @@ export interface AuthResult {
   message?: string;
 }
 
+// The previous scheme kept the email, password and user type in these
+// cookies. Every login and logout clears them so browsers drop old values.
+const LEGACY_COOKIES = ["auth_email", "auth_password", "auth_usertype"];
+
+function cookieOptions(maxAge: number) {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax" as const,
+    maxAge,
+    path: "/",
+  };
+}
+
+/** Starts a session. Throws if AUTH_SECRET is not configured. */
 export function setAuthCookie(
   response: NextResponse,
-  email: string,
-  password: string,
-  userType: string,
+  claims: SessionClaims,
 ): void {
-  // Set individual cookies for each auth component
-  response.cookies.set("auth_email", email, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
-    path: "/",
-  });
-
-  response.cookies.set("auth_password", password, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
-    path: "/",
-  });
-
-  response.cookies.set("auth_usertype", userType, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
-    path: "/",
-  });
+  response.cookies.set(
+    SESSION_COOKIE,
+    signSession(claims),
+    cookieOptions(SESSION_TTL_SECONDS),
+  );
+  for (const name of LEGACY_COOKIES) {
+    response.cookies.set(name, "", cookieOptions(0));
+  }
 }
 
 export function clearAuthCookie(response: NextResponse): void {
-  response.cookies.set("auth_email", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 0,
-    path: "/",
-  });
-
-  response.cookies.set("auth_password", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 0,
-    path: "/",
-  });
-
-  response.cookies.set("auth_usertype", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 0,
-    path: "/",
-  });
+  for (const name of [SESSION_COOKIE, ...LEGACY_COOKIES]) {
+    response.cookies.set(name, "", cookieOptions(0));
+  }
 }
 
+const NOT_AUTHENTICATED: AuthResult = {
+  success: false,
+  message: "Not authenticated",
+};
+
 export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
-  try {
-    const email = request.cookies.get("auth_email")?.value;
-    const password = request.cookies.get("auth_password")?.value;
-    const userType = request.cookies.get("auth_usertype")?.value as
-      | "general"
-      | "organizer"
-      | "admin";
+  const claims = readSession(request.cookies.get(SESSION_COOKIE)?.value);
+  if (!claims) return NOT_AUTHENTICATED;
 
-    if (!email || !password || !userType) {
-      return {
-        success: false,
-        message: "No authentication cookies found",
-      };
+  if (claims.userType === "admin") {
+    // Only valid while the token names the currently configured admin.
+    const admin = adminCredentials();
+    if (!admin || claims.sub !== "admin" || claims.email !== admin.email) {
+      return NOT_AUTHENTICATED;
     }
-
-    // Handle admin authentication (using environment variables)
-    if (userType === "admin") {
-      const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-      const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-
-      if (
-        ADMIN_EMAIL &&
-        ADMIN_PASSWORD &&
-        email === ADMIN_EMAIL &&
-        password === ADMIN_PASSWORD
-      ) {
-        return {
-          success: true,
-          user: {
-            id: "admin",
-            email: ADMIN_EMAIL,
-            userType: "admin",
-            firstName: "Admin",
-            lastName: "User",
-            approved: true,
-          },
-        };
-      } else {
-        return {
-          success: false,
-          message: "Invalid admin credentials",
-        };
-      }
-    }
-
-    if (!isMongoDBConfigured()) {
-      // Return a mock user object when MongoDB is not configured
-      return {
-        success: true,
-        user: {
-          id: "local_user",
-          email: email,
-          userType: userType,
-          firstName: "Local",
-          lastName: "User",
-          approved: true,
-        },
-      };
-    }
-
-    await connectToDatabase();
-
-    // Find user in database with plain text password match
-    const user = await User.findOne({
-      email: email.toLowerCase().trim(),
-      password: password, // Plain text password comparison
-      userType: userType,
-    });
-
-    if (!user) {
-      return {
-        success: false,
-        message: "Invalid credentials or user not found",
-      };
-    }
-
-    if (!user.approved) {
-      return {
-        success: false,
-        message: "User account not approved",
-      };
-    }
-
-    // Return user without password
-    const { password: _, ...userData } = user.toObject();
-
     return {
       success: true,
       user: {
-        id: userData._id.toString(),
-        email: userData.email,
-        userType: userData.userType,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        approved: userData.approved,
-        school: userData.school,
-        grade: userData.grade,
-        organization: userData.organization,
-        position: userData.position,
+        id: "admin",
+        email: admin.email,
+        userType: "admin",
+        firstName: "Admin",
+        lastName: "User",
+        approved: true,
+      },
+    };
+  }
+
+  if (!isMongoDBConfigured()) {
+    return { success: false, message: "Authentication not available" };
+  }
+
+  try {
+    await connectToDatabase();
+    const user = await User.findById(claims.sub);
+    if (!user || user.userType !== claims.userType) return NOT_AUTHENTICATED;
+    if (!user.approved) {
+      return { success: false, message: "User account not approved" };
+    }
+    return {
+      success: true,
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        userType: user.userType,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        approved: user.approved,
+        school: user.school,
+        grade: user.grade,
+        organization: user.organization,
+        position: user.position,
       },
     };
   } catch (error) {
     console.error("Auth verification error:", error);
-    return {
-      success: false,
-      message: "Authentication error",
-    };
+    return { success: false, message: "Authentication error" };
   }
-}
-
-export async function getAuthenticatedUser(
-  request: NextRequest,
-): Promise<AuthUser | null> {
-  const authResult = await verifyAuth(request);
-  return authResult.success ? authResult.user || null : null;
-}
-
-export async function requireAuth(
-  request: NextRequest,
-  allowedUserTypes?: ("general" | "organizer" | "admin")[],
-): Promise<{ success: boolean; user?: AuthUser; response?: NextResponse }> {
-  const authResult = await verifyAuth(request);
-
-  if (!authResult.success || !authResult.user) {
-    return {
-      success: false,
-      response: NextResponse.json(
-        { message: authResult.message || "Not authenticated" },
-        { status: 401 },
-      ),
-    };
-  }
-
-  if (
-    allowedUserTypes &&
-    !allowedUserTypes.includes(authResult.user.userType)
-  ) {
-    return {
-      success: false,
-      response: NextResponse.json(
-        { message: "Insufficient permissions" },
-        { status: 403 },
-      ),
-    };
-  }
-
-  return {
-    success: true,
-    user: authResult.user,
-  };
-}
-
-export async function withAuth(
-  request: NextRequest,
-  handler: (request: NextRequest, user: AuthUser) => Promise<NextResponse>,
-  allowedUserTypes?: ("general" | "organizer" | "admin")[],
-): Promise<NextResponse> {
-  const authCheck = await requireAuth(request, allowedUserTypes);
-
-  if (!authCheck.success || !authCheck.user) {
-    return authCheck.response!;
-  }
-
-  return await handler(request, authCheck.user);
-}
-
-// Middleware for checking specific user types
-export async function requireGeneral(request: NextRequest) {
-  return requireAuth(request, ["general"]);
-}
-
-export async function requireOrganizer(request: NextRequest) {
-  return requireAuth(request, ["organizer"]);
-}
-
-export async function requireAdmin(request: NextRequest) {
-  return requireAuth(request, ["admin"]);
-}
-
-export async function requireOrganizerOrAdmin(request: NextRequest) {
-  return requireAuth(request, ["organizer", "admin"]);
 }
