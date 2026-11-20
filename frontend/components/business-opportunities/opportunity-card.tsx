@@ -87,7 +87,6 @@ export function OpportunityCard({ opportunity, isFavourited, onFavourite }: Oppo
     const isClosed = opportunity.status === 'closed';
     const formattedGrades = formatGradeTags(opportunity.gradeTags);
 
-    // This is the new, simpler styling logic for the button
     const buttonClass = isClosed
       ? "w-full font-semibold group transition-all bg-gray-400/90 text-white hover:bg-gray-500 shadow-sm"
       : "w-full font-semibold group transition-all bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-500 text-white hover:from-emerald-700 hover:to-teal-600 shadow-lg shadow-emerald-500/20";

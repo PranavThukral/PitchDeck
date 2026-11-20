@@ -28,7 +28,9 @@ const UserSchema: Schema = new Schema(
       lowercase: true,
       trim: true,
     },
-    password: { type: String, required: true }, // Plain text password
+    // A bcrypt hash. Accounts created before hashing hold plain text until
+    // their next successful login, which replaces it with a hash.
+    password: { type: String, required: true },
     userType: {
       type: String,
       required: true,

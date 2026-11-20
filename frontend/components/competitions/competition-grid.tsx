@@ -3,7 +3,6 @@ import { CompetitionCard } from "./competition-card";
 import { Loader2, AlertCircle } from "lucide-react";
 import { normalizeStatus, STATUS_ORDER } from "@/lib/utils/status";
 
-// 1. UPDATED INTERFACE to use gradeTags and match the new data structure
 interface Competition {
   id: string;
   title: string;
@@ -82,7 +81,6 @@ export function CompetitionGrid({ filters }: CompetitionGridProps) {
       competition.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
       competition.organizer.toLowerCase().includes(filters.searchTerm.toLowerCase());
 
-    // 2. IMPLEMENTED the correct and functional grade filtering logic
     const matchesGrade = (() => {
       // If no filter is selected or 'all' is chosen, it's always a match
       if (!filters.gradeFilter || filters.gradeFilter === "all") {

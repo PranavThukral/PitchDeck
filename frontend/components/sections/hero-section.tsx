@@ -342,7 +342,7 @@ export function HeroSection() {
                   isCaseCompetitionSignupEnabled ? "lg:grid-cols-2" : "lg:grid-cols-1"
                 }`}
               >
-                {/* --- THE NEW QUIZ BUTTON --- */}
+                {/* Quiz button */}
                 <div className="relative group w-full max-w-[520px]">
                   <div className="pointer-events-none absolute -inset-0.5 rounded-lg bg-gradient-to-r from-pink-500/50 via-purple-500/50 to-indigo-500/50 blur-sm opacity-45 transition duration-500 group-hover:opacity-70"></div>
                   <Button

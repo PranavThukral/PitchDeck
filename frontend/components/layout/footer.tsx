@@ -29,7 +29,7 @@ export function Footer({ className = "" }: FooterProps) {
               The all-in-one platform for Canadian high school oppurtunities
               across business, medicine, and engineering.
             </p>
-            {/* --- EMAIL SECTION UPDATED --- */}
+            {/* Email */}
             <div className="text-[#D9D9D9] dark:text-gray-300">
               <p className="mb-1">For any questions or inquiries, please contact us:</p>
               <a
@@ -79,7 +79,7 @@ export function Footer({ className = "" }: FooterProps) {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/auth/signup"
+                  href="/auth/general/signup"
                   className="text-[#D9D9D9] hover:text-[#2CA15F] dark:text-gray-200 dark:hover:text-[#3dd67f] transition-colors"
                 >
                   Sign Up

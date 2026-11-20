@@ -6,7 +6,7 @@ const generalUserSchema = Joi.object({
   firstName: Joi.string().trim().min(2).max(50).required(),
   lastName: Joi.string().trim().min(2).max(50).required(),
   email: Joi.string().email().required(),
-  password: Joi.string().min(4).required(), // Simplified password requirement
+  password: Joi.string().min(8).max(72).required(),
   userType: Joi.string().valid("general").required(),
   school: Joi.string().trim().min(2).max(100).required(),
   grade: Joi.string()
@@ -19,7 +19,7 @@ const organizerUserSchema = Joi.object({
   firstName: Joi.string().trim().min(2).max(50).required(),
   lastName: Joi.string().trim().min(2).max(50).required(),
   email: Joi.string().email().required(),
-  password: Joi.string().min(4).required(), // Simplified password requirement
+  password: Joi.string().min(8).max(72).required(),
   userType: Joi.string().valid("organizer").required(),
   organization: Joi.string().trim().min(2).max(100).required(),
   position: Joi.string().trim().min(2).max(100).required(),
@@ -35,7 +35,7 @@ const adminLoginSchema = Joi.object({
 // General login validation
 const loginSchema = Joi.object({
   email: Joi.string().email().required(),
-  password: Joi.string().min(1).required(), // Minimal password requirement
+  password: Joi.string().min(1).required(),
   userType: Joi.string().valid("general", "organizer").optional(),
 });
 
@@ -146,18 +146,6 @@ export function validateOrganizerSignup(data: unknown) {
     return { isValid: false, message: error.details[0].message };
   }
   return { isValid: true };
-}
-
-export function validateSignup(data: unknown) {
-  const userType = (data as any)?.userType;
-
-  if (userType === "general") {
-    return validateGeneralSignup(data);
-  } else if (userType === "organizer") {
-    return validateOrganizerSignup(data);
-  } else {
-    return { isValid: false, message: "Invalid user type" };
-  }
 }
 
 export function validateLogin(data: unknown) {

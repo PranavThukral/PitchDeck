@@ -42,8 +42,8 @@ export default function OrganizerSignupPage() {
     }
 
     // Validate password strength
-    if (formData.password.length < 4) {
-      toast.error("Password must be at least 4 characters long");
+    if (formData.password.length < 8) {
+      toast.error("Password must be at least 8 characters long");
       setIsLoading(false);
       return;
     }
@@ -225,7 +225,7 @@ export default function OrganizerSignupPage() {
                   </button>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Password must be at least 4 characters long
+                  Password must be at least 8 characters long
                 </p>
               </div>
 

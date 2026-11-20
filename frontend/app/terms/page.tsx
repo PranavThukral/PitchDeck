@@ -78,7 +78,7 @@ export default function TermsPage() {
             </p>
           </div>
 
-          {/* --- New Summary Section --- */}
+          {/* Summary */}
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-8 rounded-2xl mb-16">
             <h2 className="text-2xl font-bold text-center text-blue-900 dark:text-blue-100 mb-4">The Short Version</h2>
             <p className="text-center text-lg text-blue-800 dark:text-blue-200">

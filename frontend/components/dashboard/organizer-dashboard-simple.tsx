@@ -18,12 +18,9 @@ import {
   Calendar,
   MapPin,
   DollarSign,
-  Users,
   Clock,
   CheckCircle,
   XCircle,
-  AlertCircle,
-  Loader2,
   TrendingUp,
 } from "lucide-react";
 import { toast } from "sonner";

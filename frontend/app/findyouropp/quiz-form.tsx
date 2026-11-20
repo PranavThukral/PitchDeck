@@ -1,11 +1,10 @@
-// [COMPLETE CODE for components/quiz/quiz-form.tsx]
 
 "use client";
 
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { quizQuestions, findBestMatches } from "@/lib/services/quiz-logic";
+import { quizQuestions, findBestMatches, type QuizPath } from "@/lib/services/quiz-logic";
 import type { Competition, BusinessOpportunity } from "@/lib/services/google-sheets";
 import { CompetitionCard } from "@/components/competitions/competition-card";
 import { OpportunityCard } from "@/components/business-opportunities/opportunity-card";
@@ -20,8 +19,6 @@ import {
   Sparkles,
   Stethoscope,
 } from "lucide-react";
-
-type QuizPath = "business" | "medicine" | "engineering";
 
 interface QuizFormProps {
   itemsByPath: Record<QuizPath, (Competition | BusinessOpportunity)[]>;

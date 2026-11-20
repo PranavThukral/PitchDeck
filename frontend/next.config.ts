@@ -2,20 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
-      // This is the correct fix: a wildcard to allow all subdomains of wixstatic.com
+      // Any subdomain of wixstatic.com
       {
         protocol: "https",
         hostname: "**.wixstatic.com",
       },
-      // The rest of your list
       {
         protocol: "https",
         hostname: "upload.wikimedia.org",
@@ -133,7 +126,6 @@ const nextConfig: NextConfig = {
         hostname: "www.brampton.ca",
       },
     ],
-    // I have removed the 'unoptimized: true' line that was causing the error
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
@@ -141,6 +133,16 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      {
+        source: "/auth/login",
+        destination: "/auth/login-select",
+        permanent: true,
+      },
+      {
+        source: "/auth/signup",
+        destination: "/auth/general/signup",
+        permanent: true,
+      },
       {
         source: "/apply/pitch-deck",
         destination:
@@ -174,18 +176,6 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: [
           {
-            key: "Access-Control-Allow-Origin",
-            value: "*",
-          },
-          {
-            key: "Access-Control-Allow-Methods",
-            value: "GET, POST, PUT, DELETE, OPTIONS",
-          },
-          {
-            key: "Access-Control-Allow-Headers",
-            value: "X-Requested-With, Content-Type, Accept, Authorization",
-          },
-          {
             key: "X-DNS-Prefetch-Control",
             value: "on",
           },
@@ -212,7 +202,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // SEO and performance headers for static assets
+        // HTML pages are always revalidated
         source: "/(.*)",
         has: [
           {

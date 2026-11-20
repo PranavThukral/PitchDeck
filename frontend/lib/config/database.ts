@@ -18,7 +18,6 @@ if (!global.mongoose) {
 }
 
 export async function connectToDatabase(): Promise<typeof mongoose> {
-  // Check if MongoDB URI is configured
   if (!MONGO_URI) {
     console.warn("MongoDB URI not configured. Skipping database connection.");
     throw new Error(
@@ -57,7 +56,6 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
   return cached.conn;
 }
 
-// Helper function to check if MongoDB is configured
 export function isMongoDBConfigured(): boolean {
   return !!MONGO_URI;
 }

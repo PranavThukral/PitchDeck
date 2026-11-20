@@ -10,6 +10,18 @@ export interface SignupData {
   position?: string;
 }
 
+export interface GeneralSignupData extends SignupData {
+  userType: "general";
+  school: string;
+  grade: string;
+}
+
+export interface OrganizerSignupData extends SignupData {
+  userType: "organizer";
+  organization: string;
+  position: string;
+}
+
 export interface LoginData {
   email: string;
   password: string;

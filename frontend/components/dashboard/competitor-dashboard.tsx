@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { CompetitionFilters } from "@/components/competitions/competition-filters";
 import { CompetitionCard } from "@/components/competitions/competition-card";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 interface Competition {
@@ -151,7 +150,9 @@ export function CompetitorDashboard() {
               title: comp.title,
               organizer: comp.organizer,
               logo: comp.logo,
-              gradeEligibility: comp.gradeEligibility,
+              gradeTags: comp.gradeEligibility
+                ? comp.gradeEligibility.split(",").map((tag) => tag.trim())
+                : [],
               deadline: comp.deadline,
               prize: comp.prize,
               status: comp.status,

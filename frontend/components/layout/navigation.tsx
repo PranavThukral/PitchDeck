@@ -17,7 +17,6 @@ import {
   ChevronDown,
   User,
   LogOut,
-  Settings,
   Trophy,
   Building,
   Shield,
@@ -65,7 +64,7 @@ export function Navigation() {
         setIsLoggedIn(false);
         setUser(null);
       }
-    } catch (error) {
+    } catch {
       setIsLoggedIn(false);
       setUser(null);
     } finally {
@@ -80,7 +79,7 @@ export function Navigation() {
       setUser(null);
       toast.success("Logged out successfully");
       window.location.href = "/";
-    } catch (error) {
+    } catch {
       toast.error("Logout failed. Please try again.");
     }
   };

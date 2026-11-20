@@ -50,7 +50,6 @@ export const CursorProvider: React.FC<CursorProviderProps> = ({
           trailColor="rgba(44, 161, 95, 0.5)"
           size={8}
           trailLength={8}
-          smoothFactor={0.3}
         />
       )}
     </>

@@ -6,14 +6,12 @@ import {
   ShieldCheck,
   User,
   Share2,
-  Database,
   Lock,
   MessageSquare,
   ClipboardList,
   Globe,
   Users,
-  FileText,
-} from "lucide-react";
+  } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | The Pitch Deck",
@@ -80,7 +78,7 @@ export default function PrivacyPage() {
             </p>
           </div>
           
-          {/* --- New Summary Section --- */}
+          {/* Summary */}
           <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-8 rounded-2xl mb-16">
             <h2 className="text-2xl font-bold text-center text-green-900 dark:text-green-100 mb-4">Our Privacy Promise</h2>
             <p className="text-center text-lg text-green-800 dark:text-green-200">
@@ -88,7 +86,7 @@ export default function PrivacyPage() {
             </p>
           </div>
 
-          {/* --- Restructured Policy Sections --- */}
+          {/* Policy sections */}
           <PolicySection icon={User} title="1. Information We Collect">
             <p>To provide our services, we collect information you give us directly, such as your name, email, and school when you create an account or apply to a competition. We also automatically collect technical data like your IP address and browser type to help our site run smoothly.</p>
           </PolicySection>
