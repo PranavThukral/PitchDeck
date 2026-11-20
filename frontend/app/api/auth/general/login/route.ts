@@ -19,36 +19,6 @@ export async function POST(request: NextRequest) {
       const { email, password } = data;
 
       try {
-        // Temporarily bypass database check for testing - allow any credentials
-        const response = NextResponse.json(
-          {
-            message: "Login successful (testing mode)",
-            user: {
-              _id: "test_user",
-              email: email.toLowerCase().trim(),
-              userType: "general",
-              firstName: "Test",
-              lastName: "User",
-              approved: true,
-              school: "Test School",
-              grade: "12",
-            },
-            success: true,
-          },
-          { status: 200 },
-        );
-
-        // Set auth cookies for testing
-        setAuthCookie(
-          response,
-          email.toLowerCase().trim(),
-          password,
-          "general",
-        );
-        return response;
-
-        // Original database code (commented out for testing)
-        /*
         if (!isMongoDBConfigured()) {
           return NextResponse.json(
             {
@@ -98,7 +68,6 @@ export async function POST(request: NextRequest) {
         setAuthCookie(response, user.email, password, user.userType);
 
         return response;
-        */
       } catch (error) {
         console.error("General login error:", error);
         return NextResponse.json(

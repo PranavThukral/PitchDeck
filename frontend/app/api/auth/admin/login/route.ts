@@ -11,9 +11,8 @@ import {
 import { setAuthCookie } from "../../../../../lib/middleware/auth";
 import { LoginData } from "../../../../../lib/types/api";
 
-// Admin credentials from environment variables
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@admin.com";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@pass";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 export async function POST(request: NextRequest) {
   return withValidation<LoginData>(
@@ -23,6 +22,13 @@ export async function POST(request: NextRequest) {
       const { email, password } = data;
 
       try {
+        if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+          return NextResponse.json(
+            { message: "Admin login is not configured" },
+            { status: 503 },
+          );
+        }
+
         if (!isMongoDBConfigured()) {
           return NextResponse.json(
             {

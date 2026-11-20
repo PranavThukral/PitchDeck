@@ -97,10 +97,15 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
 
     // Handle admin authentication (using environment variables)
     if (userType === "admin") {
-      const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@admin.com";
-      const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@pass";
+      const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+      const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
-      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      if (
+        ADMIN_EMAIL &&
+        ADMIN_PASSWORD &&
+        email === ADMIN_EMAIL &&
+        password === ADMIN_PASSWORD
+      ) {
         return {
           success: true,
           user: {
@@ -131,27 +136,6 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
           firstName: "Local",
           lastName: "User",
           approved: true,
-        },
-      };
-    }
-
-    // Test mode - allow test credentials to work without database verification
-    if (
-      email === "test@example.com" &&
-      password === "testpassword123" &&
-      userType === "general"
-    ) {
-      return {
-        success: true,
-        user: {
-          id: "test_user",
-          email: email,
-          userType: userType,
-          firstName: "Test",
-          lastName: "User",
-          approved: true,
-          school: "Test School",
-          grade: "12",
         },
       };
     }
