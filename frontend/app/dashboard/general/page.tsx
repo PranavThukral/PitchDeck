@@ -260,14 +260,12 @@ export default function GeneralDashboard() {
     }
   };
 
-  // Helper function to get ID from item with deadline to ensure uniqueness
-  // Get the actual database ID for API calls (favorites, etc.)
+  // The database id used by the favourites and likes APIs
   const getDatabaseId = (item: Competition | BusinessOpportunity): string => {
     const id = item._id || item.id || "";
     return id;
   };
 
-  // Check if item has a valid ID for like/bookmark functionality
   const canInteract = (item: Competition | BusinessOpportunity): boolean => {
     const id = item._id || item.id || "";
     const hasValidId = id.length > 0;

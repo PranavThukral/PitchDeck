@@ -1,5 +1,3 @@
-// [COMPLETE CODE for the new, advanced lib/quiz-logic.ts]
-
 import type { Competition, BusinessOpportunity } from './google-sheets';
 import {
   deriveOpportunityType,
@@ -8,7 +6,6 @@ import {
 
 // --- QUIZ STRUCTURE AND QUESTIONS ---
 
-// The structure remains the same, but the logic will interpret the values differently.
 export const quizQuestions = [
   {
     id: 'path',
@@ -94,7 +91,7 @@ export const quizQuestions = [
   },
 ];
 
-// --- ADVANCED MATCHING ALGORITHM ---
+// --- MATCHING ---
 
 const subjectMapping: { [key: string]: string } = {
   Finance: 'General',

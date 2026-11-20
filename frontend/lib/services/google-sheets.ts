@@ -1,4 +1,3 @@
-// [COMPLETE CODE for the sheets utility file]
 
 import { STATUS_ORDER } from "@/lib/utils/status";
 
@@ -6,7 +5,6 @@ interface SheetRow {
   [key: string]: string;
 }
 
-// Interfaces updated with all new fields for the quiz
 interface Competition {
   id: string;
   title: string;

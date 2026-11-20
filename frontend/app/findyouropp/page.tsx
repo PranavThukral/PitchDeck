@@ -1,5 +1,3 @@
-// [COMPLETE CODE for app/findyouropp/page.tsx]
-
 import { QuizForm } from "@/app/findyouropp/quiz-form";
 import { FloatingElements, ParallaxElement } from "@/components/animations";
 import { LogoWaterfall } from "@/components/animations/logo-waterfall";

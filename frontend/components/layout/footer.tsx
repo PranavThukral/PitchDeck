@@ -29,7 +29,7 @@ export function Footer({ className = "" }: FooterProps) {
               The all-in-one platform for Canadian high school oppurtunities
               across business, medicine, and engineering.
             </p>
-            {/* --- EMAIL SECTION UPDATED --- */}
+            {/* Email */}
             <div className="text-[#D9D9D9] dark:text-gray-300">
               <p className="mb-1">For any questions or inquiries, please contact us:</p>
               <a

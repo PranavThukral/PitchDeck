@@ -1,4 +1,3 @@
-// [COMPLETE CODE for components/quiz/quiz-form.tsx]
 
 "use client";
 
