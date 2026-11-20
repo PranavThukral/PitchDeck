@@ -1,35 +1,39 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// This function can be marked `async` if using `await` inside
+// Origins other than the site's own that may call the API with cookies,
+// from ALLOWED_ORIGINS (comma separated). Every other origin gets no CORS
+// headers, so browsers refuse it the response.
+function allowedOrigins(): string[] {
+  return (process.env.ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Handle CORS for API routes
   if (pathname.startsWith("/api/")) {
-    const response = NextResponse.next();
+    const origin = request.headers.get("origin");
+    const allowed =
+      origin !== null &&
+      (origin === request.nextUrl.origin || allowedOrigins().includes(origin));
 
-    // Set CORS headers
-    response.headers.set(
-      "Access-Control-Allow-Origin",
-      request.headers.get("origin") ||
-        "http://localhost:3000,https://pitchdeck-ddnd.onrender.com,https://pitchdeck-7p0c.onrender.com",
-    );
-    response.headers.set("Access-Control-Allow-Credentials", "true");
-    response.headers.set(
-      "Access-Control-Allow-Methods",
-      "GET,POST,PUT,DELETE,OPTIONS",
-    );
-    response.headers.set(
-      "Access-Control-Allow-Headers",
-      "Content-Type,Authorization,Access-Control-Allow-Origin",
-    );
-
-    // Handle preflight requests
-    if (request.method === "OPTIONS") {
-      return new Response(null, { status: 200, headers: response.headers });
+    const headers = new Headers({ Vary: "Origin" });
+    if (allowed) {
+      headers.set("Access-Control-Allow-Origin", origin);
+      headers.set("Access-Control-Allow-Credentials", "true");
+      headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+      headers.set("Access-Control-Allow-Headers", "Content-Type,Authorization");
     }
 
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: allowed ? 204 : 403, headers });
+    }
+
+    const response = NextResponse.next();
+    headers.forEach((value, key) => response.headers.set(key, value));
     return response;
   }
 
