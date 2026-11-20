@@ -8,52 +8,39 @@ import BusinessOpportunity, {
   IBusinessOpportunity,
 } from "../../../../lib/models/BusinessOpportunity";
 import User, { IUser } from "../../../../lib/models/User";
-import { verifyAuth } from "../../../../lib/middleware/auth";
+import { verifyAuth, type AuthUser } from "../../../../lib/middleware/auth";
 import { getCompetitionsSortedByDeadline } from "../../../../lib/services/google-sheets";
 import { getBusinessOpportunitiesSortedByDeadline } from "../../../../lib/services/google-sheets";
 
 export async function GET(request: NextRequest) {
   try {
-    // Check if MongoDB is configured and handle accordingly
-    let authResult: {
-      success: boolean;
-      user?: {
-        email: string;
-        firstName: string;
-        lastName: string;
-        school: string;
-        grade: string;
-        userType: string;
-      };
-    } = { success: false };
+    let authUser: AuthUser;
     let useDatabase = false;
 
     if (isMongoDBConfigured()) {
-      // Verify user is authenticated and is a general user only if DB is configured
-      authResult = await verifyAuth(request);
+      const authResult = await verifyAuth(request);
       if (!authResult.success || !authResult.user) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
-
       if (authResult.user.userType !== "general") {
         return NextResponse.json(
           { message: "General user access required" },
           { status: 403 },
         );
       }
+      authUser = authResult.user;
       useDatabase = true;
     } else {
-      // If MongoDB is not configured, create a mock user for Google Sheets data
-      authResult = {
-        success: true,
-        user: {
-          email: "local@user.com",
-          firstName: "Local",
-          lastName: "User",
-          school: "N/A",
-          grade: "N/A",
-          userType: "general",
-        },
+      // Without a database, serve the public Google Sheets data to a local user.
+      authUser = {
+        id: "local",
+        email: "local@user.com",
+        firstName: "Local",
+        lastName: "User",
+        school: "N/A",
+        grade: "N/A",
+        userType: "general",
+        approved: true,
       };
     }
 
@@ -187,7 +174,7 @@ export async function GET(request: NextRequest) {
     let user: IUser | null = null;
     if (useDatabase) {
       user = await User.findOne({
-        email: authResult.user.email,
+        email: authUser.email,
         userType: "general",
       }).populate([
         {
@@ -260,10 +247,10 @@ export async function GET(request: NextRequest) {
             opportunityTypes,
           },
           user: {
-            firstName: authResult.user.firstName,
-            lastName: authResult.user.lastName,
-            school: authResult.user.school,
-            grade: authResult.user.grade,
+            firstName: authUser.firstName,
+            lastName: authUser.lastName,
+            school: authUser.school,
+            grade: authUser.grade,
           },
         },
         success: true,

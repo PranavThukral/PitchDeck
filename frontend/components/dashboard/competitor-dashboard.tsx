@@ -151,7 +151,9 @@ export function CompetitorDashboard() {
               title: comp.title,
               organizer: comp.organizer,
               logo: comp.logo,
-              gradeEligibility: comp.gradeEligibility,
+              gradeTags: comp.gradeEligibility
+                ? comp.gradeEligibility.split(",").map((tag) => tag.trim())
+                : [],
               deadline: comp.deadline,
               prize: comp.prize,
               status: comp.status,

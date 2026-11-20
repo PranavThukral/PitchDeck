@@ -169,13 +169,12 @@ const findBestMatch = (
   options: Record<string, string[]>,
 ): string | undefined => {
   let best: { key: string; hits: number } | null = null;
-  Object.entries(options).forEach(([key, words]) => {
+  for (const [key, words] of Object.entries(options)) {
     const hits = words.filter((word) => normalized.includes(word)).length;
-    if (hits === 0) return;
-    if (!best || hits > best.hits) {
+    if (hits > 0 && (!best || hits > best.hits)) {
       best = { key, hits };
     }
-  });
+  }
   return best?.key;
 };
 

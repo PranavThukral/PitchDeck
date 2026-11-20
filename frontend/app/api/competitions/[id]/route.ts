@@ -3,11 +3,12 @@ import { fetchCompetitionsFromSheets } from "../../../../lib/services/google-she
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const competitions = await fetchCompetitionsFromSheets();
-    const competition = competitions.find((comp) => comp.id === params.id);
+    const { id } = await params;
+    const competition = competitions.find((comp) => comp.id === id);
 
     if (!competition) {
       return NextResponse.json(

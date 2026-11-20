@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
 
         // Check if already in favourites (handle both MongoDB ObjectIds and string IDs)
         const isAlreadyFavourite = user.favourites.some(
-          (fav) => fav.toString() === itemId,
+          (fav: { toString(): string }) => fav.toString() === itemId,
         );
 
         if (isAlreadyFavourite) {
@@ -273,7 +273,7 @@ export async function DELETE(request: NextRequest) {
 
         // Check if in favourites (handle both MongoDB ObjectIds and string IDs)
         const favouriteIndex = user.favourites.findIndex(
-          (fav) => fav.toString() === itemId,
+          (fav: { toString(): string }) => fav.toString() === itemId,
         );
 
         if (favouriteIndex === -1) {

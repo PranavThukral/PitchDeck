@@ -26,9 +26,9 @@ const sanitizeEnvValue = (value: string | undefined): string =>
 
 export async function POST(request: NextRequest) {
   try {
+    // NextRequest no longer exposes the client IP; the proxy's header does.
     const clientKey =
-      request.ip ||
-      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
       request.headers.get("cf-connecting-ip") ||
       "unknown";
 
