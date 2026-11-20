@@ -148,18 +148,6 @@ export function validateOrganizerSignup(data: unknown) {
   return { isValid: true };
 }
 
-export function validateSignup(data: unknown) {
-  const userType = (data as any)?.userType;
-
-  if (userType === "general") {
-    return validateGeneralSignup(data);
-  } else if (userType === "organizer") {
-    return validateOrganizerSignup(data);
-  } else {
-    return { isValid: false, message: "Invalid user type" };
-  }
-}
-
 export function validateLogin(data: unknown) {
   const { error } = loginSchema.validate(data);
   if (error) {

@@ -79,7 +79,7 @@ export function Footer({ className = "" }: FooterProps) {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/auth/signup"
+                  href="/auth/general/signup"
                   className="text-[#D9D9D9] hover:text-[#2CA15F] dark:text-gray-200 dark:hover:text-[#3dd67f] transition-colors"
                 >
                   Sign Up

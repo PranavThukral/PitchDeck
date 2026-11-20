@@ -142,6 +142,16 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/auth/login",
+        destination: "/auth/login-select",
+        permanent: true,
+      },
+      {
+        source: "/auth/signup",
+        destination: "/auth/general/signup",
+        permanent: true,
+      },
+      {
         source: "/apply/pitch-deck",
         destination:
           "https://docs.google.com/forms/d/e/1FAIpQLSfBqDSxPHuirfaeGgqFXIAyQFN0Nc3h-loKr0fs9PUPruFy8g/viewform",
