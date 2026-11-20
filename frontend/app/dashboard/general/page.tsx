@@ -112,19 +112,6 @@ export default function GeneralDashboard() {
       const data = await response.json();
 
       if (data.success) {
-        console.log("🔍 API DATA DEBUG:", {
-          competitionsCount: data.data.competitions?.length || 0,
-          firstCompetition: data.data.competitions?.[0]
-            ? {
-                title: data.data.competitions[0].title,
-                hasGradeTags: "gradeTags" in data.data.competitions[0],
-                gradeTagsValue: data.data.competitions[0].gradeTags,
-                hasOldTags: "tags" in data.data.competitions[0],
-                oldTagsValue: data.data.competitions[0].tags,
-                allKeys: Object.keys(data.data.competitions[0]),
-              }
-            : null,
-        });
 
         // Validate and transform data to ensure gradeTags field exists
         const transformedData = {
@@ -171,16 +158,6 @@ export default function GeneralDashboard() {
             ) || [],
         };
 
-        console.log("🔍 TRANSFORMED DATA:", {
-          firstCompTransformed: transformedData.competitions?.[0]
-            ? {
-                title: transformedData.competitions[0].title,
-                gradeTags: transformedData.competitions[0].gradeTags,
-                hasGradeTags: "gradeTags" in transformedData.competitions[0],
-              }
-            : null,
-        });
-
         setDashboardData(transformedData);
         setFavouriteIds(
           data.data.favourites.map(
@@ -203,16 +180,9 @@ export default function GeneralDashboard() {
     itemId: string,
     itemType: "competition" | "business-opportunity",
   ) => {
-    console.log("🔍 toggleFavourite called:", { itemId, itemType });
     try {
       const isFavourite = favouriteIds.includes(itemId);
       const method = isFavourite ? "DELETE" : "POST";
-
-      console.log("🔍 Making favourites API call:", {
-        method,
-        itemId,
-        itemType,
-      });
 
       const response = await fetch("/api/auth/favourites", {
         method,
@@ -225,14 +195,7 @@ export default function GeneralDashboard() {
         }),
       });
 
-      console.log("🔍 Favourites API response:", {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-      });
-
       const data = await response.json();
-      console.log("🔍 Favourites API data:", data);
 
       if (data.success) {
         if (isFavourite) {
@@ -243,11 +206,11 @@ export default function GeneralDashboard() {
           toast.success("Added to favourites");
         }
       } else {
-        console.error("🚨 Favourites API error:", data);
+        console.error("Favourites API error:", data);
         toast.error(data.message || "Failed to update favourites");
       }
     } catch (error) {
-      console.error("🚨 Favourite error:", error);
+      console.error("Favourite error:", error);
       toast.error(
         `Network error: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
@@ -258,12 +221,9 @@ export default function GeneralDashboard() {
     itemId: string,
     itemType: "competition" | "business-opportunity",
   ) => {
-    console.log("🔍 toggleLike called:", { itemId, itemType });
     try {
       const isLiked = likedIds.includes(itemId);
       const method = isLiked ? "DELETE" : "POST";
-
-      console.log("🔍 Making likes API call:", { method, itemId, itemType });
 
       const response = await fetch("/api/auth/likes", {
         method,
@@ -276,14 +236,7 @@ export default function GeneralDashboard() {
         }),
       });
 
-      console.log("🔍 Likes API response:", {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-      });
-
       const data = await response.json();
-      console.log("🔍 Likes API data:", data);
 
       if (data.success) {
         if (isLiked) {
@@ -296,11 +249,11 @@ export default function GeneralDashboard() {
         // Refresh dashboard to update like counts
         fetchDashboardData();
       } else {
-        console.error("🚨 Likes API error:", data);
+        console.error("Likes API error:", data);
         toast.error(data.message || "Failed to update likes");
       }
     } catch (error) {
-      console.error("🚨 Like error:", error);
+      console.error("Like error:", error);
       toast.error(
         `Network error: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
@@ -311,12 +264,6 @@ export default function GeneralDashboard() {
   // Get the actual database ID for API calls (favorites, etc.)
   const getDatabaseId = (item: Competition | BusinessOpportunity): string => {
     const id = item._id || item.id || "";
-    console.log("🔍 getDatabaseId:", {
-      title: item.title,
-      id,
-      _id: item._id,
-      itemId: item.id,
-    });
     return id;
   };
 
@@ -324,12 +271,6 @@ export default function GeneralDashboard() {
   const canInteract = (item: Competition | BusinessOpportunity): boolean => {
     const id = item._id || item.id || "";
     const hasValidId = id.length > 0;
-    console.log("🔍 canInteract:", {
-      title: item.title,
-      id,
-      hasValidId,
-      isDbItem: /^[0-9a-fA-F]{24}$/.test(id),
-    });
     return hasValidId;
   };
 
@@ -383,43 +324,17 @@ export default function GeneralDashboard() {
   };
 
   const CompetitionCard = ({ competition }: { competition: Competition }) => {
-    console.log("🔍 CompetitionCard DEBUG:", {
-      title: competition.title,
-      hasGradeTags: "gradeTags" in competition,
-      gradeTagsValue: competition.gradeTags,
-      gradeTagsType: typeof competition.gradeTags,
-      hasOldTags: "tags" in competition,
-      oldTagsValue: (competition as Competition & { tags?: string[] }).tags,
-      allKeys: Object.keys(competition),
-    });
 
     const databaseId = getDatabaseId(competition);
     const reactKey = getReactKey(competition);
     const canUserInteract = canInteract(competition);
 
-    console.log("🔍 CompetitionCard render:", {
-      title: competition.title,
-      databaseId,
-      canUserInteract,
-      _id: competition._id,
-      id: competition.id,
-      rawIdCheck: competition._id || competition.id,
-    });
-
     const handleBookmarkClick = async (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      console.log("🔍 Bookmark button clicked:", {
-        databaseId,
-        canUserInteract,
-        title: competition.title,
-        _id: competition._id,
-        id: competition.id,
-      });
       if (canUserInteract && databaseId) {
         await toggleFavourite(databaseId, "competition");
       } else {
-        console.log("❌ Cannot bookmark:", { canUserInteract, databaseId });
         toast.error("This item cannot be bookmarked (missing ID)");
       }
     };
@@ -427,17 +342,9 @@ export default function GeneralDashboard() {
     const handleLikeClick = async (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      console.log("🔍 Like button clicked:", {
-        databaseId,
-        canUserInteract,
-        title: competition.title,
-        _id: competition._id,
-        id: competition.id,
-      });
       if (canUserInteract && databaseId) {
         await toggleLike(databaseId, "competition");
       } else {
-        console.log("❌ Cannot like:", { canUserInteract, databaseId });
         toast.error("This item cannot be liked (missing ID)");
       }
     };
@@ -526,55 +433,20 @@ export default function GeneralDashboard() {
 
           <div className="flex flex-wrap gap-1 mb-4">
             <Badge variant="secondary">{competition.category}</Badge>
-            {(() => {
-              try {
-                console.log("🔍 About to render competition tags:", {
-                  title: competition.title,
-                  gradeTags: competition.gradeTags,
-                  gradeTagsType: typeof competition.gradeTags,
-                  hasGradeTags: "gradeTags" in competition,
-                  hasOldTags: "tags" in competition,
-                  oldTagsValue: (
-                    competition as Competition & { tags?: string[] }
-                  ).tags,
-                });
-
-                const tags = competition.gradeTags || [];
-                return tags.slice(0, 2).map((tag: string, index: number) => (
-                  <Badge
-                    key={`comp-tag-${reactKey}-${index}`}
-                    variant="outline"
-                    className="text-xs"
-                  >
-                    {tag}
-                  </Badge>
-                ));
-              } catch (error) {
-                console.error(
-                  "🚨 ERROR in competition tags rendering:",
-                  error,
-                  {
-                    competition,
-                    gradeTags: competition.gradeTags,
-                    hasGradeTags: "gradeTags" in competition,
-                  },
-                );
-                return null;
-              }
-            })()}
-            {(() => {
-              try {
-                const tags = competition.gradeTags || [];
-                return tags.length > 2 ? (
-                  <Badge variant="outline" className="text-xs">
-                    +{tags.length - 2} more
-                  </Badge>
-                ) : null;
-              } catch (error) {
-                console.error("🚨 ERROR in competition tags count:", error);
-                return null;
-              }
-            })()}
+            {(competition.gradeTags || []).slice(0, 2).map((tag: string, index: number) => (
+              <Badge
+                key={`comp-tag-${reactKey}-${index}`}
+                variant="outline"
+                className="text-xs"
+              >
+                {tag}
+              </Badge>
+            ))}
+            {(competition.gradeTags || []).length > 2 && (
+              <Badge variant="outline" className="text-xs">
+                +{(competition.gradeTags || []).length - 2} more
+              </Badge>
+            )}
           </div>
 
           <div className="flex items-center justify-between mt-4">
@@ -596,47 +468,17 @@ export default function GeneralDashboard() {
   }: {
     opportunity: BusinessOpportunity;
   }) => {
-    console.log("🔍 BusinessOpportunityCard DEBUG:", {
-      title: opportunity.title,
-      hasGradeTags: "gradeTags" in opportunity,
-      gradeTagsValue: opportunity.gradeTags,
-      gradeTagsType: typeof opportunity.gradeTags,
-      hasOldTags: "tags" in opportunity,
-      oldTagsValue: (opportunity as BusinessOpportunity & { tags?: string[] })
-        .tags,
-      allKeys: Object.keys(opportunity),
-    });
 
     const databaseId = getDatabaseId(opportunity);
     const reactKey = getReactKey(opportunity);
     const canUserInteract = canInteract(opportunity);
 
-    console.log("🔍 BusinessOpportunityCard render:", {
-      title: opportunity.title,
-      databaseId,
-      canUserInteract,
-      _id: opportunity._id,
-      id: opportunity.id,
-      rawIdCheck: opportunity._id || opportunity.id,
-    });
-
     const handleBookmarkClick = async (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      console.log("🔍 Opportunity Bookmark button clicked:", {
-        databaseId,
-        canUserInteract,
-        title: opportunity.title,
-        _id: opportunity._id,
-        id: opportunity.id,
-      });
       if (canUserInteract && databaseId) {
         await toggleFavourite(databaseId, "business-opportunity");
       } else {
-        console.log("❌ Cannot bookmark opportunity:", {
-          canUserInteract,
-          databaseId,
-        });
         toast.error("This item cannot be bookmarked (missing ID)");
       }
     };
@@ -644,20 +486,9 @@ export default function GeneralDashboard() {
     const handleLikeClick = async (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      console.log("🔍 Opportunity Like button clicked:", {
-        databaseId,
-        canUserInteract,
-        title: opportunity.title,
-        _id: opportunity._id,
-        id: opportunity.id,
-      });
       if (canUserInteract && databaseId) {
         await toggleLike(databaseId, "business-opportunity");
       } else {
-        console.log("❌ Cannot like opportunity:", {
-          canUserInteract,
-          databaseId,
-        });
         toast.error("This item cannot be liked (missing ID)");
       }
     };
@@ -746,55 +577,20 @@ export default function GeneralDashboard() {
 
           <div className="flex flex-wrap gap-1 mb-4">
             <Badge variant="secondary">{opportunity.category}</Badge>
-            {(() => {
-              try {
-                console.log("🔍 About to render opportunity tags:", {
-                  title: opportunity.title,
-                  gradeTags: opportunity.gradeTags,
-                  gradeTagsType: typeof opportunity.gradeTags,
-                  hasGradeTags: "gradeTags" in opportunity,
-                  hasOldTags: "tags" in opportunity,
-                  oldTagsValue: (
-                    opportunity as BusinessOpportunity & { tags?: string[] }
-                  ).tags,
-                });
-
-                const tags = opportunity.gradeTags || [];
-                return tags.slice(0, 2).map((tag: string, index: number) => (
-                  <Badge
-                    key={`opp-tag-${reactKey}-${index}`}
-                    variant="outline"
-                    className="text-xs"
-                  >
-                    {tag}
-                  </Badge>
-                ));
-              } catch (error) {
-                console.error(
-                  "🚨 ERROR in opportunity tags rendering:",
-                  error,
-                  {
-                    opportunity,
-                    gradeTags: opportunity.gradeTags,
-                    hasGradeTags: "gradeTags" in opportunity,
-                  },
-                );
-                return null;
-              }
-            })()}
-            {(() => {
-              try {
-                const tags = opportunity.gradeTags || [];
-                return tags.length > 2 ? (
-                  <Badge variant="outline" className="text-xs">
-                    +{tags.length - 2} more
-                  </Badge>
-                ) : null;
-              } catch (error) {
-                console.error("🚨 ERROR in opportunity tags count:", error);
-                return null;
-              }
-            })()}
+            {(opportunity.gradeTags || []).slice(0, 2).map((tag: string, index: number) => (
+              <Badge
+                key={`opp-tag-${reactKey}-${index}`}
+                variant="outline"
+                className="text-xs"
+              >
+                {tag}
+              </Badge>
+            ))}
+            {(opportunity.gradeTags || []).length > 2 && (
+              <Badge variant="outline" className="text-xs">
+                +{(opportunity.gradeTags || []).length - 2} more
+              </Badge>
+            )}
           </div>
 
           <div className="flex items-center justify-between mt-4">
@@ -850,68 +646,6 @@ export default function GeneralDashboard() {
               </p>
             </div>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={async () => {
-                  try {
-                    console.log("🔍 === DEBUGGING SESSION START ===");
-
-                    // Test auth
-                    const response = await fetch("/api/debug/test-auth");
-                    const data = await response.json();
-                    console.log("🔍 Debug Auth Response:", data);
-
-                    // Log current dashboard data
-                    console.log("🔍 Current Dashboard Data:", {
-                      totalCompetitions:
-                        dashboardData?.competitions?.length || 0,
-                      totalOpportunities:
-                        dashboardData?.businessOpportunities?.length || 0,
-                      favouriteIds: favouriteIds,
-                      likedIds: likedIds,
-                    });
-
-                    // Check interactive items (both DB and Google Sheets)
-                    const interactiveComps =
-                      dashboardData?.competitions?.filter(
-                        (c) => (c._id || c.id || "").length > 0,
-                      ) || [];
-                    const interactiveOpps =
-                      dashboardData?.businessOpportunities?.filter(
-                        (o) => (o._id || o.id || "").length > 0,
-                      ) || [];
-
-                    const dbComps =
-                      dashboardData?.competitions?.filter((c) =>
-                        /^[0-9a-fA-F]{24}$/.test(c._id || c.id || ""),
-                      ) || [];
-
-                    console.log("🔍 Interactive Items Found:", {
-                      interactiveCompetitions: interactiveComps.length,
-                      interactiveOpportunities: interactiveOpps.length,
-                      dbCompetitions: dbComps.length,
-                      firstInteractiveComp: interactiveComps[0]
-                        ? {
-                            title: interactiveComps[0].title,
-                            id:
-                              interactiveComps[0]._id || interactiveComps[0].id,
-                          }
-                        : null,
-                    });
-
-                    console.log("🔍 === DEBUGGING SESSION END ===");
-                    toast.success(
-                      "Debug info logged to console - check browser dev tools!",
-                    );
-                  } catch (error) {
-                    console.error("🚨 Debug error:", error);
-                    toast.error("Debug failed - check console for details");
-                  }
-                }}
-              >
-                🔍 Debug All
-              </Button>
               <Link href="/auth/logout">
                 <Button variant="outline">Logout</Button>
               </Link>
