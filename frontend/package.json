@@ -11,7 +11,8 @@
     "build": "next build",
     "build:vercel": "NODE_OPTIONS=--max_old_space_size=4096 next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest run"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
@@ -56,6 +57,7 @@
     "eslint-config-next": "16.0.10",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.5",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.1.1"
   }
 }
